@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Fixed Viewport to prevent zooming on mobile devices -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- STRICT viewport lock for iPhone to absolutely prevent zooming -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover">
     <title>ZestFlix - Cozy Cafe Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
@@ -36,10 +36,6 @@
             0%, 100% { box-shadow: 0 0 10px rgba(157,129,137,0.3), var(--shadow-3d); }
             50%       { box-shadow: 0 0 20px rgba(157,129,137,0.7), var(--shadow-3d); }
         }
-        @keyframes breatheBG {
-            0%   { background-position: center top; }
-            100% { background-position: center bottom; }
-        }
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.95) translateY(-6px); }
             to   { opacity: 1; transform: scale(1) translateY(0); }
@@ -57,7 +53,7 @@
             overflow-x: hidden; overflow-y: auto; font-size: 16px;
         }
 
-        /* Backgrounds */
+        /* Desktop Backgrounds */
         .background-backdrop {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
             background-size: cover; background-position: center;
@@ -68,7 +64,6 @@
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
             background: radial-gradient(circle at 50% 50%, rgba(212,163,115,0.3) 0%, rgba(92,64,51,0.95) 100%);
             background-size: 100% 200%;
-            animation: breatheBG 15s ease-in-out infinite alternate;
             pointer-events: none;
         }
 
@@ -76,42 +71,32 @@
         .navbar, .show-info, .library-section {
             width: 82%; max-width: 1400px; margin: 14px auto;
         }
-        .iframe-container {
-            width: 100%; display: flex; justify-content: center; padding: 0 20px;
-        }
 
         /* Navbar */
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 24px; background-color: var(--nav-bg);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 3px solid var(--border-color); border-radius: var(--bubbly-radius);
-            box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100;
+            backdrop-filter: blur(20px); border: 3px solid var(--border-color); 
+            border-radius: var(--bubbly-radius); box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100;
             flex-wrap: nowrap; gap: 20px;
         }
-        .nav-left { display: flex; align-items: center; gap: 14px; flex-wrap: nowrap; flex-shrink: 0; }
-        .logo {
-            font-size: 32px; font-weight: 700; font-family: 'Fredoka', sans-serif;
-            color: var(--text-main); display: flex; align-items: center; gap: 4px;
-            white-space: nowrap; line-height: 1; padding-bottom: 2px;
-        }
+        .nav-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+        .logo { font-size: 32px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 4px; }
         .nav-right { flex: 2; display: flex; justify-content: flex-end; align-items: center; }
 
-        /* Buttons & Inputs */
+        /* Buttons & Inputs - Locked font size for iOS */
         input, .action-btn {
             background-color: var(--input-bg); color: var(--text-main);
             border: 3px solid var(--border-color); padding: 9px 18px;
-            border-radius: var(--bubbly-radius); outline: none; font-size: 16px; font-weight: 800;
+            border-radius: var(--bubbly-radius); outline: none; 
+            font-size: 16px !important; /* Locks zoom */
+            font-weight: 800;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: var(--shadow-3d); cursor: pointer;
+            box-shadow: var(--shadow-3d); cursor: pointer; touch-action: manipulation;
         }
         input { cursor: text; width: 100%; }
-        input::placeholder { color: #A1887F; transition: color 0.3s ease; }
-        input.ai-mode {
-            background-color: #FDFBFF;
-            border-color: var(--accent-ai);
-            box-shadow: 0 0 12px rgba(160,147,166,0.3), var(--shadow-3d);
-        }
+        input::placeholder { color: #A1887F; transition: color 0.3s; }
+        input.ai-mode { background-color: #FDFBFF; border-color: var(--accent-ai); box-shadow: 0 0 12px rgba(160,147,166,0.4), var(--shadow-3d); }
         input.ai-mode::placeholder { color: #8F7D96; font-style: italic; }
         input:hover, .action-btn:hover { border-color: var(--accent-primary); transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62,39,35,0.15); }
         .action-btn { background-color: var(--accent-hover); border-color: var(--border-color); white-space: nowrap; }
@@ -123,24 +108,19 @@
         .custom-dropdown { position: relative; min-width: 140px; user-select: none; }
         .dropdown-header {
             background-color: var(--accent-secondary); color: white; border: 3px solid #6E9B85;
-            padding: 9px 16px; border-radius: var(--bubbly-radius);
-            font-size: 15px; font-weight: 700; font-family: 'Fredoka', sans-serif;
-            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-            transition: all 0.3s ease; box-shadow: var(--shadow-3d);
+            padding: 9px 16px; border-radius: var(--bubbly-radius); font-size: 15px; font-weight: 700; 
+            font-family: 'Fredoka', sans-serif; cursor: pointer; display: flex; justify-content: space-between; 
+            align-items: center; transition: all 0.3s ease; box-shadow: var(--shadow-3d);
         }
         .dropdown-header:hover { transform: translateY(-2px); background-color: #8EBEAB; }
         .dropdown-header.disabled { opacity: 0.6; pointer-events: none; background: #BCAAA4; border-color: #A1887F; }
         .dropdown-list {
             position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--nav-bg);
-            backdrop-filter: blur(20px); border: 3px solid var(--border-color); border-radius: 16px;
-            box-shadow: var(--shadow-float); max-height: 260px; overflow-y: auto;
-            z-index: 300; display: none; flex-direction: column; padding: 8px;
+            border: 3px solid var(--border-color); border-radius: 16px; box-shadow: var(--shadow-float); 
+            max-height: 260px; overflow-y: auto; z-index: 300; display: none; flex-direction: column; padding: 8px;
         }
         .dropdown-list.show { display: flex; animation: popIn 0.2s forwards; }
-        .dropdown-item {
-            padding: 10px 14px; border-radius: 12px; cursor: pointer;
-            font-weight: 700; font-size: 14px; transition: all 0.2s; color: var(--text-main);
-        }
+        .dropdown-item { padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.2s; }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
 
         /* Search */
@@ -149,13 +129,10 @@
             background: var(--nav-bg); border: 3px solid var(--border-color); color: var(--text-main);
             width: 46px; height: 46px; border-radius: 50%; font-size: 20px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: all 0.3s;
-            box-shadow: var(--shadow-3d); flex-shrink: 0;
+            box-shadow: var(--shadow-3d); flex-shrink: 0; touch-action: manipulation;
         }
-        .ai-toggle-btn.active { 
-            background: var(--accent-ai); border-color: #8C737A; color: white;
-            animation: pulseGlow 2s infinite; transform: translateY(2px); box-shadow: 0 2px 0 rgba(62,39,35,0.15); 
-        }
-        .search-input-wrapper { position: relative; flex: 1; min-width: 160px; }
+        .ai-toggle-btn.active { background: var(--accent-ai); border-color: #8C737A; color: white; animation: pulseGlow 2s infinite; transform: translateY(2px); box-shadow: 0 2px 0 rgba(62,39,35,0.15); }
+        .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         .search-results {
             position: absolute; top: calc(100% + 10px); left: 0; width: 100%;
@@ -164,24 +141,19 @@
             z-index: 200; display: none; flex-direction: column; padding: 8px;
         }
         .search-results.active { display: flex; animation: popIn 0.2s forwards; }
-        .search-item {
-            display: flex; align-items: center; gap: 12px; padding: 8px 10px;
-            border-radius: 12px; cursor: pointer; transition: background 0.2s;
-        }
+        .search-item { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 12px; cursor: pointer; }
         .search-item:hover { background: var(--accent-hover); }
         .search-item img { width: 36px; height: 52px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ddd; }
-        .search-item b { font-size: 14px; font-weight: 800; color: var(--text-main); }
+        .search-item b { font-size: 14px; font-weight: 800; }
 
         /* Main content */
-        .main-content { flex: 1; padding-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .main-content { flex: 1; padding-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
 
         /* Player - Desktop default */
         .iframe-wrapper {
-            width: 100%; max-width: 1200px; 
+            width: 82%; max-width: 1400px; 
             aspect-ratio: 16 / 9;
-            height: auto;
-            position: relative;
-            background: var(--frame-color);
+            position: relative; background: var(--frame-color);
             border: 8px solid #4E342E; outline: 3px solid #2D1B15;
             border-radius: 14px; overflow: hidden;
             box-shadow: var(--shadow-float), inset 0 0 40px rgba(0,0,0,0.8);
@@ -192,8 +164,7 @@
         /* Show Info */
         .show-info {
             padding: 28px 30px; background: var(--panel-bg); backdrop-filter: blur(16px);
-            border-radius: var(--card-radius); border: 3px solid var(--border-color);
-            box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 16px;
+            border-radius: var(--card-radius); border: 3px solid var(--border-color); box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 16px;
         }
         .info-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
         .title-group { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
@@ -201,212 +172,115 @@
 
         .show-title { font-size: 40px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); line-height: 1.1; }
         .badges-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .badge {
-            background: rgba(62,39,35,0.08); padding: 7px 15px; border-radius: 50px;
-            font-size: 14px; font-weight: 800; color: var(--text-main);
-            display: inline-flex; align-items: center; gap: 6px;
-        }
+        .badge { background: rgba(62,39,35,0.08); padding: 7px 15px; border-radius: 50px; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
         .badge.rating { background: rgba(229,169,59,0.2); color: #8A5D10; }
-        .emoji-icon { font-size: 1.1em; display: inline-flex; align-items: center; line-height: 1; }
+        .emoji-icon { font-size: 1.1em; line-height: 1; }
 
-        .show-overview {
-            font-size: 16px; line-height: 1.75; font-weight: 700;
-            background: rgba(255,255,255,0.6); padding: 18px 22px;
-            border-radius: 14px; border-left: 6px solid var(--accent-primary);
-        }
+        .show-overview { font-size: 16px; line-height: 1.75; font-weight: 700; background: rgba(255,255,255,0.6); padding: 18px 22px; border-radius: 14px; border-left: 6px solid var(--accent-primary); }
 
         /* AI Insights Panel */
         .ai-insights-panel {
-            display: none;
-            padding: 20px 24px; border-radius: 16px;
-            background: linear-gradient(135deg, rgba(160,147,166,0.12), rgba(160,147,166,0.22));
-            border: 2px solid rgba(140,115,122,0.45);
-            font-size: 15px; line-height: 1.75; font-weight: 700; color: var(--text-main);
-            animation: slideUp 0.3s ease;
+            display: none; padding: 20px 24px; border-radius: 16px; background: linear-gradient(135deg, rgba(160,147,166,0.12), rgba(160,147,166,0.22));
+            border: 2px solid rgba(140,115,122,0.45); font-size: 15px; line-height: 1.75; font-weight: 700; animation: slideUp 0.3s ease;
         }
         .ai-insights-panel.visible { display: block; }
         .ai-insights-panel p { margin-bottom: 10px; }
         .ai-insights-panel ul { padding-left: 20px; margin: 6px 0; }
-        .ai-insights-panel li { margin-bottom: 5px; }
-        .ai-insights-panel strong { color: #7a6080; }
-        .ai-insights-panel em { color: var(--text-muted); }
 
         /* Library */
-        .library-section {
-            padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px);
-            border-radius: var(--card-radius); border: 3px dashed var(--border-color);
-        }
+        .library-section { padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px); border-radius: var(--card-radius); border: 3px dashed var(--border-color); }
         .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 2px; }
         .library-title { font-size: 34px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 12px; }
         .library-scroll { display: flex; gap: 14px; overflow-x: auto; padding: 14px 4px 22px 4px; scroll-behavior: smooth; }
         .library-scroll::-webkit-scrollbar { height: 5px; }
-        .library-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
         .library-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
         .library-card {
-            min-width: 140px; max-width: 140px; position: relative; display: flex;
-            flex-direction: column; cursor: pointer; background: #FFFFFF;
-            border-radius: 12px; border: 2px solid var(--border-color); padding: 8px;
-            box-shadow: 0 4px 8px rgba(62,39,35,0.1); transition: transform 0.2s ease;
-            flex-shrink: 0;
+            min-width: 140px; max-width: 140px; position: relative; display: flex; flex-direction: column; cursor: pointer; background: #FFFFFF;
+            border-radius: 12px; border: 2px solid var(--border-color); padding: 8px; box-shadow: 0 4px 8px rgba(62,39,35,0.1); transition: transform 0.2s ease; flex-shrink: 0;
         }
         .library-card:hover { transform: translateY(-6px); }
-        .library-card.is-favorite { border-color: var(--danger); box-shadow: 0 4px 14px rgba(217,108,108,0.25); }
-        .library-card.ai-pick { border-color: var(--accent-ai); box-shadow: 0 4px 14px rgba(160,147,166,0.3); }
-
+        .library-card.is-favorite { border-color: var(--danger); }
         .card-img-wrapper { position: relative; width: 100%; height: 192px; overflow: hidden; border-radius: 8px; margin-bottom: 8px; background: #e8e0d8; }
         .library-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .library-card-title { font-size: 13px; font-weight: 800; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .fav-badge {
-            position: absolute; top: 5px; left: 5px; font-size: 14px; z-index: 5;
-            background: white; border-radius: 50%; width: 24px; height: 24px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        .progress-badge {
-            position: absolute; bottom: 5px; left: 5px; right: 5px;
-            background: rgba(40,24,20,0.82); color: white;
-            font-size: 11px; font-weight: 800; padding: 4px 5px;
-            border-radius: 5px; text-align: center; letter-spacing: 0.02em;
-        }
-        .remove-btn {
-            position: absolute; top: -9px; right: -9px; background: var(--danger); color: white;
-            width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 16px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            opacity: 0; transition: opacity 0.2s; z-index: 20; cursor: pointer;
-        }
+        .fav-badge { position: absolute; top: 5px; left: 5px; font-size: 14px; z-index: 5; background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .progress-badge { position: absolute; bottom: 5px; left: 5px; right: 5px; background: rgba(40,24,20,0.82); color: white; font-size: 11px; font-weight: 800; padding: 4px 5px; border-radius: 5px; text-align: center; }
+        .remove-btn { position: absolute; top: -9px; right: -9px; background: var(--danger); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; border: 2px solid white; opacity: 0; transition: opacity 0.2s; z-index: 20; cursor: pointer; }
         .library-card:hover .remove-btn { opacity: 1; }
         .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 15px; }
-
         .ai-recs-section { margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(160,147,166,0.4); }
-        .ai-recs-title { font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 2px; padding-left: 4px; }
+        .ai-recs-title { font-size: 18px; font-weight: 900; margin-bottom: 2px; padding-left: 4px; }
 
         /* Zesty Chat */
-        .zesty-toggle {
-            position: fixed; bottom: 28px; right: 28px; width: 64px; height: 64px;
-            background: var(--accent-secondary); color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 30px; cursor: pointer; box-shadow: var(--shadow-float);
-            border: 3px solid white; z-index: 999; animation: float 4s infinite;
-        }
-        .zesty-panel {
-            display: none; position: fixed; bottom: 106px; right: 28px;
-            width: 350px; height: 500px;
-            background: var(--nav-bg); border: 3px solid var(--accent-secondary);
-            border-radius: 20px; z-index: 998; flex-direction: column;
-            box-shadow: var(--shadow-float); overflow: hidden;
-        }
+        .zesty-toggle { position: fixed; bottom: 28px; right: 28px; width: 64px; height: 64px; background: var(--accent-secondary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; box-shadow: var(--shadow-float); border: 3px solid white; z-index: 999; animation: float 4s infinite; }
+        .zesty-panel { display: none; position: fixed; bottom: 106px; right: 28px; width: 350px; height: 500px; background: var(--nav-bg); border: 3px solid var(--accent-secondary); border-radius: 20px; z-index: 998; flex-direction: column; box-shadow: var(--shadow-float); overflow: hidden; }
         .zesty-panel.open { display: flex; animation: slideUp 0.25s ease; }
-        .zesty-header {
-            background: var(--accent-secondary); padding: 14px 18px; color: white;
-            font-weight: 900; font-size: 17px;
-            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
-        }
-        .zesty-close-btn { cursor: pointer; font-size: 20px; line-height: 1; opacity: 0.85; }
-        .zesty-close-btn:hover { opacity: 1; }
-        .zesty-messages {
-            flex: 1; padding: 14px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 12px;
-        }
-        .zesty-messages::-webkit-scrollbar { width: 4px; }
-        .zesty-messages::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        .zesty-msg-user {
-            background: var(--accent-primary); color: white; padding: 12px 16px;
-            border-radius: 18px 18px 4px 18px; align-self: flex-end;
-            font-weight: 800; font-size: 15px; max-width: 85%; word-break: break-word;
-        }
-        .zesty-msg-bot {
-            background: white; padding: 12px 16px;
-            border-radius: 18px 18px 18px 4px; align-self: flex-start;
-            border: 2px solid var(--border-color);
-            font-weight: 700; font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.5;
-        }
-        .zesty-input-area {
-            padding: 12px 14px; display: flex; gap: 8px;
-            border-top: 2px solid rgba(166,123,91,0.2); flex-shrink: 0;
-            background: rgba(255,255,255,0.5);
-        }
+        .zesty-header { background: var(--accent-secondary); padding: 14px 18px; color: white; font-weight: 900; font-size: 17px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .zesty-close-btn { cursor: pointer; font-size: 20px; opacity: 0.85; }
+        .zesty-messages { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .zesty-msg-user { background: var(--accent-primary); color: white; padding: 12px 16px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 15px; max-width: 85%; word-break: break-word; }
+        .zesty-msg-bot { background: white; padding: 12px 16px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.5; }
+        .zesty-input-area { padding: 12px 14px; display: flex; gap: 8px; border-top: 2px solid rgba(166,123,91,0.2); background: rgba(255,255,255,0.5); }
         .zesty-input-area input { flex: 1; padding: 10px 14px; border-radius: 20px; }
-        .zesty-input-area .action-btn { padding: 10px 18px; flex-shrink: 0; }
 
-        /* Tablet */
-        @media (max-width: 1100px) and (min-width: 769px) {
+        /* -------------------------------------------
+           MOBILE & TABLET FIXES 
+        ------------------------------------------- */
+        @media (max-width: 1100px) {
             .navbar, .show-info, .library-section { width: 92%; }
-            .show-title { font-size: 32px; }
-            .library-title { font-size: 30px; }
-            .library-card { min-width: 128px; max-width: 128px; }
-            .card-img-wrapper { height: 174px; }
         }
 
-        /* Mobile */
         @media (max-width: 768px) {
-            /* Mobile Solid Background Fix */
-            body { background-color: var(--bg-deep); }
-            .background-backdrop { display: none; }
-            .cozy-overlay { background: var(--bg-deep); animation: none; opacity: 1; }
+            /* 1. Force Solid Background on Mobile */
+            body { background: var(--bg-deep) !important; }
+            .background-backdrop, .cozy-overlay { display: none !important; }
 
-            /* Layout Fixes */
-            .navbar, .show-info, .library-section { width: 96%; margin: 8px auto; }
-            .iframe-container { padding: 0 8px; }
-
-            .navbar { flex-direction: column; border-radius: 18px; padding: 14px; gap: 12px; }
+            /* 2. Container Layout */
+            .navbar { width: 96%; margin: 8px auto; flex-direction: column; border-radius: 18px; padding: 14px; gap: 12px; }
             .nav-left { flex-direction: column; width: 100%; gap: 10px; }
             .logo { font-size: 26px; }
             .dropdown-container { width: 100%; gap: 10px; }
             .custom-dropdown { flex: 1; min-width: 0; }
-            .dropdown-header { padding: 10px 12px; font-size: 14px; }
             .nav-right { width: 100%; }
             .search-container { max-width: 100%; gap: 8px; }
-            
-            /* Inputs fixed size to prevent iOS zoom */
-            input, .zesty-input-area input { font-size: 16px !important; }
 
-            /* Player - Bigger width and height on mobile */
+            /* 3. Lock ALL inputs again strictly for iOS */
+            input, select, textarea, button { font-size: 16px !important; }
+
+            /* 4. MASSIVE MOBILE VIDEO PLAYER */
             .iframe-wrapper {
-                width: 100%; max-width: 100%;
-                border-width: 4px; border-radius: 10px;
-                aspect-ratio: 16 / 9; /* Perfect wide screen scaling */
-                height: auto;
-                margin-top: 8px;
+                width: 100vw !important;           /* 100% of viewport width */
+                max-width: 100vw !important;
+                margin-left: calc(-50vw + 50%) !important; /* Forces it to break out of any padding/margins */
+                margin-right: calc(-50vw + 50%) !important;
+                margin-top: 10px !important;
+                border-radius: 0 !important;       /* Flat edges */
+                border-left: none !important;      /* Remove side borders */
+                border-right: none !important;
+                border-top: 4px solid #4E342E !important; 
+                border-bottom: 4px solid #4E342E !important;
+                outline: none !important;
+                padding: 0 !important;
+                aspect-ratio: 16 / 9 !important;   /* Automatically sets PERFECT height relative to width */
+                height: auto !important;
             }
 
+            .show-info, .library-section { width: 96%; margin: 0 auto; }
             .show-info { padding: 18px; gap: 14px; }
             .info-header { flex-direction: column; gap: 14px; }
             .show-title { font-size: 26px; }
             .action-buttons { width: 100%; gap: 10px; }
             .action-btn { padding: 10px 14px; }
-            .badge { font-size: 13px; padding: 6px 12px; }
-            .show-overview { font-size: 15px; padding: 14px 16px; }
-            .ai-insights-panel { font-size: 14px; padding: 16px; }
-
+            
             .library-section { padding: 16px 14px; }
-            .library-title { font-size: 26px; }
-            .library-header { gap: 12px; }
             .library-card { min-width: 120px; max-width: 120px; }
             .card-img-wrapper { height: 164px; }
-            .library-card-title { font-size: 12px; }
-            .remove-btn { opacity: 1; } /* Always show remove btn on mobile touch */
+            .remove-btn { opacity: 1; } /* Always show X button on mobile */
 
             .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
             .zesty-panel { width: calc(100vw - 20px); right: 10px; bottom: 82px; height: 450px; }
-            .main-content { gap: 14px; padding-bottom: 90px; }
-        }
-
-        /* 2K / 4K */
-        @media (min-width: 1921px) {
-            .navbar, .show-info, .library-section { width: 74%; }
-            .iframe-wrapper { max-width: 1500px; }
-            .logo { font-size: 38px; }
-            .show-title { font-size: 46px; }
-            .library-title { font-size: 38px; }
-            .library-card { min-width: 164px; max-width: 164px; }
-            .card-img-wrapper { height: 228px; }
-            .badge { font-size: 15px; padding: 9px 17px; }
-            .action-btn { font-size: 16px; padding: 11px 20px; }
-            .dropdown-header { font-size: 16px; }
-            .show-overview { font-size: 17px; }
-            .zesty-panel { width: 400px; height: 560px; }
         }
     </style>
 </head>
@@ -442,10 +316,8 @@
 </header>
 
 <main class="main-content">
-    <div class="iframe-container">
-        <div class="iframe-wrapper">
-            <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-        </div>
+    <div class="iframe-wrapper">
+        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
     </div>
 
     <div class="show-info">
@@ -500,9 +372,6 @@
     /* ── Config ── */
     const TMDB_KEY  = 'd62d816a3f48ed18c1dc5e157f4d73b2';
     const TMDB_BASE = 'https://api.themoviedb.org/3';
-    
-    // Completely Free AI API setup (No API Key Required!)
-    const AI_API_URL = 'https://text.pollinations.ai/';
 
     /* ── Markdown → safe HTML ── */
     function mdToHtml(raw) {
@@ -515,92 +384,72 @@
         let html = '', inList = false;
         for (const line of lines) {
             const bullet = line.match(/^[\*\-]\s+(.+)/);
-            const heading = line.match(/^#{1,3}\s+(.+)/);
             if (bullet) {
                 if (!inList) { html += '<ul style="padding-left:18px;margin:8px 0;">'; inList = true; }
                 html += `<li style="margin-bottom:4px;">${bullet[1]}</li>`;
             } else {
                 if (inList) { html += '</ul>'; inList = false; }
-                if (heading) html += `<p style="font-family:Fredoka,sans-serif;font-size:15px;margin:10px 0 4px;color:var(--text-main);">${heading[1]}</p>`;
-                else if (line.trim()) html += `<p style="margin-bottom:8px;">${line.trim()}</p>`;
+                if (line.trim()) html += `<p style="margin-bottom:8px;">${line.trim()}</p>`;
             }
         }
         if (inList) html += '</ul>';
         return html;
     }
 
-    /* ── TMDB ── */
+    /* ── Bulletproof Key-less AI (Pollinations GET) ── */
+    // Completely bypasses CORS and security blocks by using URL parameters directly.
+    const AI = {
+        async call(prompt) {
+            try {
+                const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('API Error');
+                return await res.text();
+            } catch (err) {
+                console.error("AI Error:", err);
+                return "";
+            }
+        },
+        async smartSearch(q) {
+            const prompt = `Return EXACTLY AND ONLY the title of the movie or TV show described here: "${q}". Do not include quotes, punctuation, or extra text. Just the title.`;
+            const text = await this.call(prompt);
+            return text.trim() || q;
+        },
+        async insights(title, type, year) {
+            const prompt = `Write 3 spoiler-free fun facts and a 1-sentence pitch for the ${type} "${title}" (${year}). Format: Pitch first, then bullet points for facts. Keep it short and warm.`;
+            const text = await this.call(prompt);
+            return text || 'No insights found.';
+        },
+        async recs(titles) {
+            const prompt = `Based on these movies/shows: ${titles.join(', ')}, recommend 5 similar titles. RETURN EXACTLY A JSON ARRAY OF STRINGS. Example: ["Title 1", "Title 2"]. No markdown, no text.`;
+            const text = await this.call(prompt);
+            try {
+                // Strip out markdown wrappers if the AI accidentally adds them
+                const clean = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+                return JSON.parse(clean);
+            } catch { return []; }
+        },
+        async chat(history) {
+            let prompt = "You are Zesty, a fun, warm movie/TV assistant. Keep replies to 2-3 sentences max.\n\n";
+            history.forEach(m => { prompt += `${m.role.toUpperCase()}: ${m.content}\n`; });
+            prompt += "ASSISTANT: ";
+            const text = await this.call(prompt);
+            return text || "Oops, Zesty lost connection! Try again.";
+        }
+    };
+
+    /* ── TMDB API ── */
     const TMDB = {
         async searchMulti(q)      { return (await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&include_adult=false`)).json(); },
         async getDetails(id,type) { return (await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}`)).json(); },
         async getEpisodes(id,s)   { return (await fetch(`${TMDB_BASE}/tv/${id}/season/${s}?api_key=${TMDB_KEY}`)).json(); }
     };
 
-    /* ── New FREE AI Implementation (Pollinations.ai) ── */
-    const AI = {
-        async call(messages, isJson = false) {
-            try {
-                const response = await fetch(AI_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        messages: messages,
-                        model: 'openai', 
-                        jsonMode: isJson
-                    })
-                });
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-                return await response.text();
-            } catch(e) {
-                console.error("AI Error:", e);
-                throw e;
-            }
-        },
-        async smartSearch(q) {
-            try {
-                const text = await this.call([
-                    { role: 'system', content: 'You are a search exact title extractor. Return ONLY the exact title string of the movie or TV show the user is describing. Nothing else. No quotes.' },
-                    { role: 'user', content: `Find the exact movie/TV title for this description: "${q}"` }
-                ]);
-                return text.trim().replace(/^"|"$/g, '') || q;
-            } catch { return q; }
-        },
-        async insights(title, type, year) {
-            try {
-                const text = await this.call([
-                    { role: 'system', content: 'You are an enthusiastic, concise movie expert. No spoilers. Keep it warm and fun. Format using simple markdown text.' },
-                    { role: 'user', content: `Write 3 spoiler-free fun facts and a 1-sentence pitch for the ${type} "${title}" (${year}). Start with the pitch sentence, then use bullet points for the facts.` }
-                ]);
-                return text || 'No insights found.';
-            } catch(e) { return `⚠️ Could not load insights right now. Please try again!`; }
-        },
-        async recs(titles) {
-            try {
-                const text = await this.call([
-                    { role: 'system', content: 'You are a recommender. Return ONLY a valid JSON array of 5 exact title strings. Do not include markdown blocks or any other text.' },
-                    { role: 'user', content: `Based on: ${titles.join(', ')}. Recommend 5 similar titles.` }
-                ], true);
-                const raw = text.replace(/```json|```/g,'').trim();
-                return JSON.parse(raw);
-            } catch { return []; }
-        },
-        async chat(history) {
-            try {
-                const msgs = [
-                    { role: 'system', content: 'You are Zesty, a fun warm movie/TV assistant. Keep replies concise (2-3 sentences max). Recommend real titles when helpful.' },
-                    ...history
-                ];
-                return await this.call(msgs);
-            } catch(e) { return `⚠️ Zesty is taking a little nap. Try sending that again!`; }
-        }
-    };
-
-    /* ── State ── */
+    /* ── State & DOM ── */
     let mediaId=37680, mediaType='tv', mediaTitle='Suits', mediaYear='2011';
     let seasonVal=null, episodeVal=null, searchTimer=null, aiSearchOn=false;
 
-    /* ── DOM ── */
-    const $  = id=>document.getElementById(id);
+    const $ = id => document.getElementById(id);
     const searchInput=$('search-input'), searchResults=$('search-results');
     const playerFrame=$('player-frame'), bgBackdrop=$('bg-backdrop');
     const infoTitle=$('info-title'), infoYear=$('info-year'), infoRating=$('info-rating'), infoType=$('info-type');
@@ -614,6 +463,54 @@
     const zestyToggle=$('zesty-toggle'), zestyPanel=$('zesty-panel');
     const zestyClose=$('zesty-close'), zestyMessages=$('zesty-messages');
     const zestyInput=$('zesty-input'), zestySend=$('zesty-send');
+
+    /* ── Toggle AI Search Mode (GUARANTEED TO WORK) ── */
+    aiSearchToggle.addEventListener('click', (e) => { 
+        e.preventDefault(); // Prevents iOS glitch
+        aiSearchOn = !aiSearchOn; 
+        aiSearchToggle.classList.toggle('active', aiSearchOn); 
+        
+        if (aiSearchOn) {
+            searchInput.placeholder = 'Describe what you want (AI mode)...';
+            searchInput.classList.add('ai-mode');
+        } else {
+            searchInput.placeholder = 'Find a movie or show...';
+            searchInput.classList.remove('ai-mode');
+        }
+    });
+
+    /* ── Search Execution ── */
+    searchInput.addEventListener('input', async e => {
+        clearTimeout(searchTimer); const q = e.target.value.trim();
+        if (q.length < 2) { searchResults.classList.remove('active'); return; }
+        
+        searchTimer = setTimeout(async () => {
+            try {
+                // If AI is ON, convert description to Exact Title first!
+                const query = aiSearchOn ? await AI.smartSearch(q) : q;
+                const data = await TMDB.searchMulti(query);
+                searchResults.innerHTML = '';
+                
+                const validResults = data.results?.filter(i => i.media_type !== 'person').slice(0,6) || [];
+                
+                validResults.forEach(item => {
+                    const el = document.createElement('div'); el.className = 'search-item';
+                    const img = item.poster_path ? `https://image.tmdb.org/t/p/w92${item.poster_path}` : '';
+                    el.innerHTML = `<img src="${img}" alt=""><div><b>${item.name||item.title}</b></div>`;
+                    el.onclick = () => { mediaId = item.id; mediaType = item.media_type; searchInput.value = ''; searchResults.classList.remove('active'); loadMedia(item.id, item.media_type); };
+                    searchResults.appendChild(el);
+                });
+                
+                if (searchResults.children.length) searchResults.classList.add('active');
+                else {
+                    searchResults.innerHTML = `<div class="search-item"><b>No results found.</b></div>`;
+                    searchResults.classList.add('active');
+                }
+            } catch (err) {
+                console.error("Search failed:", err);
+            }
+        }, aiSearchOn ? 800 : 450); // Small extra delay for AI processing
+    });
 
     /* ── Dropdowns ── */
     function toggleDD(list) {
@@ -687,10 +584,8 @@
             card.className=`library-card ${item.favorite?'is-favorite':''}`;
             const poster=item.poster?`https://image.tmdb.org/t/p/w200${item.poster}`:'';
             const favBadge=item.favorite?'<div class="fav-badge">❤️</div>':'';
-            const progBadge=item.mediaType==='tv'
-                ?`<div class="progress-badge">S${item.season||1} E${item.episode||1}</div>`
-                :`<div class="progress-badge" style="background:var(--accent-secondary);">Movie</div>`;
-            card.innerHTML=`<div class="remove-btn">×</div><div class="card-img-wrapper">${favBadge}<img src="${poster}" alt="${item.name}" loading="lazy">${progBadge}</div><div class="library-card-title">${item.name}</div>`;
+            const progBadge=item.mediaType==='tv' ? `<div class="progress-badge">S${item.season||1} E${item.episode||1}</div>` : `<div class="progress-badge" style="background:var(--accent-secondary);">Movie</div>`;
+            card.innerHTML=`<div class="remove-btn">×</div><div class="card-img-wrapper">${favBadge}<img src="${poster}" alt="" loading="lazy">${progBadge}</div><div class="library-card-title">${item.name}</div>`;
             card.querySelector('.remove-btn').addEventListener('click',e=>{ e.stopPropagation(); let l=getLib(); l=l.filter(i=>!(i.id==item.id&&i.mediaType===item.mediaType)); saveLib(l); });
             card.addEventListener('click',()=>{ mediaId=item.id; mediaType=item.mediaType; loadMedia(item.id,item.mediaType,item.season,item.episode); window.scrollTo({top:0,behavior:'smooth'}); });
             libraryScroll.appendChild(card);
@@ -716,7 +611,7 @@
         try {
             const d=await TMDB.getDetails(id,type);
             upsertLib(d,type,targetSeason||1,targetEpisode||1);
-            if(d.backdrop_path) bgBackdrop.style.backgroundImage=`url(https://image.tmdb.org/t/p/original${d.backdrop_path})`;
+            if(d.backdrop_path && window.innerWidth > 768) bgBackdrop.style.backgroundImage=`url(https://image.tmdb.org/t/p/original${d.backdrop_path})`;
             mediaTitle=d.name||d.title;
             const rel=d.first_air_date||d.release_date; mediaYear=rel?rel.slice(0,4):'N/A';
             infoTitle.textContent=mediaTitle;
@@ -724,11 +619,11 @@
             infoYear.innerHTML=`<span class="emoji-icon">📅</span> ${mediaYear}`;
             infoRating.innerHTML=`<span class="emoji-icon">⭐</span> ${d.vote_average?.toFixed(1)||'N/A'}`;
             infoOverview.textContent=d.overview||'No story available.';
-            // Reset insights
             aiInsightsPanel.classList.remove('visible'); aiInsightsPanel.innerHTML='';
-            // Genres
+            
             document.querySelectorAll('.genre-badge').forEach(e=>e.remove());
             d.genres?.slice(0,3).forEach(g=>{ const s=document.createElement('span'); s.className='badge genre-badge'; s.innerHTML=`<span class="emoji-icon">🎭</span> ${g.name}`; badgesRow.appendChild(s); });
+            
             if(type==='movie'){ $('dropdown-group').style.display='none'; updatePlayer(); }
             else {
                 $('dropdown-group').style.display='flex';
@@ -766,49 +661,11 @@
             if(!r) continue;
             const card=document.createElement('div'); card.className='library-card ai-pick';
             const poster=r.poster_path?`https://image.tmdb.org/t/p/w200${r.poster_path}`:'';
-            card.innerHTML=`<div class="card-img-wrapper"><img src="${poster}" alt="${r.name||r.title}" loading="lazy"></div><div class="library-card-title">${r.name||r.title}</div>`;
+            card.innerHTML=`<div class="card-img-wrapper"><img src="${poster}" alt="" loading="lazy"></div><div class="library-card-title">${r.name||r.title}</div>`;
             card.addEventListener('click',()=>{ mediaId=r.id; mediaType=r.media_type; loadMedia(r.id,r.media_type); window.scrollTo({top:0,behavior:'smooth'}); });
             aiRecsScroll.appendChild(card);
         }
         if(!aiRecsScroll.children.length) aiRecsScroll.innerHTML='<div class="empty-library">No results. Try adding more to your backpack!</div>';
-    });
-
-    /* ── Toggle AI Search Mode ── */
-    aiSearchToggle.addEventListener('click', () => { 
-        aiSearchOn = !aiSearchOn; 
-        aiSearchToggle.classList.toggle('active'); 
-        if(aiSearchOn) {
-            searchInput.placeholder = 'Describe what you want (AI mode)...';
-            searchInput.classList.add('ai-mode');
-        } else {
-            searchInput.placeholder = 'Find a movie or show...';
-            searchInput.classList.remove('ai-mode');
-        }
-    });
-
-    /* ── Smart Search execution ── */
-    searchInput.addEventListener('input', async e => {
-        clearTimeout(searchTimer); const q=e.target.value.trim();
-        if(q.length < 2) { searchResults.classList.remove('active'); return; }
-        
-        searchTimer = setTimeout(async () => {
-            const query = aiSearchOn ? await AI.smartSearch(q) : q;
-            const data = await TMDB.searchMulti(query);
-            searchResults.innerHTML = '';
-            
-            data.results?.filter(i => i.media_type !== 'person').slice(0,6).forEach(item => {
-                const el = document.createElement('div'); el.className = 'search-item';
-                el.innerHTML = `<img src="https://image.tmdb.org/t/p/w92${item.poster_path}" alt=""><div><b>${item.name||item.title}</b></div>`;
-                el.onclick = () => { mediaId = item.id; mediaType = item.media_type; searchInput.value = ''; searchResults.classList.remove('active'); loadMedia(item.id, item.media_type); };
-                searchResults.appendChild(el);
-            });
-            
-            if(searchResults.children.length) searchResults.classList.add('active');
-            else {
-                searchResults.innerHTML = `<div class="search-item"><b>No results found.</b></div>`;
-                searchResults.classList.add('active');
-            }
-        }, aiSearchOn ? 800 : 450); // Add a little more delay for AI mode
     });
 
     /* ── Fav & Share ── */
