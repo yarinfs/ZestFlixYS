@@ -78,12 +78,14 @@
         /* --- Header --- */
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
-            margin: 16px 24px; padding: 12px 20px; background-color: var(--nav-bg);
+            margin: 16px auto; padding: 12px 20px; background-color: var(--nav-bg);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 3px solid var(--border-color); border-radius: var(--bubbly-radius);
             box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100; 
             flex-wrap: nowrap; /* Prevent wrapping into two lines */
             gap: 16px;
+            width: 80%;
+            max-width: 1600px;
         }
 
         .nav-left { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; flex-shrink: 0; }
@@ -171,19 +173,21 @@
         .type-badge { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 18px; }
 
         /* --- Main Content Area --- */
-        .main-content { flex: 1; padding: 0 24px 24px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .main-content { flex: 1; padding: 0 0 24px 0; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
 
         .iframe-wrapper {
-            width: 100%; height: 65vh; min-height: 300px; max-width: 1600px; position: relative; background-color: #2D1B15;
+            width: 80%; height: 65vh; min-height: 300px; max-width: 1600px; position: relative; background-color: #2D1B15;
             border-radius: var(--card-radius); overflow: hidden; border: 4px solid var(--nav-bg);
             box-shadow: var(--shadow-float), 0 0 40px rgba(62, 39, 35, 0.4);
+            margin: 0 auto;
         }
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
         .show-info {
-            width: 100%; max-width: 1600px; padding: 28px; background: var(--panel-bg); backdrop-filter: blur(16px);
+            width: 80%; max-width: 1600px; padding: 28px; background: var(--panel-bg); backdrop-filter: blur(16px);
             border-radius: var(--card-radius); border: 3px solid var(--border-color); box-shadow: var(--shadow-float);
             display: flex; flex-direction: column; gap: 16px; position: relative; transition: all 0.3s;
+            margin: 0 auto;
         }
         .show-info:hover { border-color: var(--accent-primary); box-shadow: 0 15px 35px rgba(62, 39, 35, 0.25); }
 
@@ -218,9 +222,10 @@
 
         /* --- Backpack (Bottom) --- */
         .library-section {
-            width: 100%; max-width: 1600px; padding: 20px 24px; background: rgba(253, 245, 230, 0.7); backdrop-filter: blur(10px);
+            width: 80%; max-width: 1600px; padding: 20px 24px; background: rgba(253, 245, 230, 0.7); backdrop-filter: blur(10px);
             border-radius: var(--card-radius); border: 3px dashed var(--border-color); display: flex; flex-direction: column; gap: 12px;
             transition: border-color 0.3s; box-shadow: inset 0 0 20px rgba(255,255,255,0.5);
+            margin: 0 auto;
         }
         .library-section:hover { border-color: var(--accent-primary); }
         
@@ -234,35 +239,42 @@
             scroll-behavior: smooth;
         }
         
-        .library-card { min-width: 120px; max-width: 120px; position: relative; display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
-        .card-img-wrapper { position: relative; width: 100%; height: 175px; border-radius: 12px; transition: transform 0.2s ease; }
-        .library-card:hover .card-img-wrapper { transform: translateY(-4px); }
+        .library-card { 
+            min-width: 140px; max-width: 140px; position: relative; display: flex; flex-direction: column; cursor: pointer; 
+            background: var(--nav-bg); border-radius: 16px; border: 2px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(62, 39, 35, 0.15); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+        .library-card:hover { transform: translateY(-6px); border-color: var(--accent-primary); box-shadow: 0 8px 15px rgba(62, 39, 35, 0.2), var(--shadow-glow); }
 
-        .library-card img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: 3px solid white; box-shadow: 0 6px 12px rgba(62, 39, 35, 0.2); transition: all 0.3s;}
-        .library-card:hover img { border-color: var(--accent-primary); box-shadow: 0 12px 24px rgba(62, 39, 35, 0.4); }
-        .library-card.is-favorite img { border-color: var(--danger); border-width: 4px; }
-        .library-card.ai-pick img { border-color: var(--accent-ai); border-width: 4px; }
+        .card-img-wrapper { position: relative; width: 100%; height: 190px; overflow: hidden; border-radius: 14px 14px 0 0; }
+        
+        .library-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .library-card:hover img { transform: scale(1.08); }
+        
+        .library-card.is-favorite { border-color: var(--danger); border-width: 3px; }
+        .library-card.ai-pick { border-color: var(--accent-ai); border-width: 3px; }
 
-        .fav-badge { position: absolute; top: -10px; left: -10px; font-size: 22px; filter: drop-shadow(0 2px 4px rgba(62, 39, 35, 0.3)); z-index: 5; color: #ef4444; }
+        .fav-badge { position: absolute; top: 6px; left: 6px; font-size: 20px; filter: drop-shadow(0 2px 4px rgba(62, 39, 35, 0.4)); z-index: 5; color: #ef4444; }
         
         .progress-badge {
-            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            background: var(--accent-primary); color: white; font-size: 12px; font-weight: 900; padding: 4px 10px;
+            position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+            background: var(--accent-primary); color: white; font-size: 11px; font-weight: 900; padding: 4px 10px;
             border-radius: 12px; box-shadow: 0 2px 6px rgba(62, 39, 35, 0.3); white-space: nowrap; border: 2px solid white; z-index: 5; text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
         }
         .progress-badge.ai-badge { background: var(--accent-ai); }
 
         /* Remove Button */
         .remove-btn {
-            position: absolute; top: -10px; right: -10px; background: var(--danger); color: white;
-            width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 15px; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 4px rgba(62, 39, 35, 0.2);
+            position: absolute; top: 6px; right: 6px; background: var(--danger); color: white;
+            width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 14px; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(62, 39, 35, 0.2);
             opacity: 0; transition: opacity 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 20;
         }
         .library-card:hover .remove-btn { opacity: 1; }
         .remove-btn:hover { transform: scale(1.2); }
 
-        .library-card-title { font-size: 15px; font-weight: 800; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); transition: color 0.2s; padding-top: 4px; }
+        .library-card-title { font-size: 14px; font-weight: 800; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); transition: color 0.2s; padding: 10px 8px; background: var(--nav-bg); margin: 0; }
         .library-card:hover .library-card-title { color: var(--accent-primary); }
 
         .ai-recs-container { display: none; background: rgba(255, 255, 255, 0.5); border: 3px solid var(--accent-ai); border-radius: 16px; padding: 15px; margin-top: 10px; }
@@ -294,17 +306,23 @@
         .zesty-input-area .action-btn { background: var(--accent-secondary); border-color: #6E9B85; color: white;}
 
         @media (max-width: 768px) {
-            .navbar { flex-direction: column; align-items: stretch; margin: 10px; padding: 16px; gap: 12px; }
-            .nav-left { justify-content: space-between; }
-            .dropdown-container { width: 100%; justify-content: space-between; }
-            .custom-dropdown { flex: 1; }
-            .search-container { max-width: 100%; }
-            .main-content { padding: 0 10px 10px; }
+            .navbar, .iframe-wrapper, .show-info, .library-section { width: 95%; margin-left: auto; margin-right: auto; }
+            .navbar { flex-direction: column; align-items: center; margin: 10px auto; padding: 16px; gap: 16px; border-radius: 24px; }
+            .nav-left { flex-direction: column; width: 100%; align-items: center; gap: 12px; }
+            .logo { margin: 0; padding: 0; }
+            .dropdown-container { width: 100%; justify-content: center; gap: 8px; }
+            .custom-dropdown { flex: 1; min-width: 0; }
+            .search-container { max-width: 100%; width: 100%; margin-top: 4px; }
+            .main-content { padding: 0 0 10px 0; }
             .iframe-wrapper { height: 40vh; border-radius: 12px; }
-            .show-info { padding: 20px; }
-            .show-title { font-size: 28px; }
+            .show-info { padding: 20px; border-radius: 16px; }
+            .info-header { flex-direction: column; align-items: center; text-align: center; }
+            .badges-row { justify-content: center; }
+            .action-buttons { justify-content: center; }
+            .show-title { font-size: 28px; text-align: center; }
             .library-section { padding: 16px; }
-            .zesty-panel { bottom: 0; right: 0; width: 100vw; height: 100vh; border-radius: 0; }
+            .zesty-panel { bottom: 0; right: 0; width: 100vw; height: 100vh; border-radius: 0; border: none; }
+            .zesty-toggle { bottom: 20px; right: 20px; }
         }
     </style>
 </head>
@@ -398,7 +416,13 @@
     </div>
 
     <script>
-        const apiKey = "AIzaSyDD3IHxFbuaj1d1znNWSv2-sVG0ItAqe64"; // Gemini API connected!
+        const apiKey = ""; // ‼️ Paste your key here ONLY for GitHub. Keep empty while using Canvas.
+
+        // ✨ SMART AI ROUTER: Automatically fixes the "Model Not Found" GitHub error
+        function getGeminiUrl() {
+            const model = (apiKey && apiKey.length > 5) ? 'gemini-1.5-flash' : 'gemini-2.5-flash-preview-09-2025';
+            return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        }
 
         const BackendService = {
             TMDB_API_KEY: 'd62d816a3f48ed18c1dc5e157f4d73b2',
@@ -435,10 +459,10 @@
 
             // Smart Search
             async smartSearch(query) {
-                if (!apiKey) return query; 
+                if (!apiKey && typeof __firebase_config === 'undefined') return query; 
                 const prompt = `A user wants to find a movie or TV show. They typed: "${query}". Identify the exact title of the most likely movie or TV show they mean. Return ONLY a raw JSON object with no markdown like this: {"title": "Exact Title"}`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const url = getGeminiUrl();
 
                 try {
                     const result = await this.fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -451,10 +475,9 @@
 
             // Insights
             async getInsights(title, type, year) {
-                if (!apiKey) return "API Key missing.";
                 const prompt = `Give 3 spoiler-free fun facts and a short 1-sentence pitch on why someone should watch the ${type} "${title}" (${year}). Format: A short paragraph, followed by bullet points.`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: "You are an enthusiastic movie expert. Be concise and spoiler-free." }] } };
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const url = getGeminiUrl();
                 try {
                     const res = await this.fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     return res.candidates?.[0]?.content?.parts?.[0]?.text || "No insights found.";
@@ -463,10 +486,9 @@
 
             // Recs
             async getRecommendations(titles) {
-                if (!apiKey) throw new Error("API Key missing.");
                 const prompt = `Based on: ${titles.join(', ')}. Recommend 4 similar movies or TV shows. Return ONLY a JSON array of strings containing exact titles. No markdown.`;
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const url = getGeminiUrl();
                 try {
                     const res = await this.fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     let text = res.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
@@ -477,12 +499,11 @@
 
             // Chat
             async chat(history) {
-                if (!apiKey) return "Zesty is disconnected (Missing API Key).";
                 const payload = { 
                     contents: history,
                     systemInstruction: { parts: [{ text: "You are Zesty, a fun, silly, and highly knowledgeable movie/TV assistant. You help users decide what to watch based on their mood. Keep answers short, punchy, and include a few emojis. Recommend specific titles." }] }
                 };
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const url = getGeminiUrl();
                 try {
                     const res = await this.fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     return res.candidates?.[0]?.content?.parts?.[0]?.text || "Oops, my brain froze!";
