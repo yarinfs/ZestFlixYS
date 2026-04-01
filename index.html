@@ -1,4 +1,3 @@
-Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,682 +5,779 @@ Index · HTML
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZestFlix - Cozy Cafe Edition</title>
     <style>
-        /* ‼️ CRITICAL FIX: @import must be at the very top of the style block to work! */
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
- 
-        /* ☕ Warm & Cozy Cafe Variables */
+
         :root {
-            --bg-deep: #5C4033; /* Deep Wood Brown */
-            --nav-bg: rgba(253, 245, 230, 0.95); /* Creamy Vanilla */
+            --bg-deep: #5C4033;
+            --nav-bg: rgba(253, 245, 230, 0.95);
             --panel-bg: rgba(253, 245, 230, 0.9);
-            
-            --accent-primary: #D4A373; /* Warm Caramel/Light Wood */
-            --accent-secondary: #7FA998; /* Soft Sage Green */
-            --accent-hover: #E6CCB2; /* Warm Pale Latte */
-            --accent-ai: #A093A6; /* Cozy Muted Lavender */
-            --danger: #D96C6C; /* Soft Red */
-            
+            --accent-primary: #D4A373;
+            --accent-secondary: #7FA998;
+            --accent-hover: #E6CCB2;
+            --accent-ai: #A093A6;
+            --danger: #D96C6C;
             --input-bg: #FFFFFF;
-            --border-color: #A67B5B; /* Medium Wood */
-            --frame-color: #3E2723; /* Darker Wood for the Frame */
-            
-            --text-main: #3E2723; /* Dark Chocolate Brown */
-            --text-muted: #8D6E63; /* Medium warm brown */
-            
-            --bubbly-radius: 30px; 
+            --border-color: #A67B5B;
+            --frame-color: #3E2723;
+            --text-main: #3E2723;
+            --text-muted: #8D6E63;
+            --bubbly-radius: 30px;
             --card-radius: 20px;
-            
             --shadow-3d: 0 4px 0 rgba(62, 39, 35, 0.15);
             --shadow-float: 0 10px 25px rgba(62, 39, 35, 0.2);
-            --shadow-ai: 0 0 15px rgba(157, 129, 137, 0.5);
         }
- 
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50%       { transform: translateY(-8px) rotate(3deg); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(157,129,137,0.3), var(--shadow-3d); }
+            50%       { box-shadow: 0 0 20px rgba(157,129,137,0.7), var(--shadow-3d); }
+        }
+        @keyframes breatheBG {
+            0%   { background-position: center top; }
+            100% { background-position: center bottom; }
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-6px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', system-ui, sans-serif; }
- 
+
         body {
             background-color: var(--bg-deep); color: var(--text-main);
             min-height: 100vh; display: flex; flex-direction: column;
-            overflow-x: hidden; overflow-y: auto;
-            font-size: 16px;
+            overflow-x: hidden; overflow-y: auto; font-size: 16px;
         }
- 
-        /* --- High Res Scaling (2K/4K) --- */
-        @media (min-width: 1921px) {
-            body { font-size: 18px; }
-            .logo { font-size: 42px !important; }
-            .show-title { font-size: 56px !important; }
-            .library-title { font-size: 46px !important; }
-            .badge { font-size: 16px !important; padding: 10px 20px !important; }
-            .action-btn, input { font-size: 16px !important; padding: 12px 24px !important; }
-            .navbar { padding: 16px 32px !important; }
-            .library-card { min-width: 200px !important; max-width: 200px !important; }
-            .card-img-wrapper { height: 280px !important; }
-            .iframe-wrapper { height: 70vh !important; }
-        }
- 
-        /* --- Animations --- */
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(3deg); }
-        }
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 10px rgba(157, 129, 137, 0.3), var(--shadow-3d); }
-            50% { box-shadow: 0 0 20px rgba(157, 129, 137, 0.7), var(--shadow-3d); }
-        }
-        @keyframes breatheBG {
-            0% { background-position: center top; }
-            100% { background-position: center bottom; }
-        }
- 
+
+        /* Backgrounds */
         .background-backdrop {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -2; background-size: cover; background-position: center;
-            filter: blur(30px) brightness(0.8) sepia(0.3); transition: background-image 1s ease-in-out; transform: scale(1.1);
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            background-size: cover; background-position: center;
+            filter: blur(30px) brightness(0.8) sepia(0.3);
+            transition: background-image 1s ease-in-out; transform: scale(1.1);
         }
- 
         .cozy-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -1; 
-            background: radial-gradient(circle at 50% 50%, rgba(212, 163, 115, 0.3) 0%, rgba(92, 64, 51, 0.95) 100%);
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+            background: radial-gradient(circle at 50% 50%, rgba(212,163,115,0.3) 0%, rgba(92,64,51,0.95) 100%);
             background-size: 100% 200%;
             animation: breatheBG 15s ease-in-out infinite alternate;
             pointer-events: none;
         }
- 
-        /* --- Layout Containers (Expanded to 80% with breathing room) --- */
+
+        /* Layout */
         .navbar, .iframe-wrapper, .show-info, .library-section {
-            width: 80%;
-            max-width: 2200px;
-            margin: 16px auto;
+            width: 82%; max-width: 2000px; margin: 14px auto;
         }
- 
-        /* --- Header --- */
+
+        /* Navbar */
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 25px; background-color: var(--nav-bg);
+            padding: 12px 24px; background-color: var(--nav-bg);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 3px solid var(--border-color); border-radius: var(--bubbly-radius);
-            box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100; 
-            flex-wrap: nowrap; gap: 24px;
+            box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100;
+            flex-wrap: nowrap; gap: 20px;
         }
- 
-        .nav-left { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; flex-shrink: 0; }
-        .logo { font-size: 36px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); display: flex; align-items: center; gap: 2px; white-space: nowrap; line-height: 1; padding-bottom: 4px; }
- 
+        .nav-left { display: flex; align-items: center; gap: 14px; flex-wrap: nowrap; flex-shrink: 0; }
+        .logo {
+            font-size: 32px; font-weight: 700; font-family: 'Fredoka', sans-serif;
+            color: var(--text-main); display: flex; align-items: center; gap: 4px;
+            white-space: nowrap; line-height: 1; padding-bottom: 2px;
+        }
         .nav-right { flex: 2; display: flex; justify-content: flex-end; align-items: center; }
- 
+
         /* Buttons & Inputs */
         input, .action-btn {
             background-color: var(--input-bg); color: var(--text-main);
-            border: 3px solid var(--border-color); padding: 10px 20px;
-            border-radius: var(--bubbly-radius); outline: none; font-size: 15px; font-weight: 800;
+            border: 3px solid var(--border-color); padding: 9px 18px;
+            border-radius: var(--bubbly-radius); outline: none; font-size: 14px; font-weight: 800;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: var(--shadow-3d); cursor: pointer;
         }
- 
         input { cursor: text; width: 100%; }
         input::placeholder { color: #A1887F; }
-        input:hover, .action-btn:hover { border-color: var(--accent-primary); transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.15); }
-        
-        .action-btn { background-color: var(--accent-hover); border-color: var(--border-color);}
+        input:hover, .action-btn:hover { border-color: var(--accent-primary); transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62,39,35,0.15); }
+        .action-btn { background-color: var(--accent-hover); border-color: var(--border-color); white-space: nowrap; }
         .action-btn.active-fav { background-color: var(--danger); border-color: #B25858; color: white; }
-        .action-btn.ai-btn { border-color: #8C737A; background: var(--accent-ai); color: white; padding: 12px 24px; }
- 
-        /* --- FIXED DROPDOWNS --- */
+        .action-btn.ai-btn { border-color: #8C737A; background: var(--accent-ai); color: white; }
+
+        /* Dropdowns */
         .dropdown-container { display: flex; gap: 10px; align-items: center; }
-        .custom-dropdown { position: relative; min-width: 150px; user-select: none; }
+        .custom-dropdown { position: relative; min-width: 140px; user-select: none; }
         .dropdown-header {
             background-color: var(--accent-secondary); color: white; border: 3px solid #6E9B85;
-            padding: 10px 20px; border-radius: var(--bubbly-radius); 
-            font-size: 16px; font-weight: 600; font-family: 'Fredoka', sans-serif;
-            cursor: pointer; display: flex; justify-content: space-between; align-items: center; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: var(--shadow-3d);
+            padding: 9px 16px; border-radius: var(--bubbly-radius);
+            font-size: 14px; font-weight: 700; font-family: 'Fredoka', sans-serif;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--shadow-3d);
         }
         .dropdown-header:hover { transform: translateY(-2px); background-color: #8EBEAB; }
-        .dropdown-header.disabled { opacity: 0.6; pointer-events: none; background: #BCAAA4; border-color: #A1887F;}
-        
+        .dropdown-header.disabled { opacity: 0.6; pointer-events: none; background: #BCAAA4; border-color: #A1887F; }
         .dropdown-list {
-            position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background: var(--nav-bg); 
-            backdrop-filter: blur(20px); border: 3px solid var(--border-color); border-radius: 16px; 
-            box-shadow: var(--shadow-float); max-height: 300px; overflow-y: auto;
+            position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--nav-bg);
+            backdrop-filter: blur(20px); border: 3px solid var(--border-color); border-radius: 16px;
+            box-shadow: var(--shadow-float); max-height: 260px; overflow-y: auto;
             z-index: 300; display: none; flex-direction: column; padding: 8px;
         }
         .dropdown-list.show { display: flex; animation: popIn 0.2s forwards; }
-        .dropdown-item { padding: 12px 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.2s; color: var(--text-main); }
+        .dropdown-item {
+            padding: 10px 14px; border-radius: 12px; cursor: pointer;
+            font-weight: 700; font-size: 13px; transition: all 0.2s; color: var(--text-main);
+        }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
- 
-        /* --- Search Area --- */
-        .search-container { position: relative; width: 100%; max-width: 700px; display: flex; align-items: center; gap: 12px; flex-grow: 1; }
+
+        /* Search */
+        .search-container { position: relative; width: 100%; max-width: 620px; display: flex; align-items: center; gap: 10px; flex-grow: 1; }
         .ai-toggle-btn {
             background: var(--accent-ai); border: 3px solid #8C737A; color: white;
-            width: 48px; height: 48px; border-radius: 50%; font-size: 22px; cursor: pointer;
+            width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: all 0.3s;
             box-shadow: var(--shadow-3d); flex-shrink: 0;
         }
-        .ai-toggle-btn.active { animation: pulseGlow 2s infinite; transform: translateY(2px); box-shadow: 0 2px 0 rgba(62, 39, 35, 0.15); }
- 
+        .ai-toggle-btn.active { animation: pulseGlow 2s infinite; transform: translateY(2px); box-shadow: 0 2px 0 rgba(62,39,35,0.15); }
+        .search-input-wrapper { position: relative; flex: 1; min-width: 160px; }
+        .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         .search-results {
-            position: absolute; top: calc(100% + 15px); right: 0; width: 100%;
-            background-color: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--card-radius);
-            box-shadow: var(--shadow-float); z-index: 200; display: none; flex-direction: column; padding: 10px;
+            position: absolute; top: calc(100% + 10px); left: 0; width: 100%;
+            background-color: var(--nav-bg); border: 3px solid var(--border-color);
+            border-radius: var(--card-radius); box-shadow: var(--shadow-float);
+            z-index: 200; display: none; flex-direction: column; padding: 8px;
         }
         .search-results.active { display: flex; animation: popIn 0.2s forwards; }
- 
-        /* --- Main Content Area --- */
-        .main-content { flex: 1; padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
- 
+        .search-item {
+            display: flex; align-items: center; gap: 12px; padding: 8px 10px;
+            border-radius: 12px; cursor: pointer; transition: background 0.2s;
+        }
+        .search-item:hover { background: var(--accent-hover); }
+        .search-item img { width: 36px; height: 52px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ddd; }
+        .search-item b { font-size: 13px; font-weight: 800; color: var(--text-main); }
+
+        /* Main content */
+        .main-content { flex: 1; padding-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+        /* Player */
         .iframe-wrapper {
-            height: 75vh; min-height: 500px; position: relative; 
-            background-color: #000;
-            border-radius: 12px;
-            padding: 25px; 
-            background: var(--frame-color);
-            border: 10px solid #4E342E; 
-            outline: 3px solid #2D1B15;
+            height: 72vh; min-height: 400px; position: relative;
+            padding: 20px; background: var(--frame-color);
+            border: 8px solid #4E342E; outline: 3px solid #2D1B15;
+            border-radius: 14px;
             box-shadow: var(--shadow-float), inset 0 0 40px rgba(0,0,0,0.8);
         }
         iframe { width: 100%; height: 100%; border: none; border-radius: 4px; }
- 
+
+        /* Show Info */
         .show-info {
-            padding: 35px; background: var(--panel-bg); backdrop-filter: blur(16px);
-            border-radius: var(--card-radius); border: 3px solid var(--border-color); box-shadow: var(--shadow-float);
-            display: flex; flex-direction: column; gap: 20px;
+            padding: 28px 30px; background: var(--panel-bg); backdrop-filter: blur(16px);
+            border-radius: var(--card-radius); border: 3px solid var(--border-color);
+            box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 16px;
         }
- 
-        /* --- Show Info Layout --- */
-        .info-header {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            gap: 24px; flex-wrap: wrap;
+        .info-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+        .title-group { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
+        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
+
+        .show-title { font-size: 40px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); line-height: 1.1; }
+        .badges-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .badge {
+            background: rgba(62,39,35,0.08); padding: 7px 15px; border-radius: 50px;
+            font-size: 13px; font-weight: 800; color: var(--text-main);
+            display: inline-flex; align-items: center; gap: 6px;
         }
-        .title-group { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
-        .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
- 
-        .show-title { font-size: 42px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); line-height: 1.1; }
-        .badges-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .badge { 
-            background: rgba(62, 39, 35, 0.08); padding: 10px 20px; border-radius: 50px; 
-            font-size: 15px; font-weight: 800; color: var(--text-main); 
-            display: inline-flex; align-items: center; gap: 8px; 
+        .badge.rating { background: rgba(229,169,59,0.2); color: #8A5D10; }
+        .emoji-icon { font-size: 1.1em; display: inline-flex; align-items: center; line-height: 1; }
+
+        .show-overview {
+            font-size: 15px; line-height: 1.75; font-weight: 700;
+            background: rgba(255,255,255,0.6); padding: 18px 22px;
+            border-radius: 14px; border-left: 6px solid var(--accent-primary);
         }
-        .badge.rating { background: rgba(229, 169, 59, 0.2); color: #8A5D10; }
-        .emoji-icon { font-size: 1.2em; display: inline-flex; align-items: center; line-height: 1; }
- 
-        .show-overview { font-size: 16px; line-height: 1.8; font-weight: 700; background: rgba(255,255,255,0.6); padding: 20px 25px; border-radius: 16px; border-left: 8px solid var(--accent-primary); }
- 
-        /* --- Search icon --- */
-        .search-input-wrapper { position: relative; flex: 1; min-width: 200px; }
-        .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
- 
-        /* --- AI Insights Panel --- */
+
+        /* AI Insights Panel */
         .ai-insights-panel {
-            display: none; padding: 20px 25px; border-radius: 16px;
-            background: rgba(160, 147, 166, 0.15); border: 2px solid var(--accent-ai);
-            font-size: 15px; line-height: 1.7; font-weight: 700; color: var(--text-main);
-            white-space: pre-wrap;
+            display: none;
+            padding: 20px 24px; border-radius: 16px;
+            background: linear-gradient(135deg, rgba(160,147,166,0.12), rgba(160,147,166,0.22));
+            border: 2px solid rgba(140,115,122,0.45);
+            font-size: 14px; line-height: 1.75; font-weight: 700; color: var(--text-main);
+            animation: slideUp 0.3s ease;
         }
- 
-        /* --- Backpack (Bottom) --- */
+        .ai-insights-panel.visible { display: block; }
+        .ai-insights-panel p { margin-bottom: 10px; }
+        .ai-insights-panel ul { padding-left: 20px; margin: 6px 0; }
+        .ai-insights-panel li { margin-bottom: 5px; }
+        .ai-insights-panel strong { color: #7a6080; }
+        .ai-insights-panel em { color: var(--text-muted); }
+
+        /* Library */
         .library-section {
-            padding: 30px 40px; background: rgba(253, 245, 230, 0.7); backdrop-filter: blur(10px);
-            border-radius: var(--card-radius); border: 3px dashed var(--border-color); 
+            padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px);
+            border-radius: var(--card-radius); border: 3px dashed var(--border-color);
         }
-        .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
-        .library-title { font-size: 42px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 15px; }
- 
-        .library-scroll { display: flex; gap: 25px; overflow-x: auto; padding: 20px 10px 35px 10px; scroll-behavior: smooth; }
-        
-        .library-card { 
-            min-width: 160px; max-width: 160px; position: relative; display: flex; flex-direction: column; cursor: pointer; 
-            background: #FFFFFF; border-radius: 12px; border: 2px solid var(--border-color); padding: 10px;
-            box-shadow: 0 4px 8px rgba(62, 39, 35, 0.1); transition: transform 0.2s ease;
+        .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 2px; }
+        .library-title { font-size: 34px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 12px; }
+        .library-scroll { display: flex; gap: 14px; overflow-x: auto; padding: 14px 4px 22px 4px; scroll-behavior: smooth; }
+        .library-scroll::-webkit-scrollbar { height: 5px; }
+        .library-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+        .library-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+        .library-card {
+            min-width: 140px; max-width: 140px; position: relative; display: flex;
+            flex-direction: column; cursor: pointer; background: #FFFFFF;
+            border-radius: 12px; border: 2px solid var(--border-color); padding: 8px;
+            box-shadow: 0 4px 8px rgba(62,39,35,0.1); transition: transform 0.2s ease;
+            flex-shrink: 0;
         }
         .library-card:hover { transform: translateY(-6px); }
-        .card-img-wrapper { position: relative; width: 100%; height: 220px; overflow: hidden; border-radius: 8px; margin-bottom: 8px; }
-        .library-card img { width: 100%; height: 100%; object-fit: cover; }
-        .library-card-title { font-size: 16px; font-weight: 800; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
- 
+        .library-card.is-favorite { border-color: var(--danger); box-shadow: 0 4px 14px rgba(217,108,108,0.25); }
+        .library-card.ai-pick { border-color: var(--accent-ai); box-shadow: 0 4px 14px rgba(160,147,166,0.3); }
+
+        .card-img-wrapper { position: relative; width: 100%; height: 192px; overflow: hidden; border-radius: 8px; margin-bottom: 8px; background: #e8e0d8; }
+        .library-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .library-card-title { font-size: 12px; font-weight: 800; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .fav-badge {
+            position: absolute; top: 5px; left: 5px; font-size: 14px; z-index: 5;
+            background: white; border-radius: 50%; width: 24px; height: 24px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .progress-badge {
+            position: absolute; bottom: 5px; left: 5px; right: 5px;
+            background: rgba(40,24,20,0.82); color: white;
+            font-size: 10px; font-weight: 800; padding: 3px 5px;
+            border-radius: 5px; text-align: center; letter-spacing: 0.02em;
+        }
         .remove-btn {
-            position: absolute; top: -10px; right: -10px; background: var(--danger); color: white;
-            width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 900; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            opacity: 0; transition: opacity 0.2s; z-index: 20;
+            position: absolute; top: -9px; right: -9px; background: var(--danger); color: white;
+            width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 14px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            opacity: 0; transition: opacity 0.2s; z-index: 20; cursor: pointer;
         }
         .library-card:hover .remove-btn { opacity: 1; }
- 
-        /* --- ZESTY CHAT --- */
+        .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 14px; }
+
+        .ai-recs-section { margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(160,147,166,0.4); }
+        .ai-recs-title { font-size: 17px; font-weight: 900; color: var(--text-main); margin-bottom: 2px; padding-left: 4px; }
+
+        /* Zesty Chat */
         .zesty-toggle {
-            position: fixed; bottom: 30px; right: 30px; width: 70px; height: 70px;
-            background: var(--accent-secondary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 34px; cursor: pointer; box-shadow: var(--shadow-float);
+            position: fixed; bottom: 28px; right: 28px; width: 60px; height: 60px;
+            background: var(--accent-secondary); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; cursor: pointer; box-shadow: var(--shadow-float);
             border: 3px solid white; z-index: 999; animation: float 4s infinite;
         }
- 
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+        .zesty-panel {
+            display: none; position: fixed; bottom: 106px; right: 28px;
+            width: 340px; height: 480px;
+            background: var(--nav-bg); border: 3px solid var(--accent-secondary);
+            border-radius: 20px; z-index: 998; flex-direction: column;
+            box-shadow: var(--shadow-float); overflow: hidden;
         }
- 
-        /* --- Tablet Breakpoint --- */
+        .zesty-panel.open { display: flex; animation: slideUp 0.25s ease; }
+        .zesty-header {
+            background: var(--accent-secondary); padding: 14px 18px; color: white;
+            font-weight: 900; font-size: 16px;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .zesty-close-btn { cursor: pointer; font-size: 18px; line-height: 1; opacity: 0.85; }
+        .zesty-close-btn:hover { opacity: 1; }
+        .zesty-messages {
+            flex: 1; padding: 14px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .zesty-messages::-webkit-scrollbar { width: 4px; }
+        .zesty-messages::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        .zesty-msg-user {
+            background: var(--accent-primary); color: white; padding: 10px 14px;
+            border-radius: 18px 18px 4px 18px; align-self: flex-end;
+            font-weight: 800; font-size: 14px; max-width: 85%; word-break: break-word;
+        }
+        .zesty-msg-bot {
+            background: white; padding: 10px 14px;
+            border-radius: 18px 18px 18px 4px; align-self: flex-start;
+            border: 2px solid var(--border-color);
+            font-weight: 700; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.5;
+        }
+        .zesty-input-area {
+            padding: 12px 14px; display: flex; gap: 8px;
+            border-top: 2px solid rgba(166,123,91,0.2); flex-shrink: 0;
+            background: rgba(255,255,255,0.5);
+        }
+        .zesty-input-area input { flex: 1; padding: 9px 14px; font-size: 13px; border-radius: 20px; }
+        .zesty-input-area .action-btn { padding: 9px 16px; font-size: 13px; flex-shrink: 0; }
+
+        /* Tablet */
         @media (max-width: 1100px) and (min-width: 769px) {
             .navbar, .iframe-wrapper, .show-info, .library-section { width: 92%; }
-            .show-title { font-size: 34px !important; }
-            .library-title { font-size: 32px !important; }
-            .iframe-wrapper { height: 60vh; }
-            .action-buttons { flex-wrap: wrap; }
+            .show-title { font-size: 30px; }
+            .library-title { font-size: 28px; }
+            .iframe-wrapper { height: 58vh; min-height: 320px; }
+            .library-card { min-width: 128px; max-width: 128px; }
+            .card-img-wrapper { height: 174px; }
         }
-            .navbar, .iframe-wrapper, .show-info, .library-section { width: 95%; margin: 8px auto; }
-            .navbar { flex-direction: column; height: auto; border-radius: 20px; gap: 12px; padding: 12px 16px; }
-            .nav-left { flex-direction: column; width: 100%; gap: 10px; }
-            .dropdown-container { width: 100%; justify-content: center; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .navbar, .iframe-wrapper, .show-info, .library-section { width: 96%; margin: 8px auto; }
+            .navbar { flex-direction: column; border-radius: 18px; padding: 12px 14px; gap: 10px; }
+            .nav-left { flex-direction: column; width: 100%; gap: 8px; }
+            .logo { font-size: 24px; }
+            .dropdown-container { width: 100%; gap: 8px; }
             .custom-dropdown { flex: 1; min-width: 0; }
-            .search-container { max-width: 100%; width: 100%; }
-            .nav-right { width: 100%; margin: 0; }
-            .logo { font-size: 26px !important; }
-            .iframe-wrapper { padding: 8px; border-width: 4px; height: 45vw; min-height: 220px; }
-            .show-title { font-size: 24px !important; }
-            .show-info { padding: 20px; gap: 16px; }
-            .info-header { flex-direction: column; gap: 16px; }
-            .action-buttons { width: 100%; justify-content: flex-start; }
-            .action-btn { font-size: 13px !important; padding: 8px 14px !important; }
-            .badge { font-size: 13px !important; padding: 7px 14px !important; }
-            .show-overview { font-size: 14px; padding: 14px 16px; }
-            .library-title { font-size: 28px !important; }
-            .library-card { min-width: 130px; max-width: 130px; }
-            .card-img-wrapper { height: 180px; }
-            .library-card-title { font-size: 13px; }
-            .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 20px; right: 16px; }
-            #zesty-panel { width: calc(100vw - 32px) !important; right: 16px !important; bottom: 90px !important; }
+            .dropdown-header { padding: 8px 12px; font-size: 13px; }
+            .nav-right { width: 100%; }
+            .search-container { max-width: 100%; gap: 8px; }
+            .ai-toggle-btn { width: 40px; height: 40px; font-size: 18px; }
+
+            .iframe-wrapper { padding: 8px; border-width: 5px; height: 52vw; min-height: 190px; }
+
+            .show-info { padding: 16px; gap: 12px; }
+            .info-header { flex-direction: column; gap: 12px; }
+            .show-title { font-size: 24px; }
+            .action-buttons { width: 100%; gap: 8px; }
+            .action-btn { font-size: 12px; padding: 8px 12px; }
+            .badge { font-size: 11px; padding: 5px 10px; }
+            .show-overview { font-size: 13px; padding: 13px 15px; }
+            .ai-insights-panel { font-size: 13px; padding: 14px 16px; }
+
+            .library-section { padding: 14px 12px; }
+            .library-title { font-size: 24px; }
+            .library-header { gap: 10px; }
+            .library-card { min-width: 116px; max-width: 116px; }
+            .card-img-wrapper { height: 156px; }
+            .library-card-title { font-size: 11px; }
+
+            .zesty-toggle { width: 52px; height: 52px; font-size: 24px; bottom: 16px; right: 14px; }
+            .zesty-panel { width: calc(100vw - 20px); right: 10px; bottom: 82px; height: 400px; }
+            .main-content { gap: 12px; padding-bottom: 84px; }
+        }
+
+        /* 2K / 4K */
+        @media (min-width: 1921px) {
+            .navbar, .iframe-wrapper, .show-info, .library-section { width: 74%; }
+            .logo { font-size: 36px; }
+            .show-title { font-size: 44px; }
+            .library-title { font-size: 36px; }
+            .iframe-wrapper { height: 68vh; min-height: 500px; }
+            .library-card { min-width: 164px; max-width: 164px; }
+            .card-img-wrapper { height: 228px; }
+            .badge { font-size: 14px; padding: 9px 17px; }
+            .action-btn, input { font-size: 15px; padding: 11px 20px; }
+            .dropdown-header { font-size: 15px; }
+            .show-overview { font-size: 16px; }
+            .zesty-panel { width: 380px; height: 520px; }
         }
     </style>
 </head>
 <body>
- 
-    <div class="background-backdrop" id="bg-backdrop"></div>
-    <div class="cozy-overlay"></div>
- 
-    <header class="navbar">
-        <div class="nav-left">
-            <div class="logo">ZestFlix<span class="emoji-icon" style="font-size: 0.85em;">🍿</span></div>
-            <div class="dropdown-container" id="dropdown-group">
-                <div class="custom-dropdown" id="season-dropdown">
-                    <div class="dropdown-header disabled" id="season-header">Seasons <span>▼</span></div>
-                    <div class="dropdown-list" id="season-list"></div>
-                </div>
-                <div class="custom-dropdown" id="episode-dropdown">
-                    <div class="dropdown-header disabled" id="episode-header">Episodes <span>▼</span></div>
-                    <div class="dropdown-list" id="episode-list"></div>
-                </div>
+
+<div class="background-backdrop" id="bg-backdrop"></div>
+<div class="cozy-overlay"></div>
+
+<header class="navbar">
+    <div class="nav-left">
+        <div class="logo">ZestFlix<span class="emoji-icon" style="font-size:0.82em;">🍿</span></div>
+        <div class="dropdown-container" id="dropdown-group">
+            <div class="custom-dropdown">
+                <div class="dropdown-header disabled" id="season-header">Seasons <span>▼</span></div>
+                <div class="dropdown-list" id="season-list"></div>
             </div>
-        </div>
-        <div class="nav-right">
-            <div class="search-container">
-                <button id="ai-search-toggle" class="ai-toggle-btn" title="Toggle AI Smart Search">✨</button>
-                <div class="search-input-wrapper">
-                    <input type="text" id="search-input" class="search-input" placeholder="Find a movie or show..." autocomplete="off">
-                    <span class="search-icon">🔍</span>
-                    <div id="search-results" class="search-results"></div>
-                </div>
+            <div class="custom-dropdown">
+                <div class="dropdown-header disabled" id="episode-header">Episodes <span>▼</span></div>
+                <div class="dropdown-list" id="episode-list"></div>
             </div>
-        </div>
-    </header>
- 
-    <main class="main-content">
-        <div class="iframe-wrapper">
-            <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-        </div>
-        
-        <div class="show-info">
-            <div class="info-header">
-                <div class="title-group">
-                    <h1 class="show-title" id="info-title">Loading Magic... ✨</h1>
-                    <div class="badges-row" id="badges-container">
-                        <span class="badge" id="info-type"><span class="emoji-icon">🎥</span> Loading</span>
-                        <span class="badge" id="info-year"><span class="emoji-icon">📅</span></span>
-                        <span class="badge rating" id="info-rating"><span class="emoji-icon">⭐</span></span>
-                        <span class="badge status" id="info-status" style="display:none;"><span class="emoji-icon">🟢</span> Loading...</span>
-                    </div>
-                </div>
-                <div class="action-buttons">
-                    <button class="action-btn" id="fav-btn"><span class="emoji-icon">🤍</span> Favorite</button>
-                    <button class="action-btn" id="share-btn"><span class="emoji-icon">📣</span> Share</button>
-                    <button class="action-btn ai-btn" id="ai-insights-btn">✨ AI Insights</button>
-                </div>
-            </div>
-            <p class="show-overview" id="info-overview"></p>
-            <div class="ai-insights-panel" id="ai-insights-panel"></div>
-        </div>
- 
-        <section class="library-section" id="library-container">
-            <div class="library-header">
-                <h2 class="library-title">My Backpack <span class="emoji-icon" style="font-size: 0.75em;">🎒</span></h2>
-                <button class="action-btn ai-btn" id="ai-recs-btn">✨ AI Picks for You</button>
-            </div>
-            <div class="library-scroll" id="library-scroll"></div>
-            
-            <div class="ai-recs-container" id="ai-recs-container" style="display:none; margin-top:20px;">
-                <h3 style="color: var(--text-main); font-size: 20px; margin-left: 10px; margin-bottom: 10px; font-weight: 900;">✨ Inspired by your Backpack</h3>
-                <div class="library-scroll" id="ai-recs-scroll"></div>
-            </div>
-        </section>
-    </main>
- 
-    <div class="zesty-toggle" id="zesty-toggle" title="Chat with Zesty!">🍋</div>
-    <div class="zesty-panel" id="zesty-panel" style="display:none; position:fixed; bottom:110px; right:30px; width:360px; height:500px; background:var(--nav-bg); border:3px solid var(--accent-secondary); border-radius:20px; z-index:998; flex-direction:column; box-shadow:var(--shadow-float); overflow:hidden;">
-        <div class="zesty-header" style="background:var(--accent-secondary); padding:15px; color:white; font-weight:900; display:flex; justify-content:space-between; align-items:center;">
-            <span>🍋 Zesty</span>
-            <span style="cursor:pointer;" id="zesty-close">✕</span>
-        </div>
-        <div class="zesty-messages" id="zesty-messages" style="flex:1; padding:15px; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
-            <div class="bot-msg" style="background:white; padding:10px 15px; border-radius:15px; border:2px solid var(--border-color); font-weight:800; align-self:flex-start;">Hey! I'm Zesty. Tell me what kind of mood you're in! 🍿</div>
-        </div>
-        <div class="zesty-input-area" style="padding:15px; display:flex; gap:8px; border-top:1px solid rgba(0,0,0,0.1);">
-            <input type="text" id="zesty-input" placeholder="Say hi..." style="padding:10px; border-radius:20px;">
-            <button class="action-btn" id="zesty-send" style="padding:10px;">Send</button>
         </div>
     </div>
- 
-    <script>
-        // ‼️ API KEY HARDCODED AS REQUESTED
-        const apiKey = "AIzaSyDD3IHxFbuaj1d1znNWSv2-sVG0ItAqe64"; 
- 
-        function getGeminiUrl() {
-            // Smart model switcher to handle both preview and generic keys
-            const model = (apiKey.length > 10) ? 'gemini-1.5-flash' : 'gemini-2.5-flash-preview-09-2025';
-            return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        }
- 
-        const BackendService = {
-            TMDB_API_KEY: 'd62d816a3f48ed18c1dc5e157f4d73b2',
-            BASE_URL: 'https://api.themoviedb.org/3',
-            async searchMulti(query) {
-                const res = await fetch(`${this.BASE_URL}/search/multi?api_key=${this.TMDB_API_KEY}&query=${encodeURIComponent(query)}&include_adult=false`);
-                return res.json();
-            },
-            async getDetails(id, type) {
-                const res = await fetch(`${this.BASE_URL}/${type}/${id}?api_key=${this.TMDB_API_KEY}`);
-                return res.json();
-            },
-            async getEpisodes(tvId, seasonNum) {
-                const res = await fetch(`${this.BASE_URL}/tv/${tvId}/season/${seasonNum}?api_key=${this.TMDB_API_KEY}`);
-                return res.json();
+    <div class="nav-right">
+        <div class="search-container">
+            <button id="ai-search-toggle" class="ai-toggle-btn" title="Toggle AI Smart Search">✨</button>
+            <div class="search-input-wrapper">
+                <input type="text" id="search-input" placeholder="Find a movie or show..." autocomplete="off">
+                <span class="search-icon">🔍</span>
+                <div id="search-results" class="search-results"></div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="main-content">
+    <div class="iframe-wrapper">
+        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    </div>
+
+    <div class="show-info">
+        <div class="info-header">
+            <div class="title-group">
+                <h1 class="show-title" id="info-title">Loading Magic... ✨</h1>
+                <div class="badges-row" id="badges-container">
+                    <span class="badge" id="info-type"><span class="emoji-icon">🎥</span> Loading</span>
+                    <span class="badge" id="info-year"><span class="emoji-icon">📅</span></span>
+                    <span class="badge rating" id="info-rating"><span class="emoji-icon">⭐</span></span>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn" id="fav-btn"><span class="emoji-icon">🤍</span> Favorite</button>
+                <button class="action-btn" id="share-btn"><span class="emoji-icon">📣</span> Share</button>
+                <button class="action-btn ai-btn" id="ai-insights-btn">✨ AI Insights</button>
+            </div>
+        </div>
+        <p class="show-overview" id="info-overview"></p>
+        <div class="ai-insights-panel" id="ai-insights-panel"></div>
+    </div>
+
+    <section class="library-section">
+        <div class="library-header">
+            <h2 class="library-title">My Backpack <span class="emoji-icon" style="font-size:0.72em;">🎒</span></h2>
+            <button class="action-btn ai-btn" id="ai-recs-btn">✨ AI Picks for You</button>
+        </div>
+        <div class="library-scroll" id="library-scroll"></div>
+        <div class="ai-recs-section" id="ai-recs-container" style="display:none;">
+            <div class="ai-recs-title">✨ Inspired by your Backpack</div>
+            <div class="library-scroll" id="ai-recs-scroll"></div>
+        </div>
+    </section>
+</main>
+
+<div class="zesty-toggle" id="zesty-toggle" title="Chat with Zesty!">🍋</div>
+<div class="zesty-panel" id="zesty-panel">
+    <div class="zesty-header">
+        <span>🍋 Zesty</span>
+        <span class="zesty-close-btn" id="zesty-close">✕</span>
+    </div>
+    <div class="zesty-messages" id="zesty-messages">
+        <div class="zesty-msg-bot">Hey! I'm Zesty 🍋 Tell me what kind of mood you're in for tonight!</div>
+    </div>
+    <div class="zesty-input-area">
+        <input type="text" id="zesty-input" placeholder="Say hi...">
+        <button class="action-btn" id="zesty-send">Send</button>
+    </div>
+</div>
+
+<script>
+    /* ── Config ── */
+    const TMDB_KEY   = 'd62d816a3f48ed18c1dc5e157f4d73b2';
+    const TMDB_BASE  = 'https://api.themoviedb.org/3';
+    const GEMINI_KEY = 'AIzaSyDD3IHxFbuaj1d1znNWSv2-sVG0ItAqe64';
+    // gemini-2.0-flash: fast, reliable, free-tier
+    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+
+    /* ── Markdown → safe HTML ── */
+    function mdToHtml(raw) {
+        if (!raw) return '';
+        let t = raw
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g,'<em>$1</em>');
+        const lines = t.split('\n');
+        let html = '', inList = false;
+        for (const line of lines) {
+            const bullet = line.match(/^[\*\-]\s+(.+)/);
+            const heading = line.match(/^#{1,3}\s+(.+)/);
+            if (bullet) {
+                if (!inList) { html += '<ul style="padding-left:18px;margin:8px 0;">'; inList = true; }
+                html += `<li style="margin-bottom:4px;">${bullet[1]}</li>`;
+            } else {
+                if (inList) { html += '</ul>'; inList = false; }
+                if (heading) html += `<p style="font-family:Fredoka,sans-serif;font-size:15px;margin:10px 0 4px;color:var(--text-main);">${heading[1]}</p>`;
+                else if (line.trim()) html += `<p style="margin-bottom:8px;">${line.trim()}</p>`;
             }
-        };
- 
-        const GeminiService = {
-            async fetchWithRetry(url, options, retries = 3) {
-                const delays = [1000, 2000, 4000];
-                for (let i = 0; i < retries; i++) {
-                    try {
-                        const response = await fetch(url, options);
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        return await response.json();
-                    } catch (err) {
-                        if (i === retries - 1) throw err;
-                        await new Promise(res => setTimeout(res, delays[i]));
-                    }
-                }
-            },
-            async smartSearch(query) {
-                const prompt = `A user wants to find a movie or TV show. They typed: "${query}". Identify the exact title of the most likely movie or TV show they mean. Return ONLY a raw JSON object with no markdown like this: {"title": "Exact Title"}`;
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+        }
+        if (inList) html += '</ul>';
+        return html;
+    }
+
+    /* ── TMDB ── */
+    const TMDB = {
+        async searchMulti(q)      { return (await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&include_adult=false`)).json(); },
+        async getDetails(id,type) { return (await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}`)).json(); },
+        async getEpisodes(id,s)   { return (await fetch(`${TMDB_BASE}/tv/${id}/season/${s}?api_key=${TMDB_KEY}`)).json(); }
+    };
+
+    /* ── Gemini ── */
+    const Gemini = {
+        async call(body) {
+            for (let i=0; i<3; i++) {
                 try {
-                    const result = await this.fetchWithRetry(getGeminiUrl(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-                    const cleanText = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-                    const parsed = JSON.parse(cleanText);
-                    return parsed.title || query;
-                } catch(e) { return query; }
-            },
-            async getInsights(title, type, year) {
-                const prompt = `Give 3 spoiler-free fun facts and a short 1-sentence pitch on why someone should watch the ${type} "${title}" (${year}). Format: A short paragraph, followed by bullet points.`;
-                const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: "You are an enthusiastic movie expert. Be concise and spoiler-free." }] } };
-                try {
-                    const res = await this.fetchWithRetry(getGeminiUrl(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    return res.candidates?.[0]?.content?.parts?.[0]?.text || "No insights found.";
-                } catch(e) { return "The oracle is sleeping. Try again."; }
-            },
-            async getRecommendations(titles) {
-                const prompt = `Based on: ${titles.join(', ')}. Recommend 4 similar movies or TV shows. Return ONLY a JSON array of strings containing exact titles. No markdown.`;
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                try {
-                    const res = await this.fetchWithRetry(getGeminiUrl(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    let text = res.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-                    text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-                    return JSON.parse(text);
-                } catch(e) { return []; }
-            },
-            async chat(history) {
-                const payload = { contents: history, systemInstruction: { parts: [{ text: "You are Zesty, a fun movie/TV assistant. Recommend real titles." }] } };
-                try {
-                    const res = await this.fetchWithRetry(getGeminiUrl(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    return res.candidates?.[0]?.content?.parts?.[0]?.text || "Oops!";
-                } catch(e) { return "Trouble connecting!"; }
-            }
-        };
- 
-        let currentMediaId = 37680; let currentMediaType = 'tv'; let currentMediaTitle = 'Suits'; let currentMediaYear = '2011';
-        let currentSeasonVal = null; let currentEpisodeVal = null; let searchTimeout = null;
-        let isAiSearchEnabled = false;
- 
-        const searchInput = document.getElementById('search-input'); const searchResults = document.getElementById('search-results');
-        const playerFrame = document.getElementById('player-frame'); const bgBackdrop = document.getElementById('bg-backdrop');
-        const infoTitle = document.getElementById('info-title'); const infoYear = document.getElementById('info-year');
-        const infoRating = document.getElementById('info-rating'); const infoStatus = document.getElementById('info-status');
-        const infoOverview = document.getElementById('info-overview'); const infoType = document.getElementById('info-type');
-        const badgesContainer = document.getElementById('badges-container'); const libraryScroll = document.getElementById('library-scroll');
-        const favBtn = document.getElementById('fav-btn');
-        const seasonHeader = document.getElementById('season-header'); const seasonList = document.getElementById('season-list');
-        const episodeHeader = document.getElementById('episode-header'); const episodeList = document.getElementById('episode-list');
-        const aiSearchToggle = document.getElementById('ai-search-toggle');
-        const aiInsightsBtn = document.getElementById('ai-insights-btn'); const aiInsightsPanel = document.getElementById('ai-insights-panel');
-        const aiRecsBtn = document.getElementById('ai-recs-btn'); const aiRecsContainer = document.getElementById('ai-recs-container'); const aiRecsScroll = document.getElementById('ai-recs-scroll');
-        const zestyToggle = document.getElementById('zesty-toggle'); const zestyPanel = document.getElementById('zesty-panel');
-        const zestyClose = document.getElementById('zesty-close'); const zestyMessages = document.getElementById('zesty-messages');
-        const zestyInput = document.getElementById('zesty-input'); const zestySend = document.getElementById('zesty-send');
- 
-        async function init() { renderLibrary(); await loadMediaDetails(currentMediaId, currentMediaType); }
- 
-        function toggleDropdown(listElem) { 
-            if (listElem !== seasonList) seasonList.classList.remove('show'); 
-            if (listElem !== episodeList) episodeList.classList.remove('show'); 
-            listElem.classList.toggle('show'); 
-        }
-        seasonHeader.addEventListener('click', () => { if(!seasonHeader.classList.contains('disabled')) toggleDropdown(seasonList); });
-        episodeHeader.addEventListener('click', () => { if(!episodeHeader.classList.contains('disabled')) toggleDropdown(episodeList); });
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.custom-dropdown')) { seasonList.classList.remove('show'); episodeList.classList.remove('show'); }
-            if (!e.target.closest('.search-container')) { searchResults.classList.remove('active'); }
-        });
- 
-        function populateSeasonDropdown(seasons, targetSeason) {
-            seasonList.innerHTML = '';
-            seasons.forEach(season => {
-                const item = document.createElement('div'); item.className = 'dropdown-item'; item.textContent = `Season ${season.season_number}`;
-                if (season.season_number == targetSeason) item.classList.add('selected');
-                item.addEventListener('click', () => {
-                    currentSeasonVal = season.season_number; seasonHeader.innerHTML = `Season ${currentSeasonVal} <span>▼</span>`;
-                    seasonList.classList.remove('show'); loadEpisodes(currentMediaId, currentSeasonVal);
-                });
-                seasonList.appendChild(item);
-            });
-            seasonHeader.classList.remove('disabled');
-        }
- 
-        function populateEpisodeDropdown(episodes, targetEpisode) {
-            episodeList.innerHTML = '';
-            episodes.forEach(ep => {
-                const item = document.createElement('div'); item.className = 'dropdown-item';
-                item.textContent = `Ep ${ep.episode_number}: ${ep.name.length > 20 ? ep.name.substring(0, 20) + '...' : ep.name}`;
-                if (ep.episode_number == targetEpisode) item.classList.add('selected');
-                item.addEventListener('click', () => {
-                    currentEpisodeVal = ep.episode_number; episodeHeader.innerHTML = `Ep ${currentEpisodeVal} <span>▼</span>`;
-                    episodeList.classList.remove('show'); updatePlayer();
-                });
-                episodeList.appendChild(item);
-            });
-            episodeHeader.classList.remove('disabled');
-        }
- 
-        function getLibrary() { return JSON.parse(localStorage.getItem('streamToyLibrary') || '[]'); }
-        function saveLibrary(lib) { localStorage.setItem('streamToyLibrary', JSON.stringify(lib)); renderLibrary(); updateFavBtnUI(); }
- 
-        function updateLibraryData(data, mediaType, season = 1, episode = 1) {
-            let library = getLibrary();
-            let existing = library.find(item => item.id == data.id && item.mediaType === mediaType);
-            let isFav = existing ? existing.favorite : false;
-            library = library.filter(item => !(item.id == data.id && item.mediaType === mediaType));
-            library.unshift({ id: data.id, name: data.name || data.title, poster: data.poster_path, mediaType: mediaType, season: season, episode: episode, favorite: isFav });
-            if(library.length > 20) library.pop(); saveLibrary(library);
-        }
- 
-        function updateLibraryProgress(id, season, episode) {
-            if (currentMediaType === 'movie') return;
-            let library = getLibrary();
-            const index = library.findIndex(item => item.id == id && item.mediaType === 'tv');
-            if (index !== -1) { library[index].season = season; library[index].episode = episode; saveLibrary(library); }
-        }
- 
-        function toggleFavorite(id) {
-            let library = getLibrary();
-            const index = library.findIndex(item => item.id == id && item.mediaType === currentMediaType);
-            if (index !== -1) { library[index].favorite = !library[index].favorite; saveLibrary(library); }
-        }
- 
-        function renderLibrary() {
-            let library = getLibrary(); libraryScroll.innerHTML = '';
-            if (library.length === 0) { libraryScroll.innerHTML = `<div class="empty-library">Your backpack is empty! 🏕️</div>`; return; }
-            library.sort((a, b) => (b.favorite === true) - (a.favorite === true));
-            library.forEach(item => {
-                const card = document.createElement('div'); card.className = `library-card ${item.favorite ? 'is-favorite' : ''}`;
-                const posterUrl = item.poster ? `https://image.tmdb.org/t/p/w200${item.poster}` : '';
-                const favIcon = item.favorite ? `<div class="fav-badge" style="color: #ef4444;">❤️</div>` : '';
-                const progressBadge = item.mediaType === 'tv' ? `<div class="progress-badge">S${item.season || 1} E${item.episode || 1}</div>` : `<div class="progress-badge" style="background:var(--accent-secondary);">Movie</div>`;
-                card.innerHTML = `
-                    <div class="remove-btn">×</div>
-                    <div class="card-img-wrapper">${favIcon}<img src="${posterUrl}">${progressBadge}</div>
-                    <div class="library-card-title">${item.name}</div>
-                `;
-                card.querySelector('.remove-btn').addEventListener('click', (e) => { e.stopPropagation(); 
-                    let lib = getLibrary(); lib = lib.filter(i => !(i.id == item.id && i.mediaType === item.mediaType)); saveLibrary(lib); 
-                });
-                card.addEventListener('click', () => { currentMediaId = item.id; currentMediaType = item.mediaType; loadMediaDetails(item.id, item.mediaType, item.season, item.episode); window.scrollTo({top:0, behavior:'smooth'}); });
-                libraryScroll.appendChild(card);
-            });
-        }
- 
-        aiSearchToggle.addEventListener('click', () => { isAiSearchEnabled = !isAiSearchEnabled; aiSearchToggle.classList.toggle('active'); });
- 
-        aiInsightsBtn.addEventListener('click', async () => {
-            const isVisible = aiInsightsPanel.style.display === 'block';
-            if (isVisible) { aiInsightsPanel.style.display = 'none'; return; }
-            aiInsightsPanel.style.display = 'block'; aiInsightsPanel.innerHTML = "✨ Conjuring insights...";
-            const text = await GeminiService.getInsights(currentMediaTitle, currentMediaType === 'tv' ? 'TV Show' : 'Movie', currentMediaYear);
-            aiInsightsPanel.innerHTML = text;
-        });
- 
-        aiRecsBtn.addEventListener('click', async () => {
-            const library = getLibrary(); if (library.length === 0) return;
-            aiRecsContainer.style.display = 'block'; aiRecsScroll.innerHTML = '<div style="color:var(--text-main); padding:15px; font-weight:900;">✨ Reading your mind...</div>';
-            const recommendedTitles = await GeminiService.getRecommendations(library.map(i => i.name).slice(0, 10));
-            aiRecsScroll.innerHTML = '';
-            for (const title of recommendedTitles) {
-                const searchData = await BackendService.searchMulti(title);
-                const firstResult = searchData.results?.find(r => r.media_type === 'movie' || r.media_type === 'tv');
-                if (firstResult) {
-                    const card = document.createElement('div'); card.className = 'library-card ai-pick';
-                    const posterUrl = firstResult.poster_path ? `https://image.tmdb.org/t/p/w200${firstResult.poster_path}` : '';
-                    card.innerHTML = `<div class="card-img-wrapper"><img src="${posterUrl}"></div><div class="library-card-title">${firstResult.name || firstResult.title}</div>`;
-                    card.addEventListener('click', () => { currentMediaId = firstResult.id; currentMediaType = firstResult.media_type; loadMediaDetails(firstResult.id, firstResult.media_type); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-                    aiRecsScroll.appendChild(card);
+                    const r = await fetch(GEMINI_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+                    if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.error?.message||`HTTP ${r.status}`); }
+                    return await r.json();
+                } catch(e) {
+                    if (i===2) throw e;
+                    await new Promise(r=>setTimeout(r,[1200,2500][i]));
                 }
             }
-        });
- 
-        let chatHistory = [];
-        zestyToggle.addEventListener('click', () => zestyPanel.style.display = 'flex');
-        zestyClose.addEventListener('click', () => zestyPanel.style.display = 'none');
-        zestySend.addEventListener('click', async () => {
-            const text = zestyInput.value.trim(); if(!text) return;
-            zestyMessages.innerHTML += `<div style="background:var(--accent-primary); color:white; padding:10px; border-radius:15px; align-self:flex-end; font-weight:800;">${text}</div>`;
-            zestyInput.value = ''; chatHistory.push({ role: "user", parts: [{ text }] });
-            const response = await GeminiService.chat(chatHistory);
-            zestyMessages.innerHTML += `<div style="background:white; padding:10px; border-radius:15px; align-self:flex-start; border:2px solid var(--border-color); font-weight:800;">${response}</div>`;
-            chatHistory.push({ role: "model", parts: [{ text: response }] });
-            zestyMessages.scrollTop = zestyMessages.scrollHeight;
-        });
- 
-        function updateFavBtnUI() {
-            let library = getLibrary(); let current = library.find(item => item.id == currentMediaId && item.mediaType == currentMediaType);
-            if (current && current.favorite) { favBtn.innerHTML = '<span class="emoji-icon" style="color: #ef4444;">❤️</span> Favorited'; favBtn.classList.add('active-fav'); } 
-            else { favBtn.innerHTML = '<span class="emoji-icon">🤍</span> Favorite'; favBtn.classList.remove('active-fav'); }
-        }
- 
-        favBtn.addEventListener('click', () => toggleFavorite(currentMediaId));
- 
-        async function loadMediaDetails(id, type, targetSeason = null, targetEpisode = null) {
+        },
+        text(d) { return d?.candidates?.[0]?.content?.parts?.[0]?.text||''; },
+        async smartSearch(q) {
             try {
-                const data = await BackendService.getDetails(id, type);
-                updateLibraryData(data, type, targetSeason || 1, targetEpisode || 1);
-                if (data.backdrop_path) bgBackdrop.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${data.backdrop_path})`;
-                currentMediaTitle = data.name || data.title;
-                const releaseDate = data.first_air_date || data.release_date; currentMediaYear = releaseDate ? releaseDate.substring(0, 4) : 'N/A';
-                infoTitle.textContent = currentMediaTitle; 
-                infoType.innerHTML = `<span class="emoji-icon">${type==='movie'?'🎬':'📺'}</span> ${type==='movie'?'Movie':'TV'}`;
-                infoYear.innerHTML = `<span class="emoji-icon">📅</span> ${currentMediaYear}`; 
-                infoRating.innerHTML = `<span class="emoji-icon">⭐</span> ${data.vote_average?.toFixed(1) || 'N/A'}`;
-                infoOverview.textContent = data.overview || 'No story available.';
-                document.querySelectorAll('.genre-badge').forEach(e => e.remove());
-                data.genres?.slice(0, 3).forEach(g => { const span = document.createElement('span'); span.className = 'badge genre-badge'; span.innerHTML = `<span class="emoji-icon">🎭</span> ${g.name}`; badgesContainer.appendChild(span); });
-                if (type === 'movie') { document.getElementById('dropdown-group').style.display = 'none'; updatePlayer(); } 
-                else {
-                    document.getElementById('dropdown-group').style.display = 'flex';
-                    const validSeasons = data.seasons?.filter(s => s.season_number > 0) || [];
-                    if (validSeasons.length > 0) {
-                        currentSeasonVal = targetSeason || validSeasons[0].season_number;
-                        seasonHeader.innerHTML = `Season ${currentSeasonVal} <span>▼</span>`;
-                        populateSeasonDropdown(validSeasons, currentSeasonVal); await loadEpisodes(id, currentSeasonVal, targetEpisode);
-                    }
-                }
-                updateFavBtnUI();
-            } catch (error) { console.error(error); }
-        }
- 
-        async function loadEpisodes(tvId, seasonNum, targetEpisode = null) {
-            const data = await BackendService.getEpisodes(tvId, seasonNum);
-            if (data.episodes?.length > 0) {
-                currentEpisodeVal = targetEpisode || data.episodes[0].episode_number;
-                episodeHeader.innerHTML = `Ep ${currentEpisodeVal} <span>▼</span>`;
-                populateEpisodeDropdown(data.episodes, currentEpisodeVal); updatePlayer();
-            }
-        }
- 
-        function updatePlayer() {
-            if (currentMediaType === 'movie') { playerFrame.src = `https://vidfast.pro/movie/${currentMediaId}?autoPlay=true`; } 
-            else {
-                playerFrame.src = `https://vidfast.pro/tv/${currentMediaId}/${currentSeasonVal}/${currentEpisodeVal}?autoPlay=true&nextButton=true&autoNext=true`;
-                updateLibraryProgress(currentMediaId, currentSeasonVal, currentEpisodeVal);
-            }
-        }
- 
-        searchInput.addEventListener('input', async (e) => {
-            clearTimeout(searchTimeout); const query = e.target.value.trim();
-            if (query.length >= 2) searchTimeout = setTimeout(async () => {
-                let finalQuery = isAiSearchEnabled ? await GeminiService.smartSearch(query) : query;
-                const data = await BackendService.searchMulti(finalQuery);
-                searchResults.innerHTML = '';
-                data.results?.filter(item => item.media_type !== 'person').slice(0, 6).forEach(item => {
-                    const card = document.createElement('div'); card.className = 'search-item';
-                    card.innerHTML = `<img src="https://image.tmdb.org/t/p/w92${item.poster_path}"><div><b>${item.name || item.title}</b></div>`;
-                    card.onclick = () => { currentMediaId = item.id; currentMediaType = item.media_type; searchInput.value = ''; searchResults.classList.remove('active'); loadMediaDetails(item.id, item.media_type); };
-                    searchResults.appendChild(card);
+                const d = await this.call({ contents:[{parts:[{text:`Find the exact movie/TV title for: "${q}". Respond ONLY with JSON: {"title":"Exact Title"}`}]}] });
+                const raw = this.text(d).replace(/```json|```/g,'').trim();
+                return JSON.parse(raw).title||q;
+            } catch { return q; }
+        },
+        async insights(title,type,year) {
+            try {
+                const d = await this.call({
+                    contents:[{parts:[{text:`Write 3 spoiler-free fun facts and a 1-sentence pitch for the ${type} "${title}" (${year}). Start with the pitch sentence, then use bullet points for the facts.`}]}],
+                    systemInstruction:{parts:[{text:'You are an enthusiastic, concise movie expert. No spoilers. Keep it warm and fun.'}]}
                 });
-                searchResults.classList.add('active');
-            }, 500);
+                return this.text(d)||'No insights found.';
+            } catch(e) { return `⚠️ Could not load insights (${e.message}). Check your API key.`; }
+        },
+        async recs(titles) {
+            try {
+                const d = await this.call({ contents:[{parts:[{text:`Based on: ${titles.join(', ')}. Recommend 5 similar titles. Return ONLY a JSON array of title strings. No markdown.`}]}] });
+                const raw = this.text(d).replace(/```json|```/g,'').trim();
+                return JSON.parse(raw);
+            } catch { return []; }
+        },
+        async chat(history) {
+            try {
+                const d = await this.call({
+                    contents:history,
+                    systemInstruction:{parts:[{text:'You are Zesty, a fun warm movie/TV assistant. Keep replies concise (2-3 sentences). Recommend real titles when helpful.'}]}
+                });
+                return this.text(d)||'Try again!';
+            } catch(e) { return `⚠️ ${e.message}`; }
+        }
+    };
+
+    /* ── State ── */
+    let mediaId=37680, mediaType='tv', mediaTitle='Suits', mediaYear='2011';
+    let seasonVal=null, episodeVal=null, searchTimer=null, aiSearchOn=false;
+
+    /* ── DOM ── */
+    const $  = id=>document.getElementById(id);
+    const searchInput=$('search-input'), searchResults=$('search-results');
+    const playerFrame=$('player-frame'), bgBackdrop=$('bg-backdrop');
+    const infoTitle=$('info-title'), infoYear=$('info-year'), infoRating=$('info-rating'), infoType=$('info-type');
+    const infoOverview=$('info-overview'), badgesRow=$('badges-container');
+    const libraryScroll=$('library-scroll'), favBtn=$('fav-btn');
+    const seasonHeader=$('season-header'), seasonList=$('season-list');
+    const episodeHeader=$('episode-header'), episodeList=$('episode-list');
+    const aiSearchToggle=$('ai-search-toggle');
+    const aiInsightsBtn=$('ai-insights-btn'), aiInsightsPanel=$('ai-insights-panel');
+    const aiRecsBtn=$('ai-recs-btn'), aiRecsContainer=$('ai-recs-container'), aiRecsScroll=$('ai-recs-scroll');
+    const zestyToggle=$('zesty-toggle'), zestyPanel=$('zesty-panel');
+    const zestyClose=$('zesty-close'), zestyMessages=$('zesty-messages');
+    const zestyInput=$('zesty-input'), zestySend=$('zesty-send');
+
+    /* ── Dropdowns ── */
+    function toggleDD(list) {
+        if(list!==seasonList)  seasonList.classList.remove('show');
+        if(list!==episodeList) episodeList.classList.remove('show');
+        list.classList.toggle('show');
+    }
+    seasonHeader.addEventListener('click',  ()=>{ if(!seasonHeader.classList.contains('disabled'))  toggleDD(seasonList);  });
+    episodeHeader.addEventListener('click', ()=>{ if(!episodeHeader.classList.contains('disabled')) toggleDD(episodeList); });
+    document.addEventListener('click', e=>{
+        if(!e.target.closest('.custom-dropdown')) { seasonList.classList.remove('show'); episodeList.classList.remove('show'); }
+        if(!e.target.closest('.search-container')) searchResults.classList.remove('active');
+    });
+
+    function buildSeasonDD(seasons,target) {
+        seasonList.innerHTML='';
+        seasons.forEach(s=>{
+            const el=document.createElement('div'); el.className='dropdown-item';
+            el.textContent=`Season ${s.season_number}`;
+            if(s.season_number==target) el.classList.add('selected');
+            el.onclick=()=>{ seasonVal=s.season_number; seasonHeader.innerHTML=`Season ${seasonVal} <span>▼</span>`; seasonList.classList.remove('show'); loadEpisodes(mediaId,seasonVal); };
+            seasonList.appendChild(el);
         });
- 
-        init();
-    </script>
+        seasonHeader.classList.remove('disabled');
+    }
+    function buildEpisodeDD(eps,target) {
+        episodeList.innerHTML='';
+        eps.forEach(ep=>{
+            const el=document.createElement('div'); el.className='dropdown-item';
+            const n=ep.name.length>24?ep.name.slice(0,24)+'…':ep.name;
+            el.textContent=`Ep ${ep.episode_number}: ${n}`;
+            if(ep.episode_number==target) el.classList.add('selected');
+            el.onclick=()=>{ episodeVal=ep.episode_number; episodeHeader.innerHTML=`Ep ${episodeVal} <span>▼</span>`; episodeList.classList.remove('show'); updatePlayer(); };
+            episodeList.appendChild(el);
+        });
+        episodeHeader.classList.remove('disabled');
+    }
+
+    /* ── Library ── */
+    const getLib  = ()=>JSON.parse(localStorage.getItem('streamToyLibrary')||'[]');
+    const saveLib = lib=>{ localStorage.setItem('streamToyLibrary',JSON.stringify(lib)); renderLib(); updateFavUI(); };
+
+    function upsertLib(data,type,season=1,episode=1) {
+        let lib=getLib();
+        const isFav=lib.find(i=>i.id==data.id&&i.mediaType===type)?.favorite||false;
+        lib=lib.filter(i=>!(i.id==data.id&&i.mediaType===type));
+        lib.unshift({id:data.id,name:data.name||data.title,poster:data.poster_path,mediaType:type,season,episode,favorite:isFav});
+        if(lib.length>20) lib.pop();
+        saveLib(lib);
+    }
+    function updateProgress(id,season,episode) {
+        if(mediaType==='movie') return;
+        let lib=getLib(); const i=lib.findIndex(x=>x.id==id&&x.mediaType==='tv');
+        if(i!==-1){ lib[i].season=season; lib[i].episode=episode; saveLib(lib); }
+    }
+    function toggleFav(id) {
+        let lib=getLib(); const i=lib.findIndex(x=>x.id==id&&x.mediaType===mediaType);
+        if(i!==-1){ lib[i].favorite=!lib[i].favorite; saveLib(lib); }
+    }
+    function updateFavUI() {
+        const cur=getLib().find(i=>i.id==mediaId&&i.mediaType==mediaType);
+        if(cur?.favorite){ favBtn.innerHTML='<span class="emoji-icon" style="color:#ef4444;">❤️</span> Favorited'; favBtn.classList.add('active-fav'); }
+        else             { favBtn.innerHTML='<span class="emoji-icon">🤍</span> Favorite'; favBtn.classList.remove('active-fav'); }
+    }
+    function renderLib() {
+        let lib=getLib(); libraryScroll.innerHTML='';
+        if(!lib.length){ libraryScroll.innerHTML='<div class="empty-library">Your backpack is empty! 🏕️ Search something to start.</div>'; return; }
+        lib.sort((a,b)=>(b.favorite===true)-(a.favorite===true));
+        lib.forEach(item=>{
+            const card=document.createElement('div');
+            card.className=`library-card ${item.favorite?'is-favorite':''}`;
+            const poster=item.poster?`https://image.tmdb.org/t/p/w200${item.poster}`:'';
+            const favBadge=item.favorite?'<div class="fav-badge">❤️</div>':'';
+            const progBadge=item.mediaType==='tv'
+                ?`<div class="progress-badge">S${item.season||1} E${item.episode||1}</div>`
+                :`<div class="progress-badge" style="background:var(--accent-secondary);">Movie</div>`;
+            card.innerHTML=`<div class="remove-btn">×</div><div class="card-img-wrapper">${favBadge}<img src="${poster}" alt="${item.name}" loading="lazy">${progBadge}</div><div class="library-card-title">${item.name}</div>`;
+            card.querySelector('.remove-btn').addEventListener('click',e=>{ e.stopPropagation(); let l=getLib(); l=l.filter(i=>!(i.id==item.id&&i.mediaType===item.mediaType)); saveLib(l); });
+            card.addEventListener('click',()=>{ mediaId=item.id; mediaType=item.mediaType; loadMedia(item.id,item.mediaType,item.season,item.episode); window.scrollTo({top:0,behavior:'smooth'}); });
+            libraryScroll.appendChild(card);
+        });
+    }
+
+    /* ── Player ── */
+    function updatePlayer() {
+        if(mediaType==='movie') playerFrame.src=`https://vidfast.pro/movie/${mediaId}?autoPlay=true`;
+        else { playerFrame.src=`https://vidfast.pro/tv/${mediaId}/${seasonVal}/${episodeVal}?autoPlay=true&nextButton=true&autoNext=true`; updateProgress(mediaId,seasonVal,episodeVal); }
+    }
+
+    async function loadEpisodes(tvId,season,targetEp=null) {
+        const d=await TMDB.getEpisodes(tvId,season);
+        if(d.episodes?.length){
+            episodeVal=targetEp||d.episodes[0].episode_number;
+            episodeHeader.innerHTML=`Ep ${episodeVal} <span>▼</span>`;
+            buildEpisodeDD(d.episodes,episodeVal); updatePlayer();
+        }
+    }
+
+    async function loadMedia(id,type,targetSeason=null,targetEpisode=null) {
+        try {
+            const d=await TMDB.getDetails(id,type);
+            upsertLib(d,type,targetSeason||1,targetEpisode||1);
+            if(d.backdrop_path) bgBackdrop.style.backgroundImage=`url(https://image.tmdb.org/t/p/original${d.backdrop_path})`;
+            mediaTitle=d.name||d.title;
+            const rel=d.first_air_date||d.release_date; mediaYear=rel?rel.slice(0,4):'N/A';
+            infoTitle.textContent=mediaTitle;
+            infoType.innerHTML=`<span class="emoji-icon">${type==='movie'?'🎬':'📺'}</span> ${type==='movie'?'Movie':'TV Show'}`;
+            infoYear.innerHTML=`<span class="emoji-icon">📅</span> ${mediaYear}`;
+            infoRating.innerHTML=`<span class="emoji-icon">⭐</span> ${d.vote_average?.toFixed(1)||'N/A'}`;
+            infoOverview.textContent=d.overview||'No story available.';
+            // Reset insights
+            aiInsightsPanel.classList.remove('visible'); aiInsightsPanel.innerHTML='';
+            // Genres
+            document.querySelectorAll('.genre-badge').forEach(e=>e.remove());
+            d.genres?.slice(0,3).forEach(g=>{ const s=document.createElement('span'); s.className='badge genre-badge'; s.innerHTML=`<span class="emoji-icon">🎭</span> ${g.name}`; badgesRow.appendChild(s); });
+            if(type==='movie'){ $('dropdown-group').style.display='none'; updatePlayer(); }
+            else {
+                $('dropdown-group').style.display='flex';
+                const seasons=d.seasons?.filter(s=>s.season_number>0)||[];
+                if(seasons.length){
+                    seasonVal=targetSeason||seasons[0].season_number;
+                    seasonHeader.innerHTML=`Season ${seasonVal} <span>▼</span>`;
+                    buildSeasonDD(seasons,seasonVal);
+                    await loadEpisodes(id,seasonVal,targetEpisode);
+                }
+            }
+            updateFavUI();
+        } catch(e){ console.error('loadMedia:',e); }
+    }
+
+    /* ── AI Insights ── */
+    aiInsightsBtn.addEventListener('click', async ()=>{
+        if(aiInsightsPanel.classList.contains('visible')){ aiInsightsPanel.classList.remove('visible'); return; }
+        aiInsightsPanel.innerHTML='<em style="opacity:0.65;font-weight:700;">✨ Conjuring insights...</em>';
+        aiInsightsPanel.classList.add('visible');
+        const raw=await Gemini.insights(mediaTitle, mediaType==='tv'?'TV Show':'Movie', mediaYear);
+        aiInsightsPanel.innerHTML=mdToHtml(raw);
+    });
+
+    /* ── AI Recs ── */
+    aiRecsBtn.addEventListener('click', async ()=>{
+        const lib=getLib(); if(!lib.length){ alert('Add something to your backpack first! 🎒'); return; }
+        aiRecsContainer.style.display='block';
+        aiRecsScroll.innerHTML='<div class="empty-library">✨ Reading your vibe...</div>';
+        const titles=await Gemini.recs(lib.map(i=>i.name).slice(0,10));
+        aiRecsScroll.innerHTML='';
+        for(const title of titles){
+            const data=await TMDB.searchMulti(title);
+            const r=data.results?.find(x=>x.media_type==='movie'||x.media_type==='tv');
+            if(!r) continue;
+            const card=document.createElement('div'); card.className='library-card ai-pick';
+            const poster=r.poster_path?`https://image.tmdb.org/t/p/w200${r.poster_path}`:'';
+            card.innerHTML=`<div class="card-img-wrapper"><img src="${poster}" alt="${r.name||r.title}" loading="lazy"></div><div class="library-card-title">${r.name||r.title}</div>`;
+            card.addEventListener('click',()=>{ mediaId=r.id; mediaType=r.media_type; loadMedia(r.id,r.media_type); window.scrollTo({top:0,behavior:'smooth'}); });
+            aiRecsScroll.appendChild(card);
+        }
+        if(!aiRecsScroll.children.length) aiRecsScroll.innerHTML='<div class="empty-library">No results. Try adding more to your backpack!</div>';
+    });
+
+    /* ── Search ── */
+    aiSearchToggle.addEventListener('click', ()=>{ aiSearchOn=!aiSearchOn; aiSearchToggle.classList.toggle('active'); });
+    searchInput.addEventListener('input', async e=>{
+        clearTimeout(searchTimer); const q=e.target.value.trim();
+        if(q.length<2){ searchResults.classList.remove('active'); return; }
+        searchTimer=setTimeout(async()=>{
+            const query=aiSearchOn?await Gemini.smartSearch(q):q;
+            const data=await TMDB.searchMulti(query);
+            searchResults.innerHTML='';
+            data.results?.filter(i=>i.media_type!=='person').slice(0,6).forEach(item=>{
+                const el=document.createElement('div'); el.className='search-item';
+                el.innerHTML=`<img src="https://image.tmdb.org/t/p/w92${item.poster_path}" alt=""><div><b>${item.name||item.title}</b></div>`;
+                el.onclick=()=>{ mediaId=item.id; mediaType=item.media_type; searchInput.value=''; searchResults.classList.remove('active'); loadMedia(item.id,item.media_type); };
+                searchResults.appendChild(el);
+            });
+            if(searchResults.children.length) searchResults.classList.add('active');
+        },450);
+    });
+
+    /* ── Fav & Share ── */
+    favBtn.addEventListener('click', ()=>toggleFav(mediaId));
+    $('share-btn').addEventListener('click', ()=>{
+        const txt=`Watching ${mediaTitle} on ZestFlix! 🍿`;
+        if(navigator.share) navigator.share({title:'ZestFlix',text:txt});
+        else { navigator.clipboard?.writeText(txt); alert('Link copied! 🍿'); }
+    });
+
+    /* ── Zesty Chat ── */
+    let chatHistory=[];
+    zestyToggle.addEventListener('click', ()=>zestyPanel.classList.add('open'));
+    zestyClose.addEventListener('click',  ()=>zestyPanel.classList.remove('open'));
+
+    async function sendZesty(){
+        const txt=zestyInput.value.trim(); if(!txt) return;
+        const uMsg=document.createElement('div'); uMsg.className='zesty-msg-user'; uMsg.textContent=txt;
+        zestyMessages.appendChild(uMsg); zestyInput.value='';
+        chatHistory.push({role:'user',parts:[{text:txt}]});
+        const thinking=document.createElement('div'); thinking.className='zesty-msg-bot';
+        thinking.innerHTML='<em>thinking...</em>';
+        zestyMessages.appendChild(thinking); zestyMessages.scrollTop=zestyMessages.scrollHeight;
+        const reply=await Gemini.chat(chatHistory);
+        thinking.innerHTML=mdToHtml(reply)||reply;
+        chatHistory.push({role:'model',parts:[{text:reply}]});
+        zestyMessages.scrollTop=zestyMessages.scrollHeight;
+    }
+    zestySend.addEventListener('click', sendZesty);
+    zestyInput.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey) sendZesty(); });
+
+    /* ── Init ── */
+    renderLib();
+    loadMedia(mediaId, mediaType);
+</script>
 </body>
 </html>
-
