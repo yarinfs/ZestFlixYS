@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fixed Viewport to prevent zooming on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZestFlix - Cozy Cafe Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
@@ -72,8 +73,11 @@
         }
 
         /* Layout */
-        .navbar, .iframe-wrapper, .show-info, .library-section {
-            width: 82%; max-width: 2000px; margin: 14px auto;
+        .navbar, .show-info, .library-section {
+            width: 82%; max-width: 1400px; margin: 14px auto;
+        }
+        .iframe-container {
+            width: 100%; display: flex; justify-content: center; padding: 0 20px;
         }
 
         /* Navbar */
@@ -97,12 +101,18 @@
         input, .action-btn {
             background-color: var(--input-bg); color: var(--text-main);
             border: 3px solid var(--border-color); padding: 9px 18px;
-            border-radius: var(--bubbly-radius); outline: none; font-size: 14px; font-weight: 800;
+            border-radius: var(--bubbly-radius); outline: none; font-size: 16px; font-weight: 800;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: var(--shadow-3d); cursor: pointer;
         }
         input { cursor: text; width: 100%; }
-        input::placeholder { color: #A1887F; }
+        input::placeholder { color: #A1887F; transition: color 0.3s ease; }
+        input.ai-mode {
+            background-color: #FDFBFF;
+            border-color: var(--accent-ai);
+            box-shadow: 0 0 12px rgba(160,147,166,0.3), var(--shadow-3d);
+        }
+        input.ai-mode::placeholder { color: #8F7D96; font-style: italic; }
         input:hover, .action-btn:hover { border-color: var(--accent-primary); transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62,39,35,0.15); }
         .action-btn { background-color: var(--accent-hover); border-color: var(--border-color); white-space: nowrap; }
         .action-btn.active-fav { background-color: var(--danger); border-color: #B25858; color: white; }
@@ -114,9 +124,9 @@
         .dropdown-header {
             background-color: var(--accent-secondary); color: white; border: 3px solid #6E9B85;
             padding: 9px 16px; border-radius: var(--bubbly-radius);
-            font-size: 14px; font-weight: 700; font-family: 'Fredoka', sans-serif;
+            font-size: 15px; font-weight: 700; font-family: 'Fredoka', sans-serif;
             cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--shadow-3d);
+            transition: all 0.3s ease; box-shadow: var(--shadow-3d);
         }
         .dropdown-header:hover { transform: translateY(-2px); background-color: #8EBEAB; }
         .dropdown-header.disabled { opacity: 0.6; pointer-events: none; background: #BCAAA4; border-color: #A1887F; }
@@ -129,19 +139,22 @@
         .dropdown-list.show { display: flex; animation: popIn 0.2s forwards; }
         .dropdown-item {
             padding: 10px 14px; border-radius: 12px; cursor: pointer;
-            font-weight: 700; font-size: 13px; transition: all 0.2s; color: var(--text-main);
+            font-weight: 700; font-size: 14px; transition: all 0.2s; color: var(--text-main);
         }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
 
         /* Search */
         .search-container { position: relative; width: 100%; max-width: 620px; display: flex; align-items: center; gap: 10px; flex-grow: 1; }
         .ai-toggle-btn {
-            background: var(--accent-ai); border: 3px solid #8C737A; color: white;
-            width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer;
+            background: var(--nav-bg); border: 3px solid var(--border-color); color: var(--text-main);
+            width: 46px; height: 46px; border-radius: 50%; font-size: 20px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; transition: all 0.3s;
             box-shadow: var(--shadow-3d); flex-shrink: 0;
         }
-        .ai-toggle-btn.active { animation: pulseGlow 2s infinite; transform: translateY(2px); box-shadow: 0 2px 0 rgba(62,39,35,0.15); }
+        .ai-toggle-btn.active { 
+            background: var(--accent-ai); border-color: #8C737A; color: white;
+            animation: pulseGlow 2s infinite; transform: translateY(2px); box-shadow: 0 2px 0 rgba(62,39,35,0.15); 
+        }
         .search-input-wrapper { position: relative; flex: 1; min-width: 160px; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         .search-results {
@@ -157,20 +170,24 @@
         }
         .search-item:hover { background: var(--accent-hover); }
         .search-item img { width: 36px; height: 52px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ddd; }
-        .search-item b { font-size: 13px; font-weight: 800; color: var(--text-main); }
+        .search-item b { font-size: 14px; font-weight: 800; color: var(--text-main); }
 
         /* Main content */
         .main-content { flex: 1; padding-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
 
-        /* Player */
+        /* Player - Desktop default */
         .iframe-wrapper {
-            height: 72vh; min-height: 400px; position: relative;
-            padding: 20px; background: var(--frame-color);
+            width: 100%; max-width: 1200px; 
+            aspect-ratio: 16 / 9;
+            height: auto;
+            position: relative;
+            background: var(--frame-color);
             border: 8px solid #4E342E; outline: 3px solid #2D1B15;
-            border-radius: 14px;
+            border-radius: 14px; overflow: hidden;
             box-shadow: var(--shadow-float), inset 0 0 40px rgba(0,0,0,0.8);
+            margin-top: 14px;
         }
-        iframe { width: 100%; height: 100%; border: none; border-radius: 4px; }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
         /* Show Info */
         .show-info {
@@ -186,14 +203,14 @@
         .badges-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .badge {
             background: rgba(62,39,35,0.08); padding: 7px 15px; border-radius: 50px;
-            font-size: 13px; font-weight: 800; color: var(--text-main);
+            font-size: 14px; font-weight: 800; color: var(--text-main);
             display: inline-flex; align-items: center; gap: 6px;
         }
         .badge.rating { background: rgba(229,169,59,0.2); color: #8A5D10; }
         .emoji-icon { font-size: 1.1em; display: inline-flex; align-items: center; line-height: 1; }
 
         .show-overview {
-            font-size: 15px; line-height: 1.75; font-weight: 700;
+            font-size: 16px; line-height: 1.75; font-weight: 700;
             background: rgba(255,255,255,0.6); padding: 18px 22px;
             border-radius: 14px; border-left: 6px solid var(--accent-primary);
         }
@@ -204,7 +221,7 @@
             padding: 20px 24px; border-radius: 16px;
             background: linear-gradient(135deg, rgba(160,147,166,0.12), rgba(160,147,166,0.22));
             border: 2px solid rgba(140,115,122,0.45);
-            font-size: 14px; line-height: 1.75; font-weight: 700; color: var(--text-main);
+            font-size: 15px; line-height: 1.75; font-weight: 700; color: var(--text-main);
             animation: slideUp 0.3s ease;
         }
         .ai-insights-panel.visible { display: block; }
@@ -239,7 +256,7 @@
 
         .card-img-wrapper { position: relative; width: 100%; height: 192px; overflow: hidden; border-radius: 8px; margin-bottom: 8px; background: #e8e0d8; }
         .library-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .library-card-title { font-size: 12px; font-weight: 800; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .library-card-title { font-size: 13px; font-weight: 800; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .fav-badge {
             position: absolute; top: 5px; left: 5px; font-size: 14px; z-index: 5;
@@ -250,32 +267,32 @@
         .progress-badge {
             position: absolute; bottom: 5px; left: 5px; right: 5px;
             background: rgba(40,24,20,0.82); color: white;
-            font-size: 10px; font-weight: 800; padding: 3px 5px;
+            font-size: 11px; font-weight: 800; padding: 4px 5px;
             border-radius: 5px; text-align: center; letter-spacing: 0.02em;
         }
         .remove-btn {
             position: absolute; top: -9px; right: -9px; background: var(--danger); color: white;
-            width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 14px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 16px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             opacity: 0; transition: opacity 0.2s; z-index: 20; cursor: pointer;
         }
         .library-card:hover .remove-btn { opacity: 1; }
-        .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 14px; }
+        .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 15px; }
 
         .ai-recs-section { margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(160,147,166,0.4); }
-        .ai-recs-title { font-size: 17px; font-weight: 900; color: var(--text-main); margin-bottom: 2px; padding-left: 4px; }
+        .ai-recs-title { font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 2px; padding-left: 4px; }
 
         /* Zesty Chat */
         .zesty-toggle {
-            position: fixed; bottom: 28px; right: 28px; width: 60px; height: 60px;
+            position: fixed; bottom: 28px; right: 28px; width: 64px; height: 64px;
             background: var(--accent-secondary); color: white; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 28px; cursor: pointer; box-shadow: var(--shadow-float);
+            font-size: 30px; cursor: pointer; box-shadow: var(--shadow-float);
             border: 3px solid white; z-index: 999; animation: float 4s infinite;
         }
         .zesty-panel {
             display: none; position: fixed; bottom: 106px; right: 28px;
-            width: 340px; height: 480px;
+            width: 350px; height: 500px;
             background: var(--nav-bg); border: 3px solid var(--accent-secondary);
             border-radius: 20px; z-index: 998; flex-direction: column;
             box-shadow: var(--shadow-float); overflow: hidden;
@@ -283,96 +300,113 @@
         .zesty-panel.open { display: flex; animation: slideUp 0.25s ease; }
         .zesty-header {
             background: var(--accent-secondary); padding: 14px 18px; color: white;
-            font-weight: 900; font-size: 16px;
+            font-weight: 900; font-size: 17px;
             display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
         }
-        .zesty-close-btn { cursor: pointer; font-size: 18px; line-height: 1; opacity: 0.85; }
+        .zesty-close-btn { cursor: pointer; font-size: 20px; line-height: 1; opacity: 0.85; }
         .zesty-close-btn:hover { opacity: 1; }
         .zesty-messages {
             flex: 1; padding: 14px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 10px;
+            display: flex; flex-direction: column; gap: 12px;
         }
         .zesty-messages::-webkit-scrollbar { width: 4px; }
         .zesty-messages::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
         .zesty-msg-user {
-            background: var(--accent-primary); color: white; padding: 10px 14px;
+            background: var(--accent-primary); color: white; padding: 12px 16px;
             border-radius: 18px 18px 4px 18px; align-self: flex-end;
-            font-weight: 800; font-size: 14px; max-width: 85%; word-break: break-word;
+            font-weight: 800; font-size: 15px; max-width: 85%; word-break: break-word;
         }
         .zesty-msg-bot {
-            background: white; padding: 10px 14px;
+            background: white; padding: 12px 16px;
             border-radius: 18px 18px 18px 4px; align-self: flex-start;
             border: 2px solid var(--border-color);
-            font-weight: 700; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.5;
+            font-weight: 700; font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.5;
         }
         .zesty-input-area {
             padding: 12px 14px; display: flex; gap: 8px;
             border-top: 2px solid rgba(166,123,91,0.2); flex-shrink: 0;
             background: rgba(255,255,255,0.5);
         }
-        .zesty-input-area input { flex: 1; padding: 9px 14px; font-size: 13px; border-radius: 20px; }
-        .zesty-input-area .action-btn { padding: 9px 16px; font-size: 13px; flex-shrink: 0; }
+        .zesty-input-area input { flex: 1; padding: 10px 14px; border-radius: 20px; }
+        .zesty-input-area .action-btn { padding: 10px 18px; flex-shrink: 0; }
 
         /* Tablet */
         @media (max-width: 1100px) and (min-width: 769px) {
-            .navbar, .iframe-wrapper, .show-info, .library-section { width: 92%; }
-            .show-title { font-size: 30px; }
-            .library-title { font-size: 28px; }
-            .iframe-wrapper { height: 58vh; min-height: 320px; }
+            .navbar, .show-info, .library-section { width: 92%; }
+            .show-title { font-size: 32px; }
+            .library-title { font-size: 30px; }
             .library-card { min-width: 128px; max-width: 128px; }
             .card-img-wrapper { height: 174px; }
         }
 
         /* Mobile */
         @media (max-width: 768px) {
-            .navbar, .iframe-wrapper, .show-info, .library-section { width: 96%; margin: 8px auto; }
-            .navbar { flex-direction: column; border-radius: 18px; padding: 12px 14px; gap: 10px; }
-            .nav-left { flex-direction: column; width: 100%; gap: 8px; }
-            .logo { font-size: 24px; }
-            .dropdown-container { width: 100%; gap: 8px; }
+            /* Mobile Solid Background Fix */
+            body { background-color: var(--bg-deep); }
+            .background-backdrop { display: none; }
+            .cozy-overlay { background: var(--bg-deep); animation: none; opacity: 1; }
+
+            /* Layout Fixes */
+            .navbar, .show-info, .library-section { width: 96%; margin: 8px auto; }
+            .iframe-container { padding: 0 8px; }
+
+            .navbar { flex-direction: column; border-radius: 18px; padding: 14px; gap: 12px; }
+            .nav-left { flex-direction: column; width: 100%; gap: 10px; }
+            .logo { font-size: 26px; }
+            .dropdown-container { width: 100%; gap: 10px; }
             .custom-dropdown { flex: 1; min-width: 0; }
-            .dropdown-header { padding: 8px 12px; font-size: 13px; }
+            .dropdown-header { padding: 10px 12px; font-size: 14px; }
             .nav-right { width: 100%; }
             .search-container { max-width: 100%; gap: 8px; }
-            .ai-toggle-btn { width: 40px; height: 40px; font-size: 18px; }
+            
+            /* Inputs fixed size to prevent iOS zoom */
+            input, .zesty-input-area input { font-size: 16px !important; }
 
-            .iframe-wrapper { padding: 8px; border-width: 5px; height: 52vw; min-height: 190px; }
+            /* Player - Bigger width and height on mobile */
+            .iframe-wrapper {
+                width: 100%; max-width: 100%;
+                border-width: 4px; border-radius: 10px;
+                aspect-ratio: 16 / 9; /* Perfect wide screen scaling */
+                height: auto;
+                margin-top: 8px;
+            }
 
-            .show-info { padding: 16px; gap: 12px; }
-            .info-header { flex-direction: column; gap: 12px; }
-            .show-title { font-size: 24px; }
-            .action-buttons { width: 100%; gap: 8px; }
-            .action-btn { font-size: 12px; padding: 8px 12px; }
-            .badge { font-size: 11px; padding: 5px 10px; }
-            .show-overview { font-size: 13px; padding: 13px 15px; }
-            .ai-insights-panel { font-size: 13px; padding: 14px 16px; }
+            .show-info { padding: 18px; gap: 14px; }
+            .info-header { flex-direction: column; gap: 14px; }
+            .show-title { font-size: 26px; }
+            .action-buttons { width: 100%; gap: 10px; }
+            .action-btn { padding: 10px 14px; }
+            .badge { font-size: 13px; padding: 6px 12px; }
+            .show-overview { font-size: 15px; padding: 14px 16px; }
+            .ai-insights-panel { font-size: 14px; padding: 16px; }
 
-            .library-section { padding: 14px 12px; }
-            .library-title { font-size: 24px; }
-            .library-header { gap: 10px; }
-            .library-card { min-width: 116px; max-width: 116px; }
-            .card-img-wrapper { height: 156px; }
-            .library-card-title { font-size: 11px; }
+            .library-section { padding: 16px 14px; }
+            .library-title { font-size: 26px; }
+            .library-header { gap: 12px; }
+            .library-card { min-width: 120px; max-width: 120px; }
+            .card-img-wrapper { height: 164px; }
+            .library-card-title { font-size: 12px; }
+            .remove-btn { opacity: 1; } /* Always show remove btn on mobile touch */
 
-            .zesty-toggle { width: 52px; height: 52px; font-size: 24px; bottom: 16px; right: 14px; }
-            .zesty-panel { width: calc(100vw - 20px); right: 10px; bottom: 82px; height: 400px; }
-            .main-content { gap: 12px; padding-bottom: 84px; }
+            .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
+            .zesty-panel { width: calc(100vw - 20px); right: 10px; bottom: 82px; height: 450px; }
+            .main-content { gap: 14px; padding-bottom: 90px; }
         }
 
         /* 2K / 4K */
         @media (min-width: 1921px) {
-            .navbar, .iframe-wrapper, .show-info, .library-section { width: 74%; }
-            .logo { font-size: 36px; }
-            .show-title { font-size: 44px; }
-            .library-title { font-size: 36px; }
-            .iframe-wrapper { height: 68vh; min-height: 500px; }
+            .navbar, .show-info, .library-section { width: 74%; }
+            .iframe-wrapper { max-width: 1500px; }
+            .logo { font-size: 38px; }
+            .show-title { font-size: 46px; }
+            .library-title { font-size: 38px; }
             .library-card { min-width: 164px; max-width: 164px; }
             .card-img-wrapper { height: 228px; }
-            .badge { font-size: 14px; padding: 9px 17px; }
-            .action-btn, input { font-size: 15px; padding: 11px 20px; }
-            .dropdown-header { font-size: 15px; }
-            .show-overview { font-size: 16px; }
-            .zesty-panel { width: 380px; height: 520px; }
+            .badge { font-size: 15px; padding: 9px 17px; }
+            .action-btn { font-size: 16px; padding: 11px 20px; }
+            .dropdown-header { font-size: 16px; }
+            .show-overview { font-size: 17px; }
+            .zesty-panel { width: 400px; height: 560px; }
         }
     </style>
 </head>
@@ -408,8 +442,10 @@
 </header>
 
 <main class="main-content">
-    <div class="iframe-wrapper">
-        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    <div class="iframe-container">
+        <div class="iframe-wrapper">
+            <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        </div>
     </div>
 
     <div class="show-info">
@@ -448,25 +484,25 @@
 <div class="zesty-toggle" id="zesty-toggle" title="Chat with Zesty!">🍋</div>
 <div class="zesty-panel" id="zesty-panel">
     <div class="zesty-header">
-        <span>🍋 Zesty</span>
+        <span>🍋 Zesty Chat</span>
         <span class="zesty-close-btn" id="zesty-close">✕</span>
     </div>
     <div class="zesty-messages" id="zesty-messages">
         <div class="zesty-msg-bot">Hey! I'm Zesty 🍋 Tell me what kind of mood you're in for tonight!</div>
     </div>
     <div class="zesty-input-area">
-        <input type="text" id="zesty-input" placeholder="Say hi...">
+        <input type="text" id="zesty-input" placeholder="Say hi..." autocomplete="off">
         <button class="action-btn" id="zesty-send">Send</button>
     </div>
 </div>
 
 <script>
     /* ── Config ── */
-    const TMDB_KEY   = 'd62d816a3f48ed18c1dc5e157f4d73b2';
-    const TMDB_BASE  = 'https://api.themoviedb.org/3';
-    const GEMINI_KEY = 'AIzaSyDD3IHxFbuaj1d1znNWSv2-sVG0ItAqe64';
-    // gemini-2.0-flash: fast, reliable, free-tier
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+    const TMDB_KEY  = 'd62d816a3f48ed18c1dc5e157f4d73b2';
+    const TMDB_BASE = 'https://api.themoviedb.org/3';
+    
+    // Completely Free AI API setup (No API Key Required!)
+    const AI_API_URL = 'https://text.pollinations.ai/';
 
     /* ── Markdown → safe HTML ── */
     function mdToHtml(raw) {
@@ -500,52 +536,62 @@
         async getEpisodes(id,s)   { return (await fetch(`${TMDB_BASE}/tv/${id}/season/${s}?api_key=${TMDB_KEY}`)).json(); }
     };
 
-    /* ── Gemini ── */
-    const Gemini = {
-        async call(body) {
-            for (let i=0; i<3; i++) {
-                try {
-                    const r = await fetch(GEMINI_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
-                    if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.error?.message||`HTTP ${r.status}`); }
-                    return await r.json();
-                } catch(e) {
-                    if (i===2) throw e;
-                    await new Promise(r=>setTimeout(r,[1200,2500][i]));
-                }
+    /* ── New FREE AI Implementation (Pollinations.ai) ── */
+    const AI = {
+        async call(messages, isJson = false) {
+            try {
+                const response = await fetch(AI_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: messages,
+                        model: 'openai', 
+                        jsonMode: isJson
+                    })
+                });
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                return await response.text();
+            } catch(e) {
+                console.error("AI Error:", e);
+                throw e;
             }
         },
-        text(d) { return d?.candidates?.[0]?.content?.parts?.[0]?.text||''; },
         async smartSearch(q) {
             try {
-                const d = await this.call({ contents:[{parts:[{text:`Find the exact movie/TV title for: "${q}". Respond ONLY with JSON: {"title":"Exact Title"}`}]}] });
-                const raw = this.text(d).replace(/```json|```/g,'').trim();
-                return JSON.parse(raw).title||q;
+                const text = await this.call([
+                    { role: 'system', content: 'You are a search exact title extractor. Return ONLY the exact title string of the movie or TV show the user is describing. Nothing else. No quotes.' },
+                    { role: 'user', content: `Find the exact movie/TV title for this description: "${q}"` }
+                ]);
+                return text.trim().replace(/^"|"$/g, '') || q;
             } catch { return q; }
         },
-        async insights(title,type,year) {
+        async insights(title, type, year) {
             try {
-                const d = await this.call({
-                    contents:[{parts:[{text:`Write 3 spoiler-free fun facts and a 1-sentence pitch for the ${type} "${title}" (${year}). Start with the pitch sentence, then use bullet points for the facts.`}]}],
-                    systemInstruction:{parts:[{text:'You are an enthusiastic, concise movie expert. No spoilers. Keep it warm and fun.'}]}
-                });
-                return this.text(d)||'No insights found.';
-            } catch(e) { return `⚠️ Could not load insights (${e.message}). Check your API key.`; }
+                const text = await this.call([
+                    { role: 'system', content: 'You are an enthusiastic, concise movie expert. No spoilers. Keep it warm and fun. Format using simple markdown text.' },
+                    { role: 'user', content: `Write 3 spoiler-free fun facts and a 1-sentence pitch for the ${type} "${title}" (${year}). Start with the pitch sentence, then use bullet points for the facts.` }
+                ]);
+                return text || 'No insights found.';
+            } catch(e) { return `⚠️ Could not load insights right now. Please try again!`; }
         },
         async recs(titles) {
             try {
-                const d = await this.call({ contents:[{parts:[{text:`Based on: ${titles.join(', ')}. Recommend 5 similar titles. Return ONLY a JSON array of title strings. No markdown.`}]}] });
-                const raw = this.text(d).replace(/```json|```/g,'').trim();
+                const text = await this.call([
+                    { role: 'system', content: 'You are a recommender. Return ONLY a valid JSON array of 5 exact title strings. Do not include markdown blocks or any other text.' },
+                    { role: 'user', content: `Based on: ${titles.join(', ')}. Recommend 5 similar titles.` }
+                ], true);
+                const raw = text.replace(/```json|```/g,'').trim();
                 return JSON.parse(raw);
             } catch { return []; }
         },
         async chat(history) {
             try {
-                const d = await this.call({
-                    contents:history,
-                    systemInstruction:{parts:[{text:'You are Zesty, a fun warm movie/TV assistant. Keep replies concise (2-3 sentences). Recommend real titles when helpful.'}]}
-                });
-                return this.text(d)||'Try again!';
-            } catch(e) { return `⚠️ ${e.message}`; }
+                const msgs = [
+                    { role: 'system', content: 'You are Zesty, a fun warm movie/TV assistant. Keep replies concise (2-3 sentences max). Recommend real titles when helpful.' },
+                    ...history
+                ];
+                return await this.call(msgs);
+            } catch(e) { return `⚠️ Zesty is taking a little nap. Try sending that again!`; }
         }
     };
 
@@ -703,7 +749,7 @@
         if(aiInsightsPanel.classList.contains('visible')){ aiInsightsPanel.classList.remove('visible'); return; }
         aiInsightsPanel.innerHTML='<em style="opacity:0.65;font-weight:700;">✨ Conjuring insights...</em>';
         aiInsightsPanel.classList.add('visible');
-        const raw=await Gemini.insights(mediaTitle, mediaType==='tv'?'TV Show':'Movie', mediaYear);
+        const raw=await AI.insights(mediaTitle, mediaType==='tv'?'TV Show':'Movie', mediaYear);
         aiInsightsPanel.innerHTML=mdToHtml(raw);
     });
 
@@ -712,7 +758,7 @@
         const lib=getLib(); if(!lib.length){ alert('Add something to your backpack first! 🎒'); return; }
         aiRecsContainer.style.display='block';
         aiRecsScroll.innerHTML='<div class="empty-library">✨ Reading your vibe...</div>';
-        const titles=await Gemini.recs(lib.map(i=>i.name).slice(0,10));
+        const titles=await AI.recs(lib.map(i=>i.name).slice(0,10));
         aiRecsScroll.innerHTML='';
         for(const title of titles){
             const data=await TMDB.searchMulti(title);
@@ -727,23 +773,42 @@
         if(!aiRecsScroll.children.length) aiRecsScroll.innerHTML='<div class="empty-library">No results. Try adding more to your backpack!</div>';
     });
 
-    /* ── Search ── */
-    aiSearchToggle.addEventListener('click', ()=>{ aiSearchOn=!aiSearchOn; aiSearchToggle.classList.toggle('active'); });
-    searchInput.addEventListener('input', async e=>{
+    /* ── Toggle AI Search Mode ── */
+    aiSearchToggle.addEventListener('click', () => { 
+        aiSearchOn = !aiSearchOn; 
+        aiSearchToggle.classList.toggle('active'); 
+        if(aiSearchOn) {
+            searchInput.placeholder = 'Describe what you want (AI mode)...';
+            searchInput.classList.add('ai-mode');
+        } else {
+            searchInput.placeholder = 'Find a movie or show...';
+            searchInput.classList.remove('ai-mode');
+        }
+    });
+
+    /* ── Smart Search execution ── */
+    searchInput.addEventListener('input', async e => {
         clearTimeout(searchTimer); const q=e.target.value.trim();
-        if(q.length<2){ searchResults.classList.remove('active'); return; }
-        searchTimer=setTimeout(async()=>{
-            const query=aiSearchOn?await Gemini.smartSearch(q):q;
-            const data=await TMDB.searchMulti(query);
-            searchResults.innerHTML='';
-            data.results?.filter(i=>i.media_type!=='person').slice(0,6).forEach(item=>{
-                const el=document.createElement('div'); el.className='search-item';
-                el.innerHTML=`<img src="https://image.tmdb.org/t/p/w92${item.poster_path}" alt=""><div><b>${item.name||item.title}</b></div>`;
-                el.onclick=()=>{ mediaId=item.id; mediaType=item.media_type; searchInput.value=''; searchResults.classList.remove('active'); loadMedia(item.id,item.media_type); };
+        if(q.length < 2) { searchResults.classList.remove('active'); return; }
+        
+        searchTimer = setTimeout(async () => {
+            const query = aiSearchOn ? await AI.smartSearch(q) : q;
+            const data = await TMDB.searchMulti(query);
+            searchResults.innerHTML = '';
+            
+            data.results?.filter(i => i.media_type !== 'person').slice(0,6).forEach(item => {
+                const el = document.createElement('div'); el.className = 'search-item';
+                el.innerHTML = `<img src="https://image.tmdb.org/t/p/w92${item.poster_path}" alt=""><div><b>${item.name||item.title}</b></div>`;
+                el.onclick = () => { mediaId = item.id; mediaType = item.media_type; searchInput.value = ''; searchResults.classList.remove('active'); loadMedia(item.id, item.media_type); };
                 searchResults.appendChild(el);
             });
+            
             if(searchResults.children.length) searchResults.classList.add('active');
-        },450);
+            else {
+                searchResults.innerHTML = `<div class="search-item"><b>No results found.</b></div>`;
+                searchResults.classList.add('active');
+            }
+        }, aiSearchOn ? 800 : 450); // Add a little more delay for AI mode
     });
 
     /* ── Fav & Share ── */
@@ -763,13 +828,15 @@
         const txt=zestyInput.value.trim(); if(!txt) return;
         const uMsg=document.createElement('div'); uMsg.className='zesty-msg-user'; uMsg.textContent=txt;
         zestyMessages.appendChild(uMsg); zestyInput.value='';
-        chatHistory.push({role:'user',parts:[{text:txt}]});
+        chatHistory.push({role:'user', content: txt});
+        
         const thinking=document.createElement('div'); thinking.className='zesty-msg-bot';
         thinking.innerHTML='<em>thinking...</em>';
         zestyMessages.appendChild(thinking); zestyMessages.scrollTop=zestyMessages.scrollHeight;
-        const reply=await Gemini.chat(chatHistory);
+        
+        const reply=await AI.chat(chatHistory);
         thinking.innerHTML=mdToHtml(reply)||reply;
-        chatHistory.push({role:'model',parts:[{text:reply}]});
+        chatHistory.push({role:'assistant', content: reply});
         zestyMessages.scrollTop=zestyMessages.scrollHeight;
     }
     zestySend.addEventListener('click', sendZesty);
