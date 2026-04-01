@@ -1,3 +1,55 @@
+gemini really fucked my shit here the all ai system is not working there are  a lot of things missing there size inporportions and pc and highres everything is so small and not the same size as the other  and on mobile everything is too big
+6:03 PM
+
+Let me read the file first to understand what we're working with.
+Viewed 3 files
+
+Good, I've read the full file. Now let me also check the frontend design skill before fixing this.
+Reading frontend design skill
+
+Now I have a full picture of the issues. Let me fix everything: missing CSS for .info-header, .action-buttons, .title-group, .search-icon, .ai-insights-panel, .zesty-panel classes, plus broken proportions on desktop, and the high-res/mobile scaling problems.
+Edited 3 files, ran a command
+
+Now fix the JS that sets aiInsightsPanel.style.display — it needs to toggle using the class properly since we moved it to CSS:
+Fix AI insights panel toggle to use block display correctly
+
+That approach is messy — let me do it cleanly instead:
+Clean fix for AI insights toggle
+
+Now also add a medium breakpoint for tablets and fix the search input wrapper duplication (it was defined twice):
+Edited 2 files, viewed a file
+
+Now add a tablet breakpoint and also add popIn animation which is referenced but never defined:
+Add missing popIn keyframe animation and tablet breakpoint
+
+Now copy to outputs:
+Ran a command, read a file
+
+Here's what I fixed:
+
+Missing CSS (Gemini broke these):
+
+    .info-header — the flex row holding the title and action buttons
+    .title-group — wraps title + badges together
+    .action-buttons — the Favorite / Share / AI Insights button row
+    .search-icon — the 🔍 positioned inside the search input
+    .ai-insights-panel — was completely unstyled, now has a proper lavender card look
+    @keyframes popIn — referenced everywhere for dropdowns/search but never defined
+
+Size & proportion fixes:
+
+    High-res (2K/4K): Dialed back the crazy scaling (was 64px titles, 20px base font) to sane proportions — things stay readable without being gigantic
+    Desktop: show-title corrected from 48px → 42px (better balance), show-overview font size reduced slightly
+    Tablet (769–1100px): Added a missing middle breakpoint so it doesn't jump straight from desktop to mobile
+    Mobile: Much more complete — buttons, badges, cards, the chat panel, iframe height, and spacing all properly sized down without everything going huge
+
+Index
+Code · HTML 
+Want to be notified when Claude responds?
+
+the chat is to scaled up the description tmdb and vidfast dont work 
+Claude is AI and can make mistakes. Please double-check responses.
+Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +59,7 @@
     <style>
         /* ‼️ CRITICAL FIX: @import must be at the very top of the style block to work! */
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
-
+ 
         /* ☕ Warm & Cozy Cafe Variables */
         :root {
             --bg-deep: #5C4033; /* Deep Wood Brown */
@@ -34,29 +86,30 @@
             --shadow-float: 0 10px 25px rgba(62, 39, 35, 0.2);
             --shadow-ai: 0 0 15px rgba(157, 129, 137, 0.5);
         }
-
+ 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', system-ui, sans-serif; }
-
+ 
         body {
             background-color: var(--bg-deep); color: var(--text-main);
             min-height: 100vh; display: flex; flex-direction: column;
             overflow-x: hidden; overflow-y: auto;
             font-size: 16px;
         }
-
+ 
         /* --- High Res Scaling (2K/4K) --- */
         @media (min-width: 1921px) {
-            body { font-size: 20px; }
-            .logo { font-size: 48px !important; }
-            .show-title { font-size: 64px !important; }
-            .library-title { font-size: 52px !important; }
-            .badge { font-size: 18px !important; padding: 12px 24px !important; }
-            .action-btn, input { font-size: 18px !important; padding: 15px 30px !important; }
-            .navbar { padding: 20px 40px !important; }
-            .library-card { min-width: 180px !important; max-width: 180px !important; }
-            .card-img-wrapper { height: 250px !important; }
+            body { font-size: 18px; }
+            .logo { font-size: 42px !important; }
+            .show-title { font-size: 56px !important; }
+            .library-title { font-size: 46px !important; }
+            .badge { font-size: 16px !important; padding: 10px 20px !important; }
+            .action-btn, input { font-size: 16px !important; padding: 12px 24px !important; }
+            .navbar { padding: 16px 32px !important; }
+            .library-card { min-width: 200px !important; max-width: 200px !important; }
+            .card-img-wrapper { height: 280px !important; }
+            .iframe-wrapper { height: 70vh !important; }
         }
-
+ 
         /* --- Animations --- */
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -70,13 +123,13 @@
             0% { background-position: center top; }
             100% { background-position: center bottom; }
         }
-
+ 
         .background-backdrop {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -2; background-size: cover; background-position: center;
             filter: blur(30px) brightness(0.8) sepia(0.3); transition: background-image 1s ease-in-out; transform: scale(1.1);
         }
-
+ 
         .cozy-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1; 
@@ -85,14 +138,14 @@
             animation: breatheBG 15s ease-in-out infinite alternate;
             pointer-events: none;
         }
-
+ 
         /* --- Layout Containers (Expanded to 80% with breathing room) --- */
         .navbar, .iframe-wrapper, .show-info, .library-section {
             width: 80%;
             max-width: 2200px;
             margin: 16px auto;
         }
-
+ 
         /* --- Header --- */
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
@@ -102,12 +155,12 @@
             box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100; 
             flex-wrap: nowrap; gap: 24px;
         }
-
+ 
         .nav-left { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; flex-shrink: 0; }
         .logo { font-size: 36px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); display: flex; align-items: center; gap: 2px; white-space: nowrap; line-height: 1; padding-bottom: 4px; }
-
+ 
         .nav-right { flex: 2; display: flex; justify-content: flex-end; align-items: center; }
-
+ 
         /* Buttons & Inputs */
         input, .action-btn {
             background-color: var(--input-bg); color: var(--text-main);
@@ -116,7 +169,7 @@
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: var(--shadow-3d); cursor: pointer;
         }
-
+ 
         input { cursor: text; width: 100%; }
         input::placeholder { color: #A1887F; }
         input:hover, .action-btn:hover { border-color: var(--accent-primary); transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.15); }
@@ -124,7 +177,7 @@
         .action-btn { background-color: var(--accent-hover); border-color: var(--border-color);}
         .action-btn.active-fav { background-color: var(--danger); border-color: #B25858; color: white; }
         .action-btn.ai-btn { border-color: #8C737A; background: var(--accent-ai); color: white; padding: 12px 24px; }
-
+ 
         /* --- FIXED DROPDOWNS --- */
         .dropdown-container { display: flex; gap: 10px; align-items: center; }
         .custom-dropdown { position: relative; min-width: 150px; user-select: none; }
@@ -148,7 +201,7 @@
         .dropdown-list.show { display: flex; animation: popIn 0.2s forwards; }
         .dropdown-item { padding: 12px 15px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.2s; color: var(--text-main); }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
-
+ 
         /* --- Search Area --- */
         .search-container { position: relative; width: 100%; max-width: 700px; display: flex; align-items: center; gap: 12px; flex-grow: 1; }
         .ai-toggle-btn {
@@ -158,19 +211,17 @@
             box-shadow: var(--shadow-3d); flex-shrink: 0;
         }
         .ai-toggle-btn.active { animation: pulseGlow 2s infinite; transform: translateY(2px); box-shadow: 0 2px 0 rgba(62, 39, 35, 0.15); }
-        
-        .search-input-wrapper { position: relative; flex: 1; min-width: 200px; }
-
+ 
         .search-results {
             position: absolute; top: calc(100% + 15px); right: 0; width: 100%;
             background-color: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--card-radius);
             box-shadow: var(--shadow-float); z-index: 200; display: none; flex-direction: column; padding: 10px;
         }
         .search-results.active { display: flex; animation: popIn 0.2s forwards; }
-
+ 
         /* --- Main Content Area --- */
         .main-content { flex: 1; padding-bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
-
+ 
         .iframe-wrapper {
             height: 75vh; min-height: 500px; position: relative; 
             background-color: #000;
@@ -182,14 +233,22 @@
             box-shadow: var(--shadow-float), inset 0 0 40px rgba(0,0,0,0.8);
         }
         iframe { width: 100%; height: 100%; border: none; border-radius: 4px; }
-
+ 
         .show-info {
             padding: 35px; background: var(--panel-bg); backdrop-filter: blur(16px);
             border-radius: var(--card-radius); border: 3px solid var(--border-color); box-shadow: var(--shadow-float);
             display: flex; flex-direction: column; gap: 20px;
         }
-
-        .show-title { font-size: 48px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); line-height: 1.1; }
+ 
+        /* --- Show Info Layout --- */
+        .info-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            gap: 24px; flex-wrap: wrap;
+        }
+        .title-group { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
+        .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
+ 
+        .show-title { font-size: 42px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); line-height: 1.1; }
         .badges-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .badge { 
             background: rgba(62, 39, 35, 0.08); padding: 10px 20px; border-radius: 50px; 
@@ -197,10 +256,22 @@
             display: inline-flex; align-items: center; gap: 8px; 
         }
         .badge.rating { background: rgba(229, 169, 59, 0.2); color: #8A5D10; }
-        .emoji-icon { font-size: 1.3em; display: inline-flex; align-items: center; }
-
-        .show-overview { font-size: 18px; line-height: 1.8; font-weight: 700; background: rgba(255,255,255,0.6); padding: 25px; border-radius: 16px; border-left: 8px solid var(--accent-primary); }
-
+        .emoji-icon { font-size: 1.2em; display: inline-flex; align-items: center; line-height: 1; }
+ 
+        .show-overview { font-size: 16px; line-height: 1.8; font-weight: 700; background: rgba(255,255,255,0.6); padding: 20px 25px; border-radius: 16px; border-left: 8px solid var(--accent-primary); }
+ 
+        /* --- Search icon --- */
+        .search-input-wrapper { position: relative; flex: 1; min-width: 200px; }
+        .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
+ 
+        /* --- AI Insights Panel --- */
+        .ai-insights-panel {
+            display: none; padding: 20px 25px; border-radius: 16px;
+            background: rgba(160, 147, 166, 0.15); border: 2px solid var(--accent-ai);
+            font-size: 15px; line-height: 1.7; font-weight: 700; color: var(--text-main);
+            white-space: pre-wrap;
+        }
+ 
         /* --- Backpack (Bottom) --- */
         .library-section {
             padding: 30px 40px; background: rgba(253, 245, 230, 0.7); backdrop-filter: blur(10px);
@@ -208,7 +279,7 @@
         }
         .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
         .library-title { font-size: 42px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 15px; }
-
+ 
         .library-scroll { display: flex; gap: 25px; overflow-x: auto; padding: 20px 10px 35px 10px; scroll-behavior: smooth; }
         
         .library-card { 
@@ -220,7 +291,7 @@
         .card-img-wrapper { position: relative; width: 100%; height: 220px; overflow: hidden; border-radius: 8px; margin-bottom: 8px; }
         .library-card img { width: 100%; height: 100%; object-fit: cover; }
         .library-card-title { font-size: 16px; font-weight: 800; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
+ 
         .remove-btn {
             position: absolute; top: -10px; right: -10px; background: var(--danger); color: white;
             width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -228,7 +299,7 @@
             opacity: 0; transition: opacity 0.2s; z-index: 20;
         }
         .library-card:hover .remove-btn { opacity: 1; }
-
+ 
         /* --- ZESTY CHAT --- */
         .zesty-toggle {
             position: fixed; bottom: 30px; right: 30px; width: 70px; height: 70px;
@@ -236,26 +307,50 @@
             font-size: 34px; cursor: pointer; box-shadow: var(--shadow-float);
             border: 3px solid white; z-index: 999; animation: float 4s infinite;
         }
-
-        @media (max-width: 768px) {
-            .navbar, .iframe-wrapper, .show-info, .library-section { width: 95%; margin: 10px auto; }
-            .navbar { flex-direction: column; height: auto; border-radius: 20px; gap: 15px; }
-            .nav-left { flex-direction: column; width: 100%; }
+ 
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+ 
+        /* --- Tablet Breakpoint --- */
+        @media (max-width: 1100px) and (min-width: 769px) {
+            .navbar, .iframe-wrapper, .show-info, .library-section { width: 92%; }
+            .show-title { font-size: 34px !important; }
+            .library-title { font-size: 32px !important; }
+            .iframe-wrapper { height: 60vh; }
+            .action-buttons { flex-wrap: wrap; }
+        }
+            .navbar, .iframe-wrapper, .show-info, .library-section { width: 95%; margin: 8px auto; }
+            .navbar { flex-direction: column; height: auto; border-radius: 20px; gap: 12px; padding: 12px 16px; }
+            .nav-left { flex-direction: column; width: 100%; gap: 10px; }
             .dropdown-container { width: 100%; justify-content: center; }
             .custom-dropdown { flex: 1; min-width: 0; }
             .search-container { max-width: 100%; width: 100%; }
             .nav-right { width: 100%; margin: 0; }
-            .logo { font-size: 28px !important; }
-            .iframe-wrapper { padding: 10px; border-width: 5px; height: 40vh; }
-            .show-title { font-size: 28px !important; text-align: center; }
+            .logo { font-size: 26px !important; }
+            .iframe-wrapper { padding: 8px; border-width: 4px; height: 45vw; min-height: 220px; }
+            .show-title { font-size: 24px !important; }
+            .show-info { padding: 20px; gap: 16px; }
+            .info-header { flex-direction: column; gap: 16px; }
+            .action-buttons { width: 100%; justify-content: flex-start; }
+            .action-btn { font-size: 13px !important; padding: 8px 14px !important; }
+            .badge { font-size: 13px !important; padding: 7px 14px !important; }
+            .show-overview { font-size: 14px; padding: 14px 16px; }
+            .library-title { font-size: 28px !important; }
+            .library-card { min-width: 130px; max-width: 130px; }
+            .card-img-wrapper { height: 180px; }
+            .library-card-title { font-size: 13px; }
+            .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 20px; right: 16px; }
+            #zesty-panel { width: calc(100vw - 32px) !important; right: 16px !important; bottom: 90px !important; }
         }
     </style>
 </head>
 <body>
-
+ 
     <div class="background-backdrop" id="bg-backdrop"></div>
     <div class="cozy-overlay"></div>
-
+ 
     <header class="navbar">
         <div class="nav-left">
             <div class="logo">ZestFlix<span class="emoji-icon" style="font-size: 0.85em;">🍿</span></div>
@@ -281,7 +376,7 @@
             </div>
         </div>
     </header>
-
+ 
     <main class="main-content">
         <div class="iframe-wrapper">
             <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
@@ -307,7 +402,7 @@
             <p class="show-overview" id="info-overview"></p>
             <div class="ai-insights-panel" id="ai-insights-panel"></div>
         </div>
-
+ 
         <section class="library-section" id="library-container">
             <div class="library-header">
                 <h2 class="library-title">My Backpack <span class="emoji-icon" style="font-size: 0.75em;">🎒</span></h2>
@@ -321,7 +416,7 @@
             </div>
         </section>
     </main>
-
+ 
     <div class="zesty-toggle" id="zesty-toggle" title="Chat with Zesty!">🍋</div>
     <div class="zesty-panel" id="zesty-panel" style="display:none; position:fixed; bottom:110px; right:30px; width:360px; height:500px; background:var(--nav-bg); border:3px solid var(--accent-secondary); border-radius:20px; z-index:998; flex-direction:column; box-shadow:var(--shadow-float); overflow:hidden;">
         <div class="zesty-header" style="background:var(--accent-secondary); padding:15px; color:white; font-weight:900; display:flex; justify-content:space-between; align-items:center;">
@@ -336,17 +431,17 @@
             <button class="action-btn" id="zesty-send" style="padding:10px;">Send</button>
         </div>
     </div>
-
+ 
     <script>
         // ‼️ API KEY HARDCODED AS REQUESTED
         const apiKey = "AIzaSyDD3IHxFbuaj1d1znNWSv2-sVG0ItAqe64"; 
-
+ 
         function getGeminiUrl() {
             // Smart model switcher to handle both preview and generic keys
             const model = (apiKey.length > 10) ? 'gemini-1.5-flash' : 'gemini-2.5-flash-preview-09-2025';
             return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         }
-
+ 
         const BackendService = {
             TMDB_API_KEY: 'd62d816a3f48ed18c1dc5e157f4d73b2',
             BASE_URL: 'https://api.themoviedb.org/3',
@@ -363,7 +458,7 @@
                 return res.json();
             }
         };
-
+ 
         const GeminiService = {
             async fetchWithRetry(url, options, retries = 3) {
                 const delays = [1000, 2000, 4000];
@@ -415,11 +510,11 @@
                 } catch(e) { return "Trouble connecting!"; }
             }
         };
-
+ 
         let currentMediaId = 37680; let currentMediaType = 'tv'; let currentMediaTitle = 'Suits'; let currentMediaYear = '2011';
         let currentSeasonVal = null; let currentEpisodeVal = null; let searchTimeout = null;
         let isAiSearchEnabled = false;
-
+ 
         const searchInput = document.getElementById('search-input'); const searchResults = document.getElementById('search-results');
         const playerFrame = document.getElementById('player-frame'); const bgBackdrop = document.getElementById('bg-backdrop');
         const infoTitle = document.getElementById('info-title'); const infoYear = document.getElementById('info-year');
@@ -435,9 +530,9 @@
         const zestyToggle = document.getElementById('zesty-toggle'); const zestyPanel = document.getElementById('zesty-panel');
         const zestyClose = document.getElementById('zesty-close'); const zestyMessages = document.getElementById('zesty-messages');
         const zestyInput = document.getElementById('zesty-input'); const zestySend = document.getElementById('zesty-send');
-
+ 
         async function init() { renderLibrary(); await loadMediaDetails(currentMediaId, currentMediaType); }
-
+ 
         function toggleDropdown(listElem) { 
             if (listElem !== seasonList) seasonList.classList.remove('show'); 
             if (listElem !== episodeList) episodeList.classList.remove('show'); 
@@ -449,7 +544,7 @@
             if (!e.target.closest('.custom-dropdown')) { seasonList.classList.remove('show'); episodeList.classList.remove('show'); }
             if (!e.target.closest('.search-container')) { searchResults.classList.remove('active'); }
         });
-
+ 
         function populateSeasonDropdown(seasons, targetSeason) {
             seasonList.innerHTML = '';
             seasons.forEach(season => {
@@ -463,7 +558,7 @@
             });
             seasonHeader.classList.remove('disabled');
         }
-
+ 
         function populateEpisodeDropdown(episodes, targetEpisode) {
             episodeList.innerHTML = '';
             episodes.forEach(ep => {
@@ -478,10 +573,10 @@
             });
             episodeHeader.classList.remove('disabled');
         }
-
+ 
         function getLibrary() { return JSON.parse(localStorage.getItem('streamToyLibrary') || '[]'); }
         function saveLibrary(lib) { localStorage.setItem('streamToyLibrary', JSON.stringify(lib)); renderLibrary(); updateFavBtnUI(); }
-
+ 
         function updateLibraryData(data, mediaType, season = 1, episode = 1) {
             let library = getLibrary();
             let existing = library.find(item => item.id == data.id && item.mediaType === mediaType);
@@ -490,20 +585,20 @@
             library.unshift({ id: data.id, name: data.name || data.title, poster: data.poster_path, mediaType: mediaType, season: season, episode: episode, favorite: isFav });
             if(library.length > 20) library.pop(); saveLibrary(library);
         }
-
+ 
         function updateLibraryProgress(id, season, episode) {
             if (currentMediaType === 'movie') return;
             let library = getLibrary();
             const index = library.findIndex(item => item.id == id && item.mediaType === 'tv');
             if (index !== -1) { library[index].season = season; library[index].episode = episode; saveLibrary(library); }
         }
-
+ 
         function toggleFavorite(id) {
             let library = getLibrary();
             const index = library.findIndex(item => item.id == id && item.mediaType === currentMediaType);
             if (index !== -1) { library[index].favorite = !library[index].favorite; saveLibrary(library); }
         }
-
+ 
         function renderLibrary() {
             let library = getLibrary(); libraryScroll.innerHTML = '';
             if (library.length === 0) { libraryScroll.innerHTML = `<div class="empty-library">Your backpack is empty! 🏕️</div>`; return; }
@@ -525,16 +620,17 @@
                 libraryScroll.appendChild(card);
             });
         }
-
+ 
         aiSearchToggle.addEventListener('click', () => { isAiSearchEnabled = !isAiSearchEnabled; aiSearchToggle.classList.toggle('active'); });
-
+ 
         aiInsightsBtn.addEventListener('click', async () => {
-            if (aiInsightsPanel.style.display === 'block') { aiInsightsPanel.style.display = 'none'; return; }
+            const isVisible = aiInsightsPanel.style.display === 'block';
+            if (isVisible) { aiInsightsPanel.style.display = 'none'; return; }
             aiInsightsPanel.style.display = 'block'; aiInsightsPanel.innerHTML = "✨ Conjuring insights...";
             const text = await GeminiService.getInsights(currentMediaTitle, currentMediaType === 'tv' ? 'TV Show' : 'Movie', currentMediaYear);
             aiInsightsPanel.innerHTML = text;
         });
-
+ 
         aiRecsBtn.addEventListener('click', async () => {
             const library = getLibrary(); if (library.length === 0) return;
             aiRecsContainer.style.display = 'block'; aiRecsScroll.innerHTML = '<div style="color:var(--text-main); padding:15px; font-weight:900;">✨ Reading your mind...</div>';
@@ -552,7 +648,7 @@
                 }
             }
         });
-
+ 
         let chatHistory = [];
         zestyToggle.addEventListener('click', () => zestyPanel.style.display = 'flex');
         zestyClose.addEventListener('click', () => zestyPanel.style.display = 'none');
@@ -565,15 +661,15 @@
             chatHistory.push({ role: "model", parts: [{ text: response }] });
             zestyMessages.scrollTop = zestyMessages.scrollHeight;
         });
-
+ 
         function updateFavBtnUI() {
             let library = getLibrary(); let current = library.find(item => item.id == currentMediaId && item.mediaType == currentMediaType);
             if (current && current.favorite) { favBtn.innerHTML = '<span class="emoji-icon" style="color: #ef4444;">❤️</span> Favorited'; favBtn.classList.add('active-fav'); } 
             else { favBtn.innerHTML = '<span class="emoji-icon">🤍</span> Favorite'; favBtn.classList.remove('active-fav'); }
         }
-
+ 
         favBtn.addEventListener('click', () => toggleFavorite(currentMediaId));
-
+ 
         async function loadMediaDetails(id, type, targetSeason = null, targetEpisode = null) {
             try {
                 const data = await BackendService.getDetails(id, type);
@@ -601,7 +697,7 @@
                 updateFavBtnUI();
             } catch (error) { console.error(error); }
         }
-
+ 
         async function loadEpisodes(tvId, seasonNum, targetEpisode = null) {
             const data = await BackendService.getEpisodes(tvId, seasonNum);
             if (data.episodes?.length > 0) {
@@ -610,7 +706,7 @@
                 populateEpisodeDropdown(data.episodes, currentEpisodeVal); updatePlayer();
             }
         }
-
+ 
         function updatePlayer() {
             if (currentMediaType === 'movie') { playerFrame.src = `https://vidfast.pro/movie/${currentMediaId}?autoPlay=true`; } 
             else {
@@ -618,7 +714,7 @@
                 updateLibraryProgress(currentMediaId, currentSeasonVal, currentEpisodeVal);
             }
         }
-
+ 
         searchInput.addEventListener('input', async (e) => {
             clearTimeout(searchTimeout); const query = e.target.value.trim();
             if (query.length >= 2) searchTimeout = setTimeout(async () => {
@@ -634,8 +730,9 @@
                 searchResults.classList.add('active');
             }, 500);
         });
-
+ 
         init();
     </script>
 </body>
 </html>
+
