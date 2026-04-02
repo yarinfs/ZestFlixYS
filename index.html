@@ -124,17 +124,42 @@
         body.movie-mode input.ai-mode { box-shadow: 0 0 14px rgba(74,111,165,0.3), var(--shadow-3d); }
         input:hover { border-color: var(--accent-primary); }
 
-        /* ── Action Buttons (Clean & Solid) ── */
-        .action-btn { background-color: var(--accent-hover); color: var(--text-main); border: 3px solid var(--border-color); padding: 9px 18px; border-radius: var(--bubbly-radius); outline: none; font-size: 16px !important; font-weight: 800; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--shadow-3d); cursor: pointer; touch-action: manipulation; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
-        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62,39,35,0.18); }
-        .action-btn:active { transform: translateY(1px); }
-        .action-btn.active-fav { background-color: var(--danger); border-color: #B25858; color: white; }
+        /* ── Action Buttons (Redesigned) ── */
+        input.ai-mode::placeholder { color: #8F7D96; font-style: italic; }
+        input:hover { border-color: var(--accent-primary); }
 
-        /* ── AI Pill Buttons (Clean & Solid) ── */
-        .ai-btn-pill { background-color: var(--accent-secondary); border: 3px solid var(--border-color); color: white; padding: 10px 20px; border-radius: var(--bubbly-radius); font-size: 15px !important; font-weight: 900; cursor: pointer; touch-action: manipulation; box-shadow: var(--shadow-3d); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
-        body.movie-mode .ai-btn-pill { background-color: var(--accent-primary); border-color: #2a4080; }
-        .ai-btn-pill:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 6px 0 rgba(62,39,35,0.18); }
-        .ai-btn-pill:active { transform: translateY(1px); }
+        /* ── Action Buttons ── */
+        .action-btn {
+            background-color: var(--accent-hover); color: var(--text-main);
+            border: 3px solid var(--border-color); padding: 9px 18px;
+            border-radius: var(--bubbly-radius); outline: none;
+            font-size: 16px !important; font-weight: 800;
+            box-shadow: 0 4px 0 rgba(62, 39, 35, 0.15);
+            transition: all 0.2s; cursor: pointer; touch-action: manipulation;
+            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.2); }
+        .action-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(62, 39, 35, 0.15); }
+        .action-btn.active-fav { background-color: #ffdde1; color: var(--danger); border-color: #d89090; }
+
+        body.movie-mode .action-btn { background-color: #1e3560; color: #e8eaf6; border-color: #2a4080; box-shadow: 0 4px 0 rgba(0, 10, 40, 0.4); }
+        body.movie-mode .action-btn:hover { box-shadow: 0 6px 0 rgba(0, 10, 40, 0.5); }
+        body.movie-mode .action-btn:active { box-shadow: 0 2px 0 rgba(0, 10, 40, 0.4); }
+        body.movie-mode .action-btn.active-fav { background-color: #4a2020; color: #ff8a8a; border-color: #8a3030; }
+
+        /* ── AI Pill Buttons ── */
+        .ai-btn-pill {
+            background-color: var(--accent-ai); color: white;
+            border: 3px solid var(--border-color); padding: 10px 22px;
+            border-radius: var(--bubbly-radius); font-size: 15px !important; font-weight: 900;
+            box-shadow: 0 4px 0 rgba(62, 39, 35, 0.15);
+            transition: all 0.2s; cursor: pointer; touch-action: manipulation;
+            display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+        }
+        body.movie-mode .ai-btn-pill { background-color: var(--accent-ai); border-color: #3a5a9a; box-shadow: 0 4px 0 rgba(0, 10, 40, 0.4); }
+        .ai-btn-pill:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.2); filter: brightness(1.05); }
+        .ai-btn-pill:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(62, 39, 35, 0.15); }
+        body.movie-mode .ai-btn-pill:active { box-shadow: 0 2px 0 rgba(0, 10, 40, 0.4); }
 
         /* ── AI Search Toggle ── */
         .ai-search-area { display: flex; align-items: center; gap: 10px; background: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--bubbly-radius); padding: 6px 14px 6px 10px; box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
@@ -209,48 +234,56 @@
         .library-scroll::-webkit-scrollbar { height: 5px; }
         .library-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
-        /* ── Library Cards (Clean Theme Colors) ── */
+        /* ── Library Cards ── */
         .library-card {
             min-width: 140px; max-width: 140px; position: relative; display: flex;
-            flex-direction: column; cursor: pointer; border-radius: 14px;
-            background: var(--nav-bg); border: 3px solid var(--border-color);
-            padding: 0; box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+            flex-direction: column; cursor: pointer; border-radius: 16px;
+            background-color: var(--input-bg);
+            border: 3px solid var(--border-color);
+            box-shadow: 0 6px 12px rgba(62, 39, 35, 0.12);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             flex-shrink: 0; overflow: hidden;
         }
-        body.movie-mode .library-card { background: #111a2e; border-color: #2a4080; }
-        .library-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(62,39,35,0.25); }
-        .library-card.is-favorite { border-color: var(--danger); box-shadow: 0 5px 12px rgba(217,108,108,0.3); }
+        body.movie-mode .library-card { background-color: #0e1830; border-color: #2a4080; box-shadow: 0 6px 12px rgba(0, 10, 40, 0.4); }
+        .library-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(62, 39, 35, 0.2); }
+        body.movie-mode .library-card:hover { box-shadow: 0 12px 24px rgba(0, 10, 40, 0.6); }
+        .library-card.is-favorite { border-color: var(--danger); }
         
-        .card-img-wrapper { position: relative; width: 100%; height: 185px; overflow: hidden; background: #d5c4b0; }
-        body.movie-mode .card-img-wrapper { background: #0a1428; }
+        .card-img-wrapper { position: relative; width: 100%; height: 190px; background: #e8d8c4; border-bottom: 3px solid var(--border-color); }
+        body.movie-mode .card-img-wrapper { background: #050a15; border-bottom-color: #2a4080; }
         .library-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
         
         .library-card-title {
-            font-size: 12px; font-weight: 900; text-align: center;
+            font-size: 13px; font-weight: 800; text-align: center;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             padding: 10px 8px; font-family: 'Fredoka', sans-serif; color: var(--text-main);
-            background: var(--input-bg); border-top: 2px dashed var(--border-color);
-            letter-spacing: 0.3px;
+            background-color: transparent; letter-spacing: 0.2px;
         }
-        body.movie-mode .library-card-title { color: #e8eaf6; background: rgba(8,14,32,0.95); border-top-color: #2a4080; }
+        body.movie-mode .library-card-title { color: #e8eaf6; }
 
-        .fav-badge { position: absolute; top: 5px; left: 5px; font-size: 14px; z-index: 5; background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        .progress-badge { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(92,51,23,0.88); color: #f5ddb0; font-size: 11px; font-weight: 900; padding: 5px 6px; text-align: center; font-family: 'Fredoka', sans-serif; letter-spacing: 0.5px; border-top: 1.5px solid rgba(212,160,110,0.4); }
-        .progress-badge.is-movie { background: rgba(25,40,90,0.9); color: #9fc3ff; border-top-color: rgba(74,111,165,0.4); }
-        body:not(.movie-mode) .progress-badge.is-movie { background: rgba(62,39,35,0.85); color: #e8ccaa; }
+        .fav-badge { position: absolute; top: 6px; left: 6px; font-size: 14px; z-index: 5; background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); border: 2px solid var(--danger); }
+        body.movie-mode .fav-badge { background: #1e3560; border-color: #ff8a8a; }
         
-        /* Sleek Frosted 'X' Button inside frame */
+        .progress-badge { 
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(253, 245, 230, 0.95); color: var(--text-main); 
+            font-size: 11px; font-weight: 900; padding: 5px 6px; text-align: center; 
+            border-top: 3px solid var(--border-color); font-family: 'Fredoka', sans-serif;
+        }
+        body.movie-mode .progress-badge { background: rgba(8, 14, 32, 0.95); color: #a0b8e8; border-top-color: #2a4080; }
+        .progress-badge.is-movie { background: var(--accent-primary); color: white; }
+        body.movie-mode .progress-badge.is-movie { background: #4a6fa5; }
+        
         .remove-btn {
             position: absolute; top: 6px; right: 6px;
-            background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-            color: #fff; width: 24px; height: 24px; border-radius: 50%;
+            background: var(--danger); color: white; width: 24px; height: 24px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 13px; border: 1.5px solid rgba(255, 255, 255, 0.4);
-            opacity: 0; transition: all 0.2s ease; z-index: 20; cursor: pointer;
+            font-weight: 900; font-size: 14px; border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2); opacity: 0; transition: all 0.2s ease; z-index: 20; cursor: pointer;
         }
+        body.movie-mode .remove-btn { border-color: #0e1830; }
         .library-card:hover .remove-btn { opacity: 1; }
-        .remove-btn:hover { background: var(--danger); border-color: transparent; transform: scale(1.1); }
+        .remove-btn:hover { transform: scale(1.1); }
         
         .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 15px; }
         .ai-recs-section { margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(160,147,166,0.4); }
@@ -346,16 +379,19 @@
                 position: fixed !important;
                 top: 0 !important; bottom: 0 !important;
                 left: 0 !important; right: 0 !important;
-                width: 100vw !important; height: 100dvh !important;
+                width: 100% !important; 
+                height: 100% !important;
+                height: -webkit-fill-available !important; /* iOS specific fix */
                 max-height: none !important;
                 border-radius: 0 !important;
                 border: none !important;
                 z-index: 99999 !important;
                 flex-direction: column !important;
+                background: var(--nav-bg) !important;
             }
-            .zesty-header { padding: env(safe-area-inset-top, 16px) 18px 16px 18px !important; }
+            .zesty-header { padding: env(safe-area-inset-top, 16px) 18px 16px 18px !important; flex-shrink: 0; }
             .zesty-messages { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
-            .zesty-input-area { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important; background: var(--nav-bg) !important; flex-shrink: 0; }
+            .zesty-input-area { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important; background: var(--nav-bg) !important; flex-shrink: 0; border-top: 2px solid var(--border-color); }
             
             .canvas-card-img { height: 100px; }
         }
@@ -537,7 +573,7 @@ function mdToHtml(raw) {
    Outside of Canvas, the AI will gracefully notify you unless you provide a key.
 ═══════════════════════════════════════════════════ */
 const apiKey = "AIzaSyBMRgvmvL2fO8eE5pe99qXbRhiQnO9PJOo"; // <--- Add your Google AI Studio API Key here if publishing to Github!
-const MODEL = "gemini-2.5-flash-preview-09-2025"; 
+const MODEL = "gemini-1.5-flash"; 
 
 async function fetchGeminiWithBackoff(payload) {
     const delays = [1000, 2000, 4000, 8000, 16000]; 
