@@ -56,7 +56,7 @@
         body.movie-mode .zesty-msg-bot { background: #0e1830; border-color: #2a4080; color: #c5cae9; }
         body.movie-mode .zesty-header { background: #1a2d5a; }
         body.movie-mode .zesty-panel { background: #080e20; border-color: #2a4080; }
-        body.movie-mode input, body.movie-mode .action-btn { background: #0e1830; border-color: #2a4080; color: #e8eaf6; }
+        body.movie-mode input { background: #0e1830; border-color: #2a4080; color: #e8eaf6; }
         body.movie-mode input::placeholder { color: #7986cb; }
         body.movie-mode .ai-insights-panel { background: rgba(74,111,165,0.15); border-color: #2a4080; }
         body.movie-mode .show-info { background: rgba(8,14,32,0.88); border-color: #2a4080; }
@@ -64,7 +64,7 @@
         body.movie-mode .library-title { color: #c5cae9; }
         body.movie-mode .empty-library { color: #7986cb; }
         body.movie-mode .dropdown-list { background: #0e1830; border-color: #2a4080; }
-        body.movie-mode .dropdown-item:hover, body.movie-mode .dropdown-item.selected { background: rgba(74,111,165,0.25); color: #fff; }
+        body.movie-mode .dropdown-item:hover, body.movie-mode .dropdown-item.selected { background: rgba(74,111,165,0.25); }
         body.movie-mode .ai-search-label { color: #a0b8e8 !important; }
 
         /* Animations */
@@ -119,44 +119,40 @@
         /* ── Inputs ── */
         input, textarea { background-color: var(--input-bg); color: var(--text-main); border: 3px solid var(--border-color); padding: 9px 18px; border-radius: var(--bubbly-radius); outline: none; font-size: 16px !important; font-weight: 800; transition: all 0.3s; box-shadow: var(--shadow-3d); cursor: text; touch-action: manipulation; -webkit-user-select: text !important; user-select: text !important; width: 100%; }
         input::placeholder { color: #A1887F; transition: color 0.3s; }
-        body.movie-mode input::placeholder { color: #7986cb; }
         input.ai-mode { border-color: var(--accent-ai); box-shadow: 0 0 14px rgba(110,155,133,0.3), var(--shadow-3d); }
         body.movie-mode input.ai-mode { box-shadow: 0 0 14px rgba(74,111,165,0.3), var(--shadow-3d); }
-        input.ai-mode::placeholder { color: #8F7D96; font-style: italic; }
         input:hover { border-color: var(--accent-primary); }
 
-        /* ── Action Buttons ── */
+        /* ── Action Buttons (CLEAN & SOLID) ── */
         .action-btn {
-            background-color: var(--accent-hover); color: var(--text-main);
-            border: 3px solid var(--border-color); padding: 9px 18px;
-            border-radius: var(--bubbly-radius); outline: none;
-            font-size: 16px !important; font-weight: 800;
-            box-shadow: 0 4px 0 rgba(62, 39, 35, 0.15);
-            transition: all 0.2s; cursor: pointer; touch-action: manipulation;
-            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-        }
-        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.2); }
-        .action-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(62, 39, 35, 0.15); }
-        .action-btn.active-fav { background-color: #ffdde1; color: var(--danger); border-color: #d89090; }
-
-        body.movie-mode .action-btn { background-color: #1e3560; color: #e8eaf6; border-color: #2a4080; box-shadow: 0 4px 0 rgba(0, 10, 40, 0.4); }
-        body.movie-mode .action-btn:hover { box-shadow: 0 6px 0 rgba(0, 10, 40, 0.5); }
-        body.movie-mode .action-btn:active { box-shadow: 0 2px 0 rgba(0, 10, 40, 0.4); }
-        body.movie-mode .action-btn.active-fav { background-color: #4a2020; color: #ff8a8a; border-color: #8a3030; }
-
-        /* ── AI Pill Buttons ── */
-        .ai-btn-pill {
-            background-color: var(--accent-ai); color: white;
-            border: 3px solid var(--border-color); padding: 10px 22px;
-            border-radius: var(--bubbly-radius); font-size: 15px !important; font-weight: 900;
+            background-color: var(--nav-bg); color: var(--text-main);
+            border: 3px solid var(--border-color); padding: 10px 20px;
+            border-radius: 50px; outline: none; font-size: 15px !important; font-weight: 800;
             box-shadow: 0 4px 0 rgba(62, 39, 35, 0.15);
             transition: all 0.2s; cursor: pointer; touch-action: manipulation;
             display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
         }
-        body.movie-mode .ai-btn-pill { background-color: var(--accent-ai); border-color: #3a5a9a; box-shadow: 0 4px 0 rgba(0, 10, 40, 0.4); }
-        .ai-btn-pill:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.2); filter: brightness(1.05); }
-        .ai-btn-pill:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(62, 39, 35, 0.15); }
-        body.movie-mode .ai-btn-pill:active { box-shadow: 0 2px 0 rgba(0, 10, 40, 0.4); }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.2); background-color: var(--input-bg); }
+        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+        .action-btn.active-fav { background-color: #FFF0F0; color: var(--danger); border-color: var(--danger); }
+        
+        body.movie-mode .action-btn { background-color: #0e1830; color: #e8eaf6; border-color: #2a4080; box-shadow: 0 4px 0 rgba(0, 10, 40, 0.4); }
+        body.movie-mode .action-btn:hover { background-color: #1a2d5a; box-shadow: 0 6px 0 rgba(0, 10, 40, 0.5); }
+        body.movie-mode .action-btn:active { box-shadow: 0 0 0 transparent; }
+        body.movie-mode .action-btn.active-fav { background-color: #4a2020; color: #ff8a8a; border-color: #8a3030; }
+
+        /* ── AI Pill Buttons (CLEAN & SOLID) ── */
+        .ai-btn-pill {
+            background-color: var(--accent-ai); color: white;
+            border: 3px solid var(--border-color); padding: 10px 20px;
+            border-radius: 50px; font-size: 15px !important; font-weight: 900;
+            box-shadow: 0 4px 0 rgba(62, 39, 35, 0.15);
+            transition: all 0.2s; cursor: pointer; touch-action: manipulation;
+            display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+        }
+        body.movie-mode .ai-btn-pill { background-color: #4a6fa5; border-color: #2a4080; box-shadow: 0 4px 0 rgba(0, 10, 40, 0.4); }
+        .ai-btn-pill:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.2); filter: brightness(1.1); }
+        .ai-btn-pill:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
 
         /* ── AI Search Toggle ── */
         .ai-search-area { display: flex; align-items: center; gap: 10px; background: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--bubbly-radius); padding: 6px 14px 6px 10px; box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
@@ -206,15 +202,16 @@
         .emoji-icon { font-size: 1.1em; line-height: 1; }
         .show-overview { font-size: 16px; line-height: 1.75; font-weight: 700; background: rgba(255,255,255,0.6); padding: 18px 22px; border-radius: 14px; border-left: 6px solid var(--accent-primary); transition: background 0.6s, border-color 0.6s; color: var(--text-main); }
         
-        /* Revised Clean "Read More" Button */
+        /* ── "Read More" Themed Badge ── */
         .read-more-btn {
-            font-size: 0.95em; font-weight: 900; text-decoration: underline; text-underline-offset: 4px;
-            cursor: pointer; margin-left: 6px; padding: 0; background: transparent; border: none;
-            color: var(--accent-secondary); transition: all 0.2s; display: inline-block; white-space: nowrap;
+            font-size: 13px; font-weight: 800; text-decoration: none;
+            cursor: pointer; margin-left: 6px; padding: 4px 12px; border-radius: 12px;
+            background-color: var(--accent-hover); border: 2px solid var(--border-color);
+            color: var(--text-main); transition: all 0.2s; display: inline-block; white-space: nowrap;
         }
-        .read-more-btn:hover { color: var(--text-main); transform: scale(1.02); }
-        body.movie-mode .read-more-btn { color: #a0b8e8; }
-        body.movie-mode .read-more-btn:hover { color: #fff; }
+        .read-more-btn:hover { filter: brightness(0.9); transform: translateY(-1px); }
+        body.movie-mode .read-more-btn { background-color: #1e3560; color: #e8eaf6; border-color: #2a4080; }
+        body.movie-mode .read-more-btn:hover { background-color: #2d4a7a; }
 
         /* ── AI Insights Panel ── */
         .ai-insights-panel { display: none; padding: 22px 26px; border-radius: 18px; background: rgba(110, 155, 133, 0.15); border: 2px solid var(--border-color); font-size: 15px; line-height: 1.8; font-weight: 700; animation: slideUp 0.3s ease; color: var(--text-main); position: relative; overflow: hidden; }
@@ -231,11 +228,11 @@
         .library-scroll::-webkit-scrollbar { height: 5px; }
         .library-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 
-        /* ── Library Cards ── */
+        /* ── Library Cards (CLEAN & SOLID) ── */
         .library-card {
             min-width: 140px; max-width: 140px; position: relative; display: flex;
             flex-direction: column; cursor: pointer; border-radius: 16px;
-            background-color: var(--input-bg);
+            background-color: var(--nav-bg);
             border: 3px solid var(--border-color);
             box-shadow: 0 6px 12px rgba(62, 39, 35, 0.12);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -271,9 +268,10 @@
         .progress-badge.is-movie { background: var(--accent-primary); color: white; }
         body.movie-mode .progress-badge.is-movie { background: #4a6fa5; }
         
+        /* Clear 'X' Button on cards */
         .remove-btn {
-            position: absolute; top: 6px; right: 6px;
-            background: var(--danger); color: white; width: 24px; height: 24px; border-radius: 50%;
+            position: absolute; top: 8px; right: 8px;
+            background: var(--danger); color: white; width: 26px; height: 26px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 14px; border: 2px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2); opacity: 0; transition: all 0.2s ease; z-index: 20; cursor: pointer;
@@ -365,10 +363,11 @@
             .library-section { padding: 16px 14px; }
             .library-card { min-width: 130px; max-width: 130px; }
             .card-img-wrapper { height: 175px; }
-            .remove-btn { opacity: 1 !important; }
+            .remove-btn { opacity: 1 !important; top: -8px; right: -8px; }
             .library-card-title { font-size: 11px; }
 
-            /* Mobile Chat Layout (Flawless Keyboard Support) */
+            /* ── FLAWLESS MOBILE CHAT LAYOUT ── */
+            /* Using strict absolute positioning to prevent iOS Safari keyboard squishing */
             .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
             
             .zesty-panel.open {
@@ -376,9 +375,8 @@
                 position: fixed !important;
                 top: 0 !important; bottom: 0 !important;
                 left: 0 !important; right: 0 !important;
-                width: 100% !important; 
-                height: 100% !important;
-                height: -webkit-fill-available !important; /* iOS specific fix */
+                width: 100vw !important; 
+                height: 100dvh !important;
                 max-height: none !important;
                 border-radius: 0 !important;
                 border: none !important;
@@ -565,33 +563,41 @@ function mdToHtml(raw) {
 }
 
 /* ═══════════════════════════════════════════════════
-   NATIVE GEMINI AI LOGIC (WITH RETRIES)
-   Note: The 'apiKey' variable is auto-injected by Canvas.
-   Outside of Canvas, the AI will gracefully notify you unless you provide a key.
+   NATIVE GEMINI AI LOGIC (WITH RETRIES & FALLBACKS)
 ═══════════════════════════════════════════════════ */
-const apiKey = "AIzaSyBMRgvmvL2fO8eE5pe99qXbRhiQnO9PJOo"; // <--- Add your Google AI Studio API Key here if publishing to Github!
 
-// AUTO-SWITCH MODEL: Uses 1.5-flash for your public API key on Github, but keeps the preview model for Canvas!
+// 🚨 PUT YOUR GOOGLE AI STUDIO API KEY HERE IF PUBLISHING TO GITHUB PAGES! 🚨
+const apiKey = "AIzaSyBMRgvmvL2fO8eE5pe99qXbRhiQnO9PJOo"; 
+
+// SMART MODEL SWITCH: Uses 1.5-flash for your public key, preview model inside Canvas.
 const MODEL = apiKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025"; 
 
 async function fetchGeminiWithBackoff(payload) {
-    const delays = [1000, 2000, 4000, 8000, 16000]; 
+    const delays = [1000, 2000, 4000]; 
     for (let i = 0; i <= delays.length; i++) {
         try {
-            if(!apiKey && MODEL === "gemini-1.5-flash") throw new Error("Missing API Key");
+            // Failsafe for GitHub Pages with empty key
+            if(!apiKey && window.location.hostname.includes("github.io")) {
+                throw new Error("Missing API Key! Add your API key to the code to use the AI on GitHub.");
+            }
             
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if (!res.ok) throw new Error('API Request Failed');
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error?.message || 'API Request Failed');
+            }
             const data = await res.json();
             return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+
         } catch (err) {
-            if (i === delays.length) {
+            if (i === delays.length || err.message.includes("Missing API Key")) {
                 console.error('AI Error:', err.message);
-                return null;
+                return `Error: ${err.message} 🍋`;
             }
             await new Promise(r => setTimeout(r, delays[i]));
         }
@@ -622,7 +628,7 @@ const AI = {
         const text = await this.call(
             `Based on these titles: ${titles.join(', ')} — give me 5 similar must-watch titles. Return ONLY a JSON array of strings. No markdown, no explanation. Example: ["Title A","Title B"]`
         );
-        if (!text) return [];
+        if (!text || text.includes("Error:")) return [];
         try {
             const clean = text.replace(/```json/gi,'').replace(/```/g,'').trim();
             return JSON.parse(clean);
@@ -633,11 +639,12 @@ const AI = {
     },
 
     async chat(history) {
-        const sys = `You are Zesty 🍋, the ultimate, charismatic movie/TV expert! 🍿✨ Rules:
-- Keep it SUPER short (1-2 sentences max). Ooze charm and use fun emojis! 🎥🍿🎬
-- ALWAYS format recs EXACTLY as: [RECOMMEND: Title (year, type)] then 1 short, witty reason why.
+        const sys = `You are Zesty 🍋, a super charismatic, fun movie & TV show expert! 🍿🎬 Rules:
+- Keep responses EXTREMELY short (1-2 sentences). 
+- Ooze charm, use cinema emojis! 🎥🍿✨
+- Format recs EXACTLY as: [RECOMMEND: Title (year, type)] then 1 witty reason.
 - Type must be EXACTLY "movie" or "tv".
-- Be cool, quick, and highly engaging.`;
+- No walls of text, no robotic tone.`;
         
         const contents = history.map(m => ({
             role: m.role === 'assistant' ? 'model' : 'user',
@@ -646,7 +653,7 @@ const AI = {
         
         const payload = { contents, systemInstruction: { parts: [{ text: sys }] } };
         const text = await fetchGeminiWithBackoff(payload);
-        return text || "Zesty is currently offline. Make sure you set an API key in the code if on GitHub! 🍋";
+        return text || "Zesty is currently offline. 🍋";
     }
 };
 
@@ -709,7 +716,7 @@ aiSearchToggle.addEventListener('click', e => {
     }
 });
 
-let currentSearchId = 0; // Prevents race conditions from typing fast
+let currentSearchId = 0; 
 
 searchInput.addEventListener('input', async e => {
     clearTimeout(searchTimer);
@@ -725,9 +732,12 @@ searchInput.addEventListener('input', async e => {
                 searchResults.classList.add('active');
             }
 
-            const query = aiSearchOn ? await AI.smartSearch(q) : q;
+            let query = q;
+            if (aiSearchOn) {
+                const aiResult = await AI.smartSearch(q);
+                if (!aiResult.includes("Error:")) query = aiResult;
+            }
             
-            // Abort if user typed something else while AI was thinking
             if (searchId !== currentSearchId) return; 
 
             const data = await TMDB.searchMulti(query);
@@ -837,7 +847,7 @@ function renderLib() {
         const progBadge = isMovie
             ? `<div class="progress-badge is-movie">🎬 FILM</div>`
             : `<div class="progress-badge">S${item.season||1} · E${item.episode||1}</div>`;
-        card.innerHTML = `<div class="remove-btn">×</div><div class="card-img-wrapper">${favBadge}<img src="${poster}" alt="" loading="lazy">${progBadge}</div><div class="library-card-title">${item.name}</div>`;
+        card.innerHTML = `<button class="remove-btn">✕</button><div class="card-img-wrapper">${favBadge}<img src="${poster}" alt="" loading="lazy">${progBadge}</div><div class="library-card-title">${item.name}</div>`;
         card.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); let l=getLib(); l=l.filter(i=>!(i.id==item.id&&i.mediaType===item.mediaType)); saveLib(l); });
         card.addEventListener('click', () => { mediaId=item.id; mediaType=item.mediaType; loadMedia(item.id,item.mediaType,item.season,item.episode); window.scrollTo({top:0,behavior:'smooth'}); });
         libraryScroll.appendChild(card);
@@ -965,6 +975,12 @@ aiRecsBtn.addEventListener('click', async () => {
     aiRecsScroll.innerHTML = '<div class="empty-library">🎯 Finding your next obsession...</div>';
     const titles = await AI.recs(lib.map(i=>i.name).slice(0,10));
     aiRecsScroll.innerHTML = '';
+    
+    if (titles.length === 0) {
+         aiRecsScroll.innerHTML = '<div class="empty-library">No results. The AI might be resting or missing an API Key!</div>';
+         return;
+    }
+
     for(const title of titles) {
         const data = await TMDB.searchMulti(title);
         const r = data.results?.find(x=>x.media_type==='movie'||x.media_type==='tv');
@@ -977,7 +993,7 @@ aiRecsBtn.addEventListener('click', async () => {
         card.addEventListener('click', () => { mediaId=r.id; mediaType=r.media_type; loadMedia(r.id,r.media_type); window.scrollTo({top:0,behavior:'smooth'}); });
         aiRecsScroll.appendChild(card);
     }
-    if(!aiRecsScroll.children.length) aiRecsScroll.innerHTML = '<div class="empty-library">No results. Try adding more to your backpack!</div>';
+    if(!aiRecsScroll.children.length) aiRecsScroll.innerHTML = '<div class="empty-library">No results found.</div>';
 });
 
 /* ═══════════════════════════════════════════════════
@@ -1002,7 +1018,7 @@ function toggleChat() {
         document.body.classList.remove('chat-open');
     } else {
         zestyPanel.classList.add('open');
-        document.body.classList.add('chat-open'); // Locks background scroll & completely hides the toggle button!
+        document.body.classList.add('chat-open'); 
     }
 }
 zestyToggle.addEventListener('click', toggleChat);
