@@ -569,13 +569,17 @@ function mdToHtml(raw) {
    Note: The 'apiKey' variable is auto-injected by Canvas.
    Outside of Canvas, the AI will gracefully notify you unless you provide a key.
 ═══════════════════════════════════════════════════ */
-const apiKey = "AIzaSyBMRgvmvL2fO8eE5pe99qXbRhiQnO9PJOo"; // Add API key here ONLY if hosting outside (like GitHub Pages)
-const MODEL = "gemini-2.5-flash-preview-09-2025"; 
+const apiKey = ""; // <--- Add your Google AI Studio API Key here if publishing to Github!
+
+// AUTO-SWITCH MODEL: Uses 1.5-flash for your public API key on Github, but keeps the preview model for Canvas!
+const MODEL = apiKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025"; 
 
 async function fetchGeminiWithBackoff(payload) {
     const delays = [1000, 2000, 4000, 8000, 16000]; 
     for (let i = 0; i <= delays.length; i++) {
         try {
+            if(!apiKey && MODEL === "gemini-1.5-flash") throw new Error("Missing API Key");
+            
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
