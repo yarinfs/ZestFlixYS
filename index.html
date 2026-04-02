@@ -122,9 +122,6 @@
         body.movie-mode input::placeholder { color: #7986cb; }
         input.ai-mode { border-color: var(--accent-ai); box-shadow: 0 0 14px rgba(110,155,133,0.3), var(--shadow-3d); }
         body.movie-mode input.ai-mode { box-shadow: 0 0 14px rgba(74,111,165,0.3), var(--shadow-3d); }
-        input:hover { border-color: var(--accent-primary); }
-
-        /* ── Action Buttons (Redesigned) ── */
         input.ai-mode::placeholder { color: #8F7D96; font-style: italic; }
         input:hover { border-color: var(--accent-primary); }
 
@@ -572,15 +569,13 @@ function mdToHtml(raw) {
    Note: The 'apiKey' variable is auto-injected by Canvas.
    Outside of Canvas, the AI will gracefully notify you unless you provide a key.
 ═══════════════════════════════════════════════════ */
-const apiKey = "AIzaSyBMRgvmvL2fO8eE5pe99qXbRhiQnO9PJOo"; // <--- Add your Google AI Studio API Key here if publishing to Github!
-const MODEL = "gemini-1.5-flash"; 
+const apiKey = "AIzaSyBMRgvmvL2fO8eE5pe99qXbRhiQnO9PJOo"; // Add API key here ONLY if hosting outside (like GitHub Pages)
+const MODEL = "gemini-2.5-flash-preview-09-2025"; 
 
 async function fetchGeminiWithBackoff(payload) {
     const delays = [1000, 2000, 4000, 8000, 16000]; 
     for (let i = 0; i <= delays.length; i++) {
         try {
-            if(!apiKey) throw new Error("Missing API Key - AI only available within Canvas environment or with a valid key.");
-            
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -590,7 +585,7 @@ async function fetchGeminiWithBackoff(payload) {
             const data = await res.json();
             return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
         } catch (err) {
-            if (i === delays.length || !apiKey) {
+            if (i === delays.length) {
                 console.error('AI Error:', err.message);
                 return null;
             }
