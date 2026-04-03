@@ -113,7 +113,7 @@
         body.chat-open { overflow: hidden !important; }
         body.chat-open #zesty-toggle { display: none !important; }
 
-        /* Cinematic Particles Background FX - Made highly visible */
+        /* Cinematic Particles Background FX */
         .cinema-fx { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; opacity: 0; transition: opacity 1s ease; }
         .cinema-beam { position: absolute; top: -20%; left: 50%; width: 250vw; height: 150vh; background: conic-gradient(from 180deg at 50% 0%, rgba(95, 140, 205, 0.25) 0deg, transparent 40deg, transparent 320deg, rgba(95, 140, 205, 0.25) 360deg); transform-origin: top center; animation: sweep 10s infinite alternate ease-in-out; }
         .stars-layer1 { position: absolute; width: 4px; height: 4px; background: transparent; border-radius: 50%; box-shadow: 10vw 20vh 0 #fff, 20vw 80vh 0 #e8eaf6, 30vw 40vh 0 #fff, 40vw 90vh 0 #9fc3ff, 50vw 10vh 0 #fff, 60vw 60vh 0 #fff, 70vw 30vh 0 #e8eaf6, 80vw 70vh 0 #fff, 90vw 50vh 0 #9fc3ff, 15vw 60vh 0 #fff, 25vw 15vh 0 #fff, 35vw 75vh 0 #e8eaf6, 45vw 25vh 0 #fff, 55vw 85vh 0 #fff, 65vw 5vh 0 #9fc3ff, 75vw 95vh 0 #fff, 85vw 45vh 0 #fff, 95vw 80vh 0 #e8eaf6; animation: twinkleLayer 3s infinite alternate ease-in-out; }
@@ -132,7 +132,7 @@
         .logo { font-size: 32px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 4px; }
 
         input, textarea { background-color: var(--input-bg); color: var(--text-main); border: 3px solid var(--border-color); padding: 9px 18px; border-radius: var(--bubbly-radius); outline: none; font-size: 16px !important; font-weight: 800; transition: all 0.3s; box-shadow: var(--shadow-3d); width: 100%; user-select: text !important; -webkit-user-select: text !important;}
-        input::placeholder { color: #A1887F; }
+        input::placeholder { color: #A1887F; font-weight: 700; }
         input.ai-mode { border-color: var(--accent-ai); box-shadow: 0 0 14px rgba(110,155,133,0.3), var(--shadow-3d); }
         body.movie-mode input.ai-mode { box-shadow: 0 0 14px rgba(74,111,165,0.3), var(--shadow-3d); }
         input:hover { border-color: var(--accent-primary); }
@@ -146,10 +146,13 @@
         .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         
-        .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px !important;}
+        /* Fixed Circle Buttons (Perfectly Centered) */
+        .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; font-size: 18px !important; }
+        .compact-circle span { display: inline-flex; justify-content: center; align-items: center; line-height: 1; }
+        
         .ai-search-area { background: var(--nav-bg); border: 3px solid var(--border-color); box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer; }
         .ai-search-area.active { border-color: var(--accent-ai); animation: pulseGlow 2.5s infinite; }
-        .ai-search-area .ai-search-icon { transition: transform 0.3s; line-height: 1; font-size: 20px;}
+        .ai-search-area .ai-search-icon { transition: transform 0.3s; font-size: 20px;}
         .ai-search-area.active .ai-search-icon { transform: scale(1.15); }
 
         .search-results { position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background-color: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--card-radius); box-shadow: var(--shadow-float); z-index: 200; display: none; flex-direction: column; padding: 8px; }
@@ -247,12 +250,12 @@
         .zesty-header { background: var(--accent-secondary); padding: 14px 18px; color: white; font-weight: 900; font-size: 17px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         body.movie-mode .zesty-header { background: var(--accent-primary); border-color: var(--border-color); }
         .zesty-close-btn { cursor: pointer; font-size: 22px; opacity: 0.85; line-height: 1; touch-action: manipulation; }
-        .zesty-messages { flex: 1 1 auto; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; overscroll-behavior: contain; min-height: 0; }
+        .zesty-messages { flex: 1 1 auto; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
         
         .zesty-msg-user { background: var(--accent-primary); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.4; flex-shrink: 0; }
         .zesty-msg-bot { background: white; padding: 12px 16px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 15px; max-width: 88%; word-break: break-word; line-height: 1.5; user-select: text !important; -webkit-user-select: text !important; flex-shrink: 0; }
         
-        /* NEW Chat AI Canvas Cards - Horizontal & Sleek */
+        /* Chat AI Canvas Cards - Horizontal & Sleek */
         .zesty-canvas-card { display: flex; flex-direction: row; align-items: stretch; width: 100%; max-width: 320px; background: white; border: 2.5px solid var(--border-color); border-radius: 14px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 12px rgba(62,39,35,0.12); transition: transform 0.2s, box-shadow 0.2s; align-self: flex-start; flex-shrink: 0; margin-top: 2px; margin-bottom: 2px; }
         body.movie-mode .zesty-canvas-card { background: #0e1830; border-color: var(--border-color); }
         .zesty-canvas-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(62,39,35,0.22); }
@@ -288,27 +291,28 @@
             body.movie-mode { background-color: #080e20 !important; }
             .background-backdrop { display: none !important; }
             .cozy-overlay { display: block !important; background: rgba(92,64,51,0.97) !important; pointer-events: none; }
-            /* Fixed Mobile Movie mode overlay so Cinema FX shines through */
             body.movie-mode .cozy-overlay { background: radial-gradient(ellipse at 50% 30%, rgba(5,10,25,0.7) 0%, rgba(5,10,25,0.92) 100%) !important; z-index: -2;}
 
+            /* Bulletproof Mobile Top Menu Layout */
             .navbar { width: 95%; margin: 8px auto; flex-direction: column; border-radius: 18px; padding: 16px 14px; gap: 14px; }
             .nav-left { flex-direction: column; width: 100%; gap: 12px; }
             .logo { width: 100%; justify-content: center; margin-bottom: 2px; }
             .dropdown-container { width: 100%; justify-content: center; gap: 10px; flex-wrap: wrap; }
             .custom-dropdown { flex: 1; min-width: 120px; max-width: 48%; }
             .nav-right { width: 100%; display: flex; justify-content: center; }
-            .search-container { width: 100%; flex-direction: row; flex-wrap: nowrap; gap: 8px; justify-content: center; align-items: center; }
             
-            .compact-circle { width: 44px; height: 44px; padding: 0; }
-            .search-input-wrapper { flex: 1; min-width: 0; }
+            .search-container { flex-direction: row !important; flex-wrap: nowrap !important; width: 100%; gap: 8px; }
+            .compact-circle { flex: 0 0 44px !important; width: 44px !important; height: 44px !important; border-radius: 50% !important; padding: 0 !important; display: flex !important; justify-content: center !important; align-items: center !important; }
+            .search-input-wrapper { flex: 1 1 auto !important; min-width: 0 !important; display: block !important; }
+            .search-input-wrapper input { width: 100% !important; border-radius: 20px; }
 
+            /* Huge Edge-to-Edge Mobile Player */
+            .main-content { padding-top: 0; }
             .iframe-wrapper {
-                width: 95% !important; max-width: 95vw !important; margin: 0 auto 16px auto !important;
-                border-radius: 12px !important; border: 8px solid var(--frame-color) !important; 
-                outline: 3px solid #2D1B15 !important; box-shadow: var(--shadow-float) !important;
-                aspect-ratio: auto !important; height: 380px !important;
+                width: 100% !important; max-width: 100vw !important; margin: 0 0 16px 0 !important;
+                border-radius: 0 !important; border: none !important; outline: none !important;
+                box-shadow: none !important; aspect-ratio: 16 / 9 !important; height: auto !important;
             }
-            body.movie-mode .iframe-wrapper { border-color: #1a2d5a !important; outline-color: #0a1428 !important; }
 
             .show-info, .library-section { width: 95%; margin: 0 auto 16px auto; }
             .show-info { padding: 18px; gap: 14px; }
@@ -321,15 +325,15 @@
             .library-card { min-width: 130px; max-width: 130px; }
             .card-img-wrapper { height: 175px; }
 
+            /* Reliable iOS Chat Window */
             .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
             .zesty-panel {
-                position: fixed !important; top: 0; left: 0 !important; right: 0 !important;
-                bottom: auto !important; margin: 0 !important;
-                width: 100vw !important; height: 100dvh;
-                border-radius: 0 !important; border: none !important;
+                position: fixed !important; top: auto; bottom: 0 !important; left: 0 !important; right: 0 !important;
+                margin: 0 !important; width: 100vw !important; height: 100dvh !important;
+                border-radius: 0 !important; border: none !important; z-index: 10000;
             }
             .zesty-header { padding: 16px 18px; }
-            .zesty-messages { padding: 12px; }
+            .zesty-messages { padding: 12px; padding-bottom: 20px; }
             .zesty-input-area { 
                 padding-bottom: max(12px, env(safe-area-inset-bottom)); 
                 background: var(--nav-bg); z-index: 1000; position: relative;
@@ -337,7 +341,6 @@
         }
 
         @media (max-width: 480px) {
-            .iframe-wrapper { height: 320px !important; }
             .library-card { min-width: 115px; max-width: 115px; }
             .card-img-wrapper { height: 158px; }
             .show-title { font-size: 22px; }
@@ -534,10 +537,9 @@ function mdToHtml(raw) {
 }
 
 /* ═══════════════════════════════════════════════════
-   GROQ AI LOGIC (Cascading Smart Fallback)
+   GROQ AI LOGIC (Cascading Smart Fallback & Improved Prompts)
 ═══════════════════════════════════════════════════ */
 const AI = {
-    // Tiers: Massive Brain -> Balanced -> Blazing Fast
     models: ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768', 'llama-3.1-8b-instant'],
 
     async fetchAIModel(msgs, model) {
@@ -562,7 +564,7 @@ const AI = {
                 console.warn(`Model ${model} blocked (${e.message}), gracefully cascading to next model...`);
             }
         }
-        return null; // Entire stack failed
+        return null;
     },
     
     async smartSearch(query) {
@@ -571,9 +573,10 @@ const AI = {
     },
     
     async insights(title, type, year) {
-        const prompt = `Give me a deep, highly engaging intelligence briefing for the ${type} "${title}" (${year}). 
-Write exactly 3 distinct paragraphs or bullet points covering fascinating behind-the-scenes trivia, deeper plot analysis, and its cultural impact. 
-Make it rich, detailed, and conversational. Do not limit the word count - dive deep into the facts! Feel free to use occasional emojis to match the vibe.`;
+        // Shorter, punchier, 2-bullet prompt rule
+        const prompt = `Provide a quick, punchy, and highly engaging intelligence briefing for the ${type} "${title}" (${year}). 
+Give me exactly 2 short, fascinating bullet points (e.g., mind-blowing trivia, hidden details, or cultural impact). 
+Keep it natural, clever, and accurate. Maximum 3 sentences total. Avoid robotic intros.`;
         const text = await this.call(prompt);
         return text || '<em>Too swaggy to load right now! Check connection.</em>';
     },
@@ -586,16 +589,18 @@ Make it rich, detailed, and conversational. Do not limit the word count - dive d
     },
     
     async chat(history) {
-        const systemPrompt = `You are Zesty, an AI movie assistant. You are witty, smart, very friendly, and use the 🍋 emoji occasionally. 
-1. ACTUALLY READ and respond logically to the user's conversation! Do NOT just blind-recommend things.
-2. Keep textual responses brief and conversational (1-3 sentences). 
-3. ONLY when it logically makes sense to suggest a title, use this EXACT syntax: [RECOMMEND: Movie/Show Name]. 
+        // Completely redefined persona to sound natural, limit emojis, and not force "lemon"
+        const systemPrompt = `You are Zesty, an AI movie expert and a cool friend.
+1. Read the user's message carefully and respond naturally, like a human texting a buddy. 
+2. Be witty, accurate, and concise (1-2 short sentences max).
+3. Do NOT spam emojis. Use them rarely. Do NOT force the 🍋 emoji into every message.
+4. ONLY when it logically makes sense to suggest a title, use this EXACT syntax: [RECOMMEND: Movie/Show Name]. 
 DO NOT add the year or type inside the brackets. 
-Example of a perfect response: "Oh I completely agree! If you loved that, you should definitely check out [RECOMMEND: Breaking Bad]. It's a masterpiece 🍋"`;
+Example of a perfect response: "Oh that's a classic! If you loved the vibe, you should definitely check out [RECOMMEND: Breaking Bad]."`;
         
         const chatLog = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
         const reply = await this.call(chatLog, systemPrompt);
-        return reply || "Connection interrupted! We'll get 'em next time 🍋";
+        return reply || "Connection interrupted! We'll get 'em next time.";
     }
 };
 
@@ -630,7 +635,6 @@ function applyTheme(type) {
         document.body.classList.remove('movie-mode');
         themeIcon.textContent = '☕';
     }
-    // Zesty toggle remains 🍋 at all times
     zestyToggle.textContent = '🍋';
 }
 
@@ -663,11 +667,16 @@ aiSearchToggle.addEventListener('click', e => {
     searchInput.classList.toggle('ai-mode', aiSearchOn);
 });
 
+// Robust iOS Visual Viewport fix to prevent keyboard breaking the chat UI
 const adjustChatWindow = () => {
-    if (!zestyPanel.classList.contains('open') || window.innerWidth > 768) return;
+    if (!zestyPanel.classList.contains('open') || window.innerWidth > 768) {
+        zestyPanel.style.position = ''; zestyPanel.style.height = ''; zestyPanel.style.top = ''; return;
+    }
     if (window.visualViewport) {
+        zestyPanel.style.position = 'absolute';
         zestyPanel.style.height = `${window.visualViewport.height}px`;
         zestyPanel.style.top = `${window.visualViewport.offsetTop}px`;
+        window.scrollTo(0, 0); // Stops iOS from drifting the body while typing
     }
 };
 
@@ -684,11 +693,12 @@ function toggleChat() {
     if (zestyPanel.classList.contains('open')) {
         zestyPanel.classList.remove('open');
         document.body.classList.remove('chat-open');
-        zestyPanel.style.height = ''; zestyPanel.style.top = '';
+        zestyPanel.style.position = ''; zestyPanel.style.height = ''; zestyPanel.style.top = '';
     } else {
         zestyPanel.classList.add('open');
         document.body.classList.add('chat-open');
         adjustChatWindow();
+        zestyMessages.scrollTop = zestyMessages.scrollHeight;
     }
 }
 
@@ -925,7 +935,6 @@ $('share-btn').onclick = () => {
     else { navigator.clipboard?.writeText(text); alert('Copied to clipboard! 🍿'); }
 };
 
-/* Un-breakable Chat Horizontal Card Parser */
 async function parseAndRenderReply(reply) {
     const re = /\[RECOMMEND:\s*([^\]]+)\]/gi;
     const fragments = []; let last = 0; let m;
@@ -952,7 +961,6 @@ async function parseAndRenderReply(reply) {
             if (r) {
                 const c = document.createElement('div'); c.className = 'zesty-canvas-card';
                 const p = r.poster_path ? `https://image.tmdb.org/t/p/w300${r.poster_path}` : '';
-                // Uses Horizontal Layout Now
                 c.innerHTML = `${p ? `<img class="canvas-card-img" src="${p}">`:''} <div class="canvas-card-body"><div class="canvas-card-title">${r.name||r.title}</div><div class="canvas-card-meta">${r.media_type==='movie'?'🎬 Movie':'📺 TV Show'} · ⭐ ${r.vote_average?.toFixed(1)||'?'}</div></div>`;
                 c.onclick = () => { loadMedia(r.id, r.media_type); toggleChat(); window.scrollTo({top:0, behavior:'smooth'}); };
                 zestyMessages.appendChild(c);
@@ -969,7 +977,7 @@ async function sendZesty() {
     zestyMessages.appendChild(usr); zestyInput.value = '';
     chatHistory.push({ role: 'user', content: text }); zestyMessages.scrollTop = zestyMessages.scrollHeight;
 
-    const think = document.createElement('div'); think.className = 'zesty-msg-bot thinking-dots'; think.textContent = 'Cooking';
+    const think = document.createElement('div'); think.className = 'zesty-msg-bot thinking-dots'; think.textContent = 'Typing';
     zestyMessages.appendChild(think); zestyMessages.scrollTop = zestyMessages.scrollHeight;
 
     const reply = await AI.chat(chatHistory);
