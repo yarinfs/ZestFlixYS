@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZestFlix - The Ultimate Streamer</title>
+    <title>ZestFlix - Cozy Cafe & Cinema Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
 
@@ -28,7 +28,6 @@
             --card-radius: 20px;
             --shadow-3d: 0 4px 0 rgba(62, 39, 35, 0.15);
             --shadow-float: 0 10px 25px rgba(62, 39, 35, 0.2);
-            --max-layout-width: 1600px;
         }
 
         /* ── MOVIE THEME ── */
@@ -48,7 +47,6 @@
             --shadow-float: 0 10px 30px rgba(0, 20, 80, 0.5);
         }
 
-        /* Theme Overrides */
         body.movie-mode .cozy-overlay { background: radial-gradient(ellipse at 50% 30%, rgba(74,111,165,0.18) 0%, rgba(5,10,25,0.97) 100%) !important; }
         body.movie-mode .background-backdrop { filter: blur(40px) brightness(0.3) saturate(0.4) !important; }
         body.movie-mode .show-overview { border-left-color: #4a6fa5; background: rgba(74,111,165,0.1); }
@@ -64,18 +62,18 @@
         body.movie-mode .zesty-panel { background: #080e20; border-color: #2a4080; }
         body.movie-mode input, body.movie-mode .action-btn { background: #0e1830; border-color: #2a4080; color: #e8eaf6; }
         body.movie-mode input::placeholder { color: #7986cb; }
-        body.movie-mode .ai-insights-panel { background: rgba(74,111,165,0.15); border-color: #2a4080; }
+        body.movie-mode .ai-insights-panel { background: rgba(74,111,165,0.15); border-color: #2a4080; color: #e8eaf6;}
         body.movie-mode .show-info { background: rgba(8,14,32,0.88); border-color: #2a4080; }
         body.movie-mode .navbar { background: rgba(8,14,32,0.95); border-color: #2a4080; }
         body.movie-mode .library-title { color: #c5cae9; }
         body.movie-mode .empty-library { color: #7986cb; }
         body.movie-mode .library-card { background: #0e1830; border-color: #2a4080; }
-        body.movie-mode .library-card-title { color: #c5cae9; }
+        body.movie-mode .library-card-title { color: #c5cae9; background: linear-gradient(180deg, #0e1a35, #0a1428); border-top-color: #1e3560; }
         body.movie-mode .dropdown-list { background: #0e1830; border-color: #2a4080; }
         body.movie-mode .dropdown-item:hover, body.movie-mode .dropdown-item.selected { background: rgba(74,111,165,0.25); color: #fff; }
 
         /* ═══════════════════════════════════════════════════
-           ANIMATIONS & DYNAMIC STARS
+           ANIMATIONS & DYNAMIC BG FX
         ═══════════════════════════════════════════════════ */
         @keyframes pulseGlow {
             0%, 100% { box-shadow: 0 0 10px rgba(110, 155, 133, 0.3), var(--shadow-3d); }
@@ -98,187 +96,71 @@
             50% { opacity: 0.6; }
             100% { transform: translateX(-50%) rotate(8deg); opacity: 0.3; }
         }
-        @keyframes drift {
-            from { transform: translateY(0px) translateX(0px); }
-            to { transform: translateY(-50px) translateX(20px); }
+        @keyframes twinkleLayer {
+            0% { opacity: 0.2; transform: scale(0.85); }
+            100% { opacity: 0.85; transform: scale(1.1); }
         }
 
-        /* ═══════════════════════════════════════════════════
-           BASE ELEMENTS
-        ═══════════════════════════════════════════════════ */
-        * {
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box;
-            font-family: 'Nunito', system-ui, sans-serif;
-            -webkit-user-select: none; 
-            -moz-user-select: none; 
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', system-ui, sans-serif; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background-color: var(--bg-deep); 
-            color: var(--text-main);
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column;
-            overflow-x: hidden; 
-            overflow-y: auto; 
-            font-size: 16px;
-            overscroll-behavior: none;
+            background-color: var(--bg-deep); color: var(--text-main);
+            min-height: 100vh; display: flex; flex-direction: column;
+            overflow-x: hidden; overflow-y: auto; font-size: 16px; overscroll-behavior: none;
             transition: background-color 0.8s ease, color 0.6s ease;
         }
 
         body.chat-open { overflow: hidden !important; }
+        body.chat-open #zesty-toggle { display: none !important; }
 
-        /* Background Effects */
-        .cinema-fx {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -1; pointer-events: none; overflow: hidden;
-        }
-        .cinema-beam {
-            position: absolute; top: -30%; left: 50%;
-            width: 200vw; height: 150vh;
-            background: conic-gradient(from 180deg at 50% 0%, rgba(74,111,165,0.08) 0deg, transparent 35deg, transparent 325deg, rgba(74,111,165,0.08) 360deg);
-            transform-origin: top center;
-            animation: sweep 12s infinite alternate ease-in-out;
-        }
-        
-        /* Dynamic Stars Layer */
-        .cinema-stars {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: transparent; z-index: 1;
-            animation: drift 60s linear infinite alternate;
-        }
-        .cinema-stars::after {
-            content: ''; position: absolute; width: 2px; height: 2px; background: transparent;
-            /* Generating a big starfield using box-shadow */
-            box-shadow: 10vw 20vh #fff, 40vw 60vh #fff, 80vw 10vh #fff, 20vw 80vh #fff, 50vw 50vh #fff, 90vw 90vh #fff, 70vw 30vh #fff, 30vw 40vh #fff, 15vw 70vh #fff, 85vw 60vh rgba(255,255,255,0.6), 5vw 90vh #fff, 35vw 15vh #fff, 65vw 85vh #fff, 95vw 25vh rgba(255,255,255,0.8), 25vw 55vh #fff, 55vw 5vh #fff, 75vw 75vh #fff, 45vw 35vh rgba(255,255,255,0.5), 10vw 45vh #fff, 80vw 45vh #fff;
-            animation: pulseGlow 4s infinite alternate;
-        }
+        /* Cinematic Particles Background FX */
+        .cinema-fx { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; }
+        .cinema-beam { position: absolute; top: -30%; left: 50%; width: 200vw; height: 150vh; background: conic-gradient(from 180deg at 50% 0%, rgba(74,111,165,0.08) 0deg, transparent 35deg, transparent 325deg, rgba(74,111,165,0.08) 360deg); transform-origin: top center; animation: sweep 12s infinite alternate ease-in-out; }
+        .stars-layer1 { position: absolute; width: 3px; height: 3px; background: transparent; border-radius: 50%; box-shadow: 10vw 20vh 0 #fff, 20vw 80vh 0 #e8eaf6, 30vw 40vh 0 #fff, 40vw 90vh 0 #9fc3ff, 50vw 10vh 0 #fff, 60vw 60vh 0 #fff, 70vw 30vh 0 #e8eaf6, 80vw 70vh 0 #fff, 90vw 50vh 0 #9fc3ff, 15vw 60vh 0 #fff, 25vw 15vh 0 #fff, 35vw 75vh 0 #e8eaf6, 45vw 25vh 0 #fff, 55vw 85vh 0 #fff, 65vw 5vh 0 #9fc3ff, 75vw 95vh 0 #fff, 85vw 45vh 0 #fff, 95vw 80vh 0 #e8eaf6; animation: twinkleLayer 4s infinite alternate ease-in-out; }
+        .stars-layer2 { position: absolute; width: 2px; height: 2px; background: transparent; border-radius: 50%; box-shadow: 5vw 50vh 0 #fff, 15vw 90vh 0 #e8eaf6, 25vw 30vh 0 #fff, 35vw 10vh 0 #9fc3ff, 45vw 60vh 0 #fff, 55vw 40vh 0 #fff, 65vw 80vh 0 #fff, 75vw 20vh 0 #fff, 85vw 15vh 0 #9fc3ff, 95vw 65vh 0 #fff; animation: twinkleLayer 3s infinite alternate-reverse ease-in-out; }
 
-        .background-backdrop {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
-            background-size: cover; background-position: center;
-            filter: blur(30px) brightness(0.8) sepia(0.3);
-            transition: background-image 1s ease-in-out, filter 0.8s ease; 
-            transform: scale(1.1);
-        }
-        .cozy-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
-            background: radial-gradient(circle at 50% 50%, rgba(212,163,115,0.3) 0%, rgba(92,64,51,0.95) 100%);
-            pointer-events: none; transition: background 0.8s ease;
-        }
+        .background-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; background-size: cover; background-position: center; filter: blur(30px) brightness(0.8) sepia(0.3); transition: background-image 1s ease-in-out, filter 0.8s ease; transform: scale(1.1); }
+        .cozy-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(circle at 50% 50%, rgba(212,163,115,0.3) 0%, rgba(92,64,51,0.95) 100%); pointer-events: none; transition: background 0.8s ease; }
 
         /* ═══════════════════════════════════════════════════
-           LAYOUT
+           LAYOUT WIDER ON DESKTOP
         ═══════════════════════════════════════════════════ */
-        .main-content { 
-            flex: 1; 
-            padding-bottom: 50px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 24px; 
-            width: 100%; 
-        }
-        .navbar, .show-info, .library-section {
-            width: 95%; 
-            max-width: var(--max-layout-width); 
-            margin: 14px auto;
-        }
+        .main-content { flex: 1; padding-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+        .navbar, .show-info, .library-section { width: 95%; max-width: 1600px; margin: 14px auto; }
 
-        /* Navbar */
-        .navbar {
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            padding: 12px 24px; 
-            background-color: var(--nav-bg);
-            backdrop-filter: blur(20px); 
-            border: 3px solid var(--border-color);
-            border-radius: var(--bubbly-radius); 
-            box-shadow: var(--shadow-float), var(--shadow-3d);
-            z-index: 100; 
-            flex-wrap: nowrap; 
-            gap: 20px;
-            transition: background 0.8s ease, border-color 0.6s ease;
-        }
-        .nav-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-        .nav-right { flex: 2; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
-        .logo { font-size: 34px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 4px; }
+        /* Navbar & Global Elements */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background-color: var(--nav-bg); backdrop-filter: blur(20px); border: 3px solid var(--border-color); border-radius: var(--bubbly-radius); box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100; gap: 20px; transition: background 0.8s ease, border-color 0.6s ease; }
+        .nav-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+        .nav-right { flex: 2; display: flex; justify-content: flex-end; align-items: center; }
+        .logo { font-size: 32px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 4px; }
 
-        /* Inputs & Buttons */
-        input, textarea {
-            background-color: var(--input-bg); 
-            color: var(--text-main);
-            border: 3px solid var(--border-color); 
-            padding: 9px 18px;
-            border-radius: var(--bubbly-radius); 
-            outline: none;
-            font-size: 16px !important; 
-            font-weight: 800;
-            transition: all 0.3s;
-            box-shadow: var(--shadow-3d); 
-            cursor: text; 
-            touch-action: manipulation;
-            -webkit-user-select: text !important; 
-            user-select: text !important;
-            width: 100%;
-        }
-        input::placeholder { color: #A1887F; transition: color 0.3s; }
+        input, textarea { background-color: var(--input-bg); color: var(--text-main); border: 3px solid var(--border-color); padding: 9px 18px; border-radius: var(--bubbly-radius); outline: none; font-size: 16px !important; font-weight: 800; transition: all 0.3s; box-shadow: var(--shadow-3d); width: 100%; user-select: text !important; -webkit-user-select: text !important;}
+        input::placeholder { color: #A1887F; }
         input.ai-mode { border-color: var(--accent-ai); box-shadow: 0 0 14px rgba(110,155,133,0.3), var(--shadow-3d); }
         body.movie-mode input.ai-mode { box-shadow: 0 0 14px rgba(74,111,165,0.3), var(--shadow-3d); }
+        input:hover { border-color: var(--accent-primary); }
 
-        .action-btn {
-            background-color: var(--accent-hover); 
-            color: var(--text-main);
-            border: 3px solid var(--border-color); 
-            padding: 9px 18px;
-            border-radius: var(--bubbly-radius); 
-            outline: none;
-            font-size: 16px !important; 
-            font-weight: 800;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: var(--shadow-3d); 
-            cursor: pointer; 
-            touch-action: manipulation;
-            white-space: nowrap; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px;
-        }
+        .action-btn { background-color: var(--accent-hover); color: var(--text-main); border: 3px solid var(--border-color); padding: 9px 18px; border-radius: var(--bubbly-radius); outline: none; font-size: 16px !important; font-weight: 800; transition: all 0.3s; box-shadow: var(--shadow-3d); cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
         .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62,39,35,0.18); }
         .action-btn:active { transform: translateY(1px); }
         .action-btn.active-fav { background-color: var(--danger); border-color: #B25858; color: white; }
 
-        /* Search Section - Smaller AI Button */
-        .search-container { position: relative; width: 100%; max-width: 620px; display: flex; align-items: center; gap: 8px; flex-grow: 1; }
+        .ai-btn-pill { background-color: var(--accent-secondary); border: 3px solid var(--border-color); color: white; padding: 10px 20px; border-radius: var(--bubbly-radius); font-size: 15px !important; font-weight: 900; cursor: pointer; box-shadow: var(--shadow-3d); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+        body.movie-mode .ai-btn-pill { background-color: var(--accent-primary); }
+        .ai-btn-pill:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .ai-btn-pill:active { transform: translateY(1px); }
+
+        .search-container { display: flex; align-items: center; gap: 8px; flex-grow: 1; width: 100%; max-width: 650px;}
         .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         
-        .ai-search-area {
-            display: flex; align-items: center; gap: 6px;
-            background: var(--nav-bg); border: 2px solid var(--border-color);
-            border-radius: 20px; padding: 4px 10px;
-            box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer;
-            flex-shrink: 0; white-space: nowrap;
-        }
+        .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .ai-search-area { background: var(--nav-bg); border: 3px solid var(--border-color); box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer; }
         .ai-search-area.active { border-color: var(--accent-ai); animation: pulseGlow 2.5s infinite; }
-        .ai-search-icon { font-size: 16px; transition: transform 0.3s; }
+        .ai-search-area .ai-search-icon { font-size: 20px; transition: transform 0.3s; }
         .ai-search-area.active .ai-search-icon { transform: scale(1.15); }
-        .ai-search-label { font-size: 12px; font-weight: 900; color: var(--text-muted); }
-        .ai-search-area.active .ai-search-label { color: var(--accent-ai); }
 
-        .search-results {
-            position: absolute; top: calc(100% + 10px); left: 0; width: 100%;
-            background-color: var(--nav-bg); border: 3px solid var(--border-color);
-            border-radius: var(--card-radius); box-shadow: var(--shadow-float);
-            z-index: 200; display: none; flex-direction: column; padding: 8px;
-        }
+        .search-results { position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background-color: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--card-radius); box-shadow: var(--shadow-float); z-index: 200; display: none; flex-direction: column; padding: 8px; }
         .search-results.active { display: flex; animation: popIn 0.2s forwards; }
         .search-item { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
         .search-item:hover { background: var(--accent-hover); }
@@ -286,261 +168,128 @@
         .search-item b { font-size: 14px; font-weight: 800; color: var(--text-main); }
         .search-item small { font-size: 12px; color: var(--text-muted); font-weight: 700; }
 
-        /* Dropdowns */
         .dropdown-container { display: flex; gap: 10px; align-items: center; }
         .custom-dropdown { position: relative; min-width: 140px; }
-        .dropdown-header {
-            background-color: var(--accent-secondary); color: white; border: 3px solid var(--border-color);
-            padding: 9px 16px; border-radius: var(--bubbly-radius); font-size: 15px; font-weight: 800;
-            font-family: 'Fredoka', sans-serif; cursor: pointer; display: flex; justify-content: space-between;
-            align-items: center; transition: all 0.3s; box-shadow: var(--shadow-3d);
-        }
+        .dropdown-header { background-color: var(--accent-secondary); color: white; border: 3px solid var(--border-color); padding: 9px 16px; border-radius: var(--bubbly-radius); font-size: 15px; font-weight: 800; font-family: 'Fredoka', sans-serif; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-3d); transition: all 0.3s; }
         .dropdown-header:hover { transform: translateY(-2px); }
         .dropdown-header.disabled { opacity: 0.55; pointer-events: none; filter: grayscale(0.5); }
-        .dropdown-list {
-            position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--nav-bg);
-            border: 3px solid var(--border-color); border-radius: 16px; box-shadow: var(--shadow-float);
-            max-height: 260px; overflow-y: auto; z-index: 300; display: none; flex-direction: column; padding: 8px;
-        }
+        .dropdown-list { position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--nav-bg); border: 3px solid var(--border-color); border-radius: 16px; box-shadow: var(--shadow-float); max-height: 260px; overflow-y: auto; z-index: 300; display: none; flex-direction: column; padding: 8px; }
         .dropdown-list.show { display: flex; animation: popIn 0.2s forwards; }
-        .dropdown-item { 
-            padding: 10px 14px; border-radius: 12px; cursor: pointer; 
-            font-weight: 900; font-size: 14px; color: var(--text-main); 
-        }
+        .dropdown-item { padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 14px; transition: all 0.2s; }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
 
-        /* Player Frame - Bigger & Thicker Desktop */
+        /* Thick Desktop Video Frame */
         .iframe-wrapper {
-            width: 95%; max-width: var(--max-layout-width);
+            width: 95%; max-width: 1600px;
             aspect-ratio: 16 / 9;
             position: relative; background: var(--frame-color);
-            border: 20px solid #4E342E;
-            outline: 6px solid #2D1B15;
-            border-radius: 24px; overflow: hidden;
-            box-shadow: 0 0 0 4px #1a0e0a, var(--shadow-float), inset 0 0 50px rgba(0,0,0,0.85);
-            margin-top: 14px;
-            transition: border-color 0.8s ease, box-shadow 0.8s ease;
+            border: 22px solid #4E342E; outline: 6px solid #2D1B15;
+            border-radius: 18px; overflow: hidden;
+            box-shadow: 0 0 0 2px #1a0e0a, var(--shadow-float), inset 0 0 50px rgba(0,0,0,0.85);
+            margin-top: 14px; transition: border-color 0.8s ease, box-shadow 0.8s ease;
         }
-        body.movie-mode .iframe-wrapper {
-            border-color: #1a2d5a;
-            outline-color: #0a1428;
-            box-shadow: 0 0 0 4px #050a14, 0 0 60px rgba(74,111,165,0.3), inset 0 0 60px rgba(0,0,0,0.9);
-        }
+        body.movie-mode .iframe-wrapper { border-color: #1a2d5a; outline-color: #0a1428; box-shadow: 0 0 0 2px #050a14, 0 0 50px rgba(74,111,165,0.3), inset 0 0 60px rgba(0,0,0,0.9); }
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
         /* Library & Cards */
-        .library-section {
-            padding: 24px 30px; background: rgba(253,245,230,0.7);
-            backdrop-filter: blur(10px); border-radius: var(--card-radius);
-            border: 3px dashed var(--border-color);
-            transition: background 0.8s ease, border-color 0.6s ease;
-        }
+        .library-section { padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px); border-radius: var(--card-radius); border: 3px dashed var(--border-color); transition: background 0.8s ease, border-color 0.6s ease; }
         .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 2px; }
-        .library-title { font-size: 36px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 12px; color: var(--text-main); transition: color 0.6s; }
-        
-        /* New Sleek AI Picks Button */
-        .ai-text-btn {
-            background: transparent; border: none; color: var(--accent-secondary); 
-            font-size: 16px; font-weight: 800; cursor: pointer; display: flex; 
-            align-items: center; gap: 6px; padding: 6px 12px; border-radius: 12px;
-            transition: background 0.2s, transform 0.2s;
-        }
-        body.movie-mode .ai-text-btn { color: var(--accent-primary); }
-        .ai-text-btn:hover { background: rgba(127, 169, 152, 0.15); transform: translateY(-1px); }
-        body.movie-mode .ai-text-btn:hover { background: rgba(74, 111, 165, 0.15); }
-
-        .library-scroll { display: flex; gap: 16px; overflow-x: auto; padding: 16px 4px 24px 4px; scroll-behavior: smooth; }
+        .library-title { font-size: 34px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 12px; color: var(--text-main); transition: color 0.6s; }
+        .library-scroll { display: flex; gap: 14px; overflow-x: auto; padding: 14px 4px 22px 4px; scroll-behavior: smooth; }
         .library-scroll::-webkit-scrollbar { height: 5px; }
         .library-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        .compact-ai-btn { padding: 8px 14px; font-size: 14px !important; }
 
         .library-card {
-            min-width: 150px; max-width: 150px; position: relative; display: flex;
-            flex-direction: column; cursor: pointer;
-            background: linear-gradient(160deg, #f5ece0, #e8d8c4);
-            border-radius: 14px;
-            border: 3px solid var(--border-color);
-            padding: 0; box-shadow: 0 5px 12px rgba(62,39,35,0.18), 0 2px 4px rgba(139,94,60,0.3);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            flex-shrink: 0; overflow: hidden;
+            min-width: 140px; max-width: 140px; position: relative; display: flex; flex-direction: column; cursor: pointer;
+            background: linear-gradient(160deg, #f5ece0, #e8d8c4); border-radius: 14px; border: 3px solid var(--border-color);
+            box-shadow: 0 5px 12px rgba(62,39,35,0.18); transition: transform 0.2s ease, box-shadow 0.2s ease; flex-shrink: 0; overflow: hidden;
         }
-        body.movie-mode .library-card { background: linear-gradient(160deg, #0e1a35, #1a2d50); border-color: #2a4080; }
         .library-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(62,39,35,0.25); }
-        .library-card.is-favorite { border-color: var(--danger); box-shadow: 0 5px 12px rgba(217,108,108,0.3); }
-        
-        .card-img-wrapper { position: relative; width: 100%; height: 200px; overflow: hidden; background: #d5c4b0; }
-        body.movie-mode .card-img-wrapper { background: #0a1428; }
+        .library-card.is-favorite { border-color: var(--danger); }
+        .card-img-wrapper { position: relative; width: 100%; height: 185px; overflow: hidden; background: #d5c4b0; }
         .library-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        
-        .library-card-title {
-            font-size: 13px; font-weight: 900; text-align: center;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            padding: 10px 10px 6px;
-            font-family: 'Fredoka', sans-serif; color: #5C3317;
-            background: linear-gradient(180deg, #f5ece0, #e8d2b8);
-            border-top: 2px solid #c4a06e; letter-spacing: 0.3px;
-        }
-        body.movie-mode .library-card-title { color: #a0b8e8; background: linear-gradient(180deg, #0e1a35, #0a1428); border-top-color: #1e3560; }
+        .library-card-title { font-size: 12px; font-weight: 900; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 8px 10px 4px; font-family: 'Fredoka', sans-serif; color: #5C3317; background: linear-gradient(180deg, #f5ece0, #e8d2b8); border-top: 2px solid #c4a06e; }
 
         .fav-badge { position: absolute; top: 5px; left: 5px; font-size: 14px; z-index: 5; background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        .progress-badge {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(92,51,23,0.88); color: #f5ddb0;
-            font-size: 11px; font-weight: 900; padding: 5px 6px;
-            text-align: center; font-family: 'Fredoka', sans-serif;
-            letter-spacing: 0.5px; border-top: 1.5px solid rgba(212,160,110,0.4);
-        }
+        .progress-badge { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(92,51,23,0.88); color: #f5ddb0; font-size: 11px; font-weight: 900; padding: 5px 6px; text-align: center; font-family: 'Fredoka', sans-serif; border-top: 1.5px solid rgba(212,160,110,0.4); }
         .progress-badge.is-movie { background: rgba(25,40,90,0.9); color: #9fc3ff; border-top-color: rgba(74,111,165,0.4); }
         body:not(.movie-mode) .progress-badge.is-movie { background: rgba(62,39,35,0.85); color: #e8ccaa; }
-        
-        .remove-btn { 
-            position: absolute; top: 6px; right: 6px; 
-            background: rgba(0,0,0,0.6); color: white; width: 24px; height: 24px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            font-weight: 900; font-size: 14px; border: 1.5px solid rgba(255,255,255,0.4); 
-            backdrop-filter: blur(4px); opacity: 0; transition: all 0.2s; z-index: 20; cursor: pointer; 
-        }
+        .remove-btn { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; opacity: 0; transition: all 0.2s; z-index: 20; cursor: pointer; }
         .library-card:hover .remove-btn { opacity: 1; }
-        .remove-btn:hover { background: var(--danger); transform: scale(1.1); border-color: white; }
+        .remove-btn:hover { background: var(--danger); transform: scale(1.1); }
         
-        .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 16px; }
-        .ai-recs-section { margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(160,147,166,0.4); }
-        .ai-recs-title { font-size: 18px; font-weight: 900; margin-bottom: 2px; padding-left: 4px; color: var(--text-main); }
+        .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 15px; }
+        .ai-recs-section { margin-top: 14px; padding-top: 12px; border-top: 2px dashed rgba(160,147,166,0.3); }
+        .ai-recs-title { font-size: 16px; font-weight: 900; margin-bottom: 0px; padding-left: 4px; }
 
         /* Show Info Box */
-        .show-info {
-            padding: 30px 34px; background: var(--panel-bg); backdrop-filter: blur(16px);
-            border-radius: var(--card-radius); border: 3px solid var(--border-color);
-            box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 18px;
-            transition: background 0.8s ease, border-color 0.6s ease;
-        }
+        .show-info { padding: 28px 30px; background: var(--panel-bg); backdrop-filter: blur(16px); border-radius: var(--card-radius); border: 3px solid var(--border-color); box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 16px; transition: background 0.8s ease, border-color 0.6s ease; }
         .info-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
-        .title-group { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
-        .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
-        .show-title { font-size: 46px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); line-height: 1.1; transition: color 0.6s; }
+        .title-group { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
+        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
+        .show-title { font-size: 40px; font-weight: 700; font-family: 'Fredoka', sans-serif; line-height: 1.1; transition: color 0.6s; }
         .badges-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        
-        .badge {
-            background: rgba(62,39,35,0.08); padding: 7px 15px; border-radius: 50px;
-            font-size: 15px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;
-            color: var(--text-main); transition: background 0.6s, color 0.6s;
-        }
+        .badge { background: rgba(62,39,35,0.08); padding: 7px 15px; border-radius: 50px; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; transition: background 0.6s, color 0.6s; }
         .badge.rating { background: rgba(229,169,59,0.2); color: #8A5D10; }
         
-        .show-overview {
-            font-size: 17px; line-height: 1.75; font-weight: 700;
-            background: rgba(255,255,255,0.6); padding: 20px 24px;
-            border-radius: 14px; border-left: 6px solid var(--accent-primary);
-            transition: background 0.6s, border-color 0.6s; color: var(--text-main);
-        }
+        .show-overview { font-size: 16px; line-height: 1.75; font-weight: 700; background: rgba(255,255,255,0.6); padding: 18px 22px; border-radius: 14px; border-left: 6px solid var(--accent-primary); transition: background 0.6s, border-color 0.6s; }
         .read-more-btn { color: var(--accent-secondary); font-weight: 900; cursor: pointer; margin-left: 5px; text-decoration: none; }
         body.movie-mode .read-more-btn { color: var(--accent-primary); }
 
-        /* Automated AI Insights Background Panel */
-        .ai-insights-panel {
-            display: none; padding: 24px 28px; border-radius: 18px;
-            background: rgba(110, 155, 133, 0.15); border: 2px solid var(--accent-secondary);
-            font-size: 16px; line-height: 1.8; font-weight: 700; position: relative;
-            animation: slideUp 0.4s ease; color: var(--text-main);
-        }
-        body.movie-mode .ai-insights-panel { border-color: var(--accent-primary); }
+        .ai-insights-panel { display: none; padding: 20px 24px; border-radius: 16px; background: rgba(110, 155, 133, 0.15); border: 2px solid var(--border-color); font-size: 15px; line-height: 1.6; font-weight: 700; animation: slideUp 0.3s ease; margin-top: 6px; }
         .ai-insights-panel.visible { display: block; }
-        .ai-insights-panel p { margin-bottom: 10px; }
-        .ai-insights-panel ul { padding-left: 20px; margin: 6px 0; }
-        .ai-insights-panel li { margin-bottom: 6px; }
-        .close-insights {
-            position: absolute; top: 12px; right: 16px; font-size: 18px; 
-            cursor: pointer; opacity: 0.7; font-weight: 900; transition: 0.2s;
-        }
-        .close-insights:hover { opacity: 1; transform: scale(1.1); color: var(--danger); }
-        .insights-loader { display: flex; align-items: center; gap: 8px; font-weight: 800; opacity: 0.8; }
+        .insights-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 900; color: var(--accent-ai); }
+        body.movie-mode .insights-header { color: var(--accent-primary); }
 
         /* Zesty Chat Interface */
-        .zesty-toggle {
-            position: fixed; bottom: 28px; right: 28px; width: 68px; height: 68px;
-            background: var(--accent-secondary); color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 34px;
-            cursor: pointer; box-shadow: var(--shadow-float); border: 4px solid white;
-            z-index: 999; touch-action: manipulation; transition: transform 0.2s;
-        }
+        .zesty-toggle { position: fixed; bottom: 28px; right: 28px; width: 64px; height: 64px; background: var(--accent-secondary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; box-shadow: var(--shadow-float); border: 3px solid white; z-index: 999; touch-action: manipulation; transition: transform 0.2s; }
         body.movie-mode .zesty-toggle { background: var(--accent-primary); }
         .zesty-toggle:active { transform: scale(0.9); }
-        body.chat-open .zesty-toggle { display: none !important; } /* Hide toggle when chat open on mobile to prevent overlay */
         
-        .zesty-panel {
-            display: none; position: fixed; bottom: 110px; right: 28px; width: 380px;
-            height: 560px; background: var(--nav-bg); border: 3px solid var(--accent-secondary);
-            border-radius: 22px; z-index: 998; flex-direction: column;
-            box-shadow: var(--shadow-float); overflow: hidden;
-            transition: background 0.8s, border-color 0.6s;
-        }
-        body.movie-mode .zesty-panel { border-color: var(--accent-primary); }
+        .zesty-panel { display: none; position: fixed; bottom: 106px; right: 28px; width: 360px; height: 520px; background: var(--nav-bg); border: 3px solid var(--accent-secondary); border-radius: 22px; z-index: 998; flex-direction: column; box-shadow: var(--shadow-float); overflow: hidden; transition: background 0.8s, border-color 0.6s; }
         .zesty-panel.open { display: flex; animation: slideUp 0.25s ease; }
         
-        .zesty-header {
-            background: var(--accent-secondary); padding: 16px 20px; color: white;
-            font-weight: 900; font-size: 18px; display: flex; justify-content: space-between;
-            align-items: center; flex-shrink: 0;
-        }
-        .zesty-close-btn { cursor: pointer; font-size: 24px; opacity: 0.9; line-height: 1; touch-action: manipulation; }
-        .zesty-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        .zesty-header { background: var(--accent-secondary); padding: 14px 18px; color: white; font-weight: 900; font-size: 17px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .zesty-close-btn { cursor: pointer; font-size: 22px; opacity: 0.85; line-height: 1; touch-action: manipulation; }
+        .zesty-messages { flex: 1 1 auto; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; overscroll-behavior: contain; min-height: 0; }
         
-        .zesty-msg-user {
-            background: var(--accent-primary); color: white; padding: 12px 16px;
-            border-radius: 20px 20px 4px 20px; align-self: flex-end; font-weight: 800;
-            font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.4;
-        }
-        .zesty-msg-bot {
-            background: white; padding: 12px 16px; border-radius: 20px 20px 20px 4px;
-            align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700;
-            font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.5;
-            color: var(--text-main); -webkit-user-select: text !important; user-select: text !important;
-        }
+        .zesty-msg-user { background: var(--accent-primary); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.4; }
+        .zesty-msg-bot { background: white; padding: 10px 15px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.5; user-select: text !important; -webkit-user-select: text !important;}
         
-        .zesty-canvas-card {
-            align-self: flex-start; background: white; border: 2.5px solid var(--border-color);
-            border-radius: 18px; overflow: hidden; max-width: 85%; cursor: pointer;
-            box-shadow: 0 4px 16px rgba(62,39,35,0.15); transition: transform 0.25s, box-shadow 0.25s;
-            animation: popIn 0.3s ease;
-        }
+        .zesty-canvas-card { align-self: flex-start; background: white; border: 2.5px solid var(--border-color); border-radius: 18px; overflow: hidden; max-width: 85%; cursor: pointer; box-shadow: 0 4px 16px rgba(62,39,35,0.15); transition: transform 0.25s, box-shadow 0.25s; animation: popIn 0.3s ease; }
         .zesty-canvas-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(62,39,35,0.22); }
-        body.movie-mode .zesty-canvas-card { background: #0e1830; border-color: #2a4080; }
-        .canvas-card-img { width: 100%; height: 130px; object-fit: cover; display: block; background: #ddd; }
-        .canvas-card-body { padding: 12px 14px; }
-        .canvas-card-title { font-family: 'Fredoka', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-        .canvas-card-meta { font-size: 13px; font-weight: 800; color: var(--text-muted); }
-        .canvas-card-tap { font-size: 12px; font-weight: 900; color: var(--accent-secondary); margin-top: 6px; letter-spacing: 0.3px; }
+        .canvas-card-img { width: 100%; height: 120px; object-fit: cover; display: block; background: #ddd; }
+        .canvas-card-body { padding: 10px 12px; }
+        .canvas-card-title { font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+        .canvas-card-meta { font-size: 12px; font-weight: 800; color: var(--text-muted); }
 
-        .zesty-input-area {
-            padding: 12px 14px; display: flex; gap: 10px; align-items: center;
-            border-top: 2px solid rgba(166,123,91,0.2); background: rgba(255,255,255,0.5);
-            flex-shrink: 0;
-        }
-        .zesty-input-area input {
-            flex: 1; padding: 12px 16px; border-radius: 24px; font-size: 16px !important;
-            -webkit-user-select: text !important; user-select: text !important;
-        }
-        .zesty-send-btn {
-            background: var(--accent-secondary); color: white; border: none;
-            width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; touch-action: manipulation; transition: transform 0.2s;
-        }
-        body.movie-mode .zesty-send-btn { background: var(--accent-primary); }
+        .zesty-input-area { padding: 10px 12px; display: flex; gap: 8px; align-items: center; border-top: 2px solid rgba(166,123,91,0.2); background: rgba(255,255,255,0.5); flex-shrink: 0; }
+        .zesty-input-area input { flex: 1; padding: 10px 14px; border-radius: 20px; font-size: 16px !important; }
+        .zesty-send-btn { background: var(--accent-secondary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s; }
         .zesty-send-btn:active { transform: scale(0.9); }
 
         .thinking-dots::after { content: ''; display: inline-block; width: 16px; animation: dots 1.2s steps(4, end) infinite; }
         @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
 
         /* ═══════════════════════════════════════════════════
-           RESPONSIVE BREAKPOINTS (Mobile & iOS Fixes)
+           SCALE UP FOR DESKTOP
         ═══════════════════════════════════════════════════ */
-        @media (max-width: 1100px) {
-            .navbar, .show-info, .library-section { width: 95%; }
+        @media (min-width: 1400px) {
+            body { font-size: 18px; }
+            .show-title { font-size: 48px; }
+            .library-title { font-size: 42px; }
+            .action-btn, .ai-btn-pill { font-size: 17px !important; padding: 11px 22px; }
+            .custom-dropdown { min-width: 160px; }
+            .library-card { min-width: 160px; max-width: 160px; }
+            .card-img-wrapper { height: 210px; }
+            input { font-size: 18px !important; }
         }
 
+        /* ═══════════════════════════════════════════════════
+           MOBILE / RESPONSIVE (Heavy Upgrades)
+        ═══════════════════════════════════════════════════ */
         @media (max-width: 768px) {
-            input, select, textarea, button { font-size: 16px !important; }
-
             body { background-color: var(--bg-deep) !important; }
             body.movie-mode { background-color: #080e20 !important; }
             .background-backdrop { display: none !important; }
@@ -551,64 +300,56 @@
             .nav-left { flex-direction: column; width: 100%; gap: 10px; }
             .dropdown-container { width: 100%; gap: 10px; }
             .custom-dropdown { flex: 1; min-width: 0; }
-            .nav-right { width: 100%; flex-direction: column; }
-            .theme-toggle-btn { width: 100%; justify-content: center; }
-
-            .search-container { flex-direction: column; align-items: stretch; gap: 8px; }
-            .ai-search-area { justify-content: center; }
-
-            .main-content { padding: 0; } 
             
-            /* Enhanced Mobile Frame - Taller and keeps styling */
+            .search-container { flex-direction: row; flex-wrap: nowrap; }
+            .compact-circle { width: 44px; height: 44px; padding: 0; }
+            .search-input-wrapper { flex: 1; }
+
             .iframe-wrapper {
-                width: 95% !important; max-width: 95% !important; margin: 0 auto 16px auto !important;
-                border-radius: 16px !important; border: 8px solid var(--frame-color) !important; 
-                outline: 3px solid #2D1B15 !important;
-                aspect-ratio: 16 / 10 !important; /* Makes it taller natively */
-                min-height: 250px; /* Base height assurance */
-                box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+                width: 95% !important; max-width: 95vw !important; margin: 0 auto 16px auto !important;
+                border-radius: 12px !important; border: 8px solid var(--frame-color) !important; 
+                outline: 3px solid #2D1B15 !important; box-shadow: var(--shadow-float) !important;
+                aspect-ratio: auto !important; height: 380px !important;
             }
+            body.movie-mode .iframe-wrapper { border-color: #1a2d5a !important; outline-color: #0a1428 !important; }
 
             .show-info, .library-section { width: 95%; margin: 0 auto 16px auto; }
-            .show-info { padding: 20px; gap: 16px; }
+            .show-info { padding: 18px; gap: 14px; }
             .info-header { flex-direction: column; gap: 14px; align-items: stretch; }
-            .title-group { align-items: flex-start; }
-            .show-title { font-size: 32px; }
-            .badges-row { flex-wrap: wrap; gap: 6px; }
-            .action-buttons { flex-direction: row; flex-wrap: wrap; width: 100%; gap: 8px; justify-content: center; }
-            .action-btn { flex: 1 1 45%; justify-content: center; padding: 10px 8px; font-size: 15px !important; }
-            .badge { font-size: 13px; padding: 6px 12px; }
+            .show-title { font-size: 26px; }
+            .action-buttons { flex-direction: row; width: 100%; justify-content: center; }
+            .action-btn { flex: 1 1 45%; justify-content: center; padding: 10px 8px; font-size: 14px !important; }
             
-            .library-section { padding: 18px 16px; }
-            .library-card { min-width: 135px; max-width: 135px; }
-            .card-img-wrapper { height: 185px; }
+            .library-section { padding: 16px 14px; }
+            .library-card { min-width: 130px; max-width: 130px; }
+            .card-img-wrapper { height: 175px; }
 
-            /* iOS Chat Fixes */
-            .zesty-toggle { width: 60px; height: 60px; font-size: 30px; bottom: 16px; right: 14px; }
+            /* Essential iOS Keyboard Viewport Safety Updates */
+            .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
             .zesty-panel {
-                width: 100vw !important; 
-                height: 100dvh !important; /* dvh naturally adjusts to iOS keyboard */
-                left: 0 !important; right: 0 !important; bottom: 0 !important; top: 0 !important;
-                max-height: none; border-radius: 0; border: none;
-                position: fixed; /* Ensures it stays bounded */
+                width: 100% !important; height: 100dvh; 
+                left: 0 !important; right: 0 !important; bottom: auto; top: 0;
+                max-height: none !important; border-radius: 0; border: none;
             }
             .zesty-header { padding: 16px 18px; }
-            .zesty-messages { padding: 14px; }
-            .zesty-input-area { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+            .zesty-messages { padding: 12px; }
+            .zesty-input-area { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
         }
 
-        @media (max-width: 380px) {
-            .library-card { min-width: 120px; max-width: 120px; }
-            .card-img-wrapper { height: 165px; }
-            .show-title { font-size: 26px; }
+        @media (max-width: 480px) {
+            .iframe-wrapper { height: 320px !important; }
+            .library-card { min-width: 115px; max-width: 115px; }
+            .card-img-wrapper { height: 158px; }
+            .show-title { font-size: 22px; }
         }
     </style>
 </head>
 <body>
 
 <div class="cinema-fx" id="cinema-fx">
+    <div class="stars-layer1"></div>
+    <div class="stars-layer2"></div>
     <div class="cinema-beam"></div>
-    <div class="cinema-stars"></div>
 </div>
 <div class="background-backdrop" id="bg-backdrop"></div>
 <div class="cozy-overlay"></div>
@@ -629,9 +370,11 @@
     </div>
     <div class="nav-right">
         <div class="search-container">
-            <div id="ai-search-toggle" class="ai-search-area" title="Toggle AI Smart Search">
+            <button id="theme-switch" class="action-btn compact-circle" title="Toggle Theme">
+                <span id="theme-icon">🌙</span>
+            </button>
+            <div id="ai-search-toggle" class="ai-search-area compact-circle" title="Toggle AI Smart Search">
                 <span class="ai-search-icon">🧠</span>
-                <span class="ai-search-label">AI Search</span>
             </div>
             <div class="search-input-wrapper">
                 <input type="text" id="search-input" placeholder="Find a movie or show..." autocomplete="off">
@@ -639,26 +382,24 @@
                 <div id="search-results" class="search-results"></div>
             </div>
         </div>
-        <button class="action-btn theme-toggle-btn" id="theme-toggle">🌙 Cinema</button>
     </div>
 </header>
 
 <main class="main-content">
     <div class="iframe-wrapper">
         <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
-
     </div>
 
     <section class="library-section">
         <div class="library-header">
             <h2 class="library-title">My Backpack <span class="emoji-icon" style="font-size:0.72em;">🎒</span></h2>
-            <button class="ai-text-btn" id="ai-recs-btn">
-                <span>✨</span> Inspire Me
+            <button class="ai-btn-pill compact-ai-btn" id="ai-recs-btn" title="Get AI Picks">
+                <span>🎯</span> AI Picks
             </button>
         </div>
         <div class="library-scroll" id="library-scroll"></div>
         <div class="ai-recs-section" id="ai-recs-container" style="display:none;">
-            <div class="ai-recs-title">🔥 Zesty's Top Picks</div>
+            <div class="ai-recs-title">💡 Inspired by your Backpack</div>
             <div class="library-scroll" id="ai-recs-scroll"></div>
         </div>
     </section>
@@ -679,18 +420,25 @@
             </div>
         </div>
         <p class="show-overview" id="info-overview"></p>
-        <div class="ai-insights-panel" id="ai-insights-panel"></div>
+        
+        <div class="ai-insights-panel" id="ai-insights-panel">
+            <div class="insights-header">
+                <span><span class="emoji-icon">🤖</span> AI Intel</span>
+                <span id="close-insights" style="cursor: pointer; opacity: 0.7; font-size: 18px;">✕</span>
+            </div>
+            <div id="insights-content"></div>
+        </div>
     </div>
 </main>
 
-<div class="zesty-toggle" id="zesty-toggle" title="Chat with Zesty!">😎</div>
+<div class="zesty-toggle" id="zesty-toggle" title="Chat with Zesty!">🍋</div>
 <div class="zesty-panel" id="zesty-panel">
     <div class="zesty-header">
-        <span>😎 Zesty</span>
+        <span>🍋 Zesty</span>
         <span class="zesty-close-btn" id="zesty-close">✕</span>
     </div>
     <div class="zesty-messages" id="zesty-messages">
-        <div class="zesty-msg-bot">Yo! 🍿 Ready to find something epic to watch?</div>
+        <div class="zesty-msg-bot">Hey buddy! 🍋 I'm Zesty. What absolute banger are we hunting tonight? 😎</div>
     </div>
     <div class="zesty-input-area">
         <input type="text" id="zesty-input" placeholder="Ask me anything..." autocomplete="off">
@@ -715,9 +463,9 @@ let episodeVal = null;
 let searchTimer = null;
 let aiSearchOn = false;
 let chatHistory = [];
-let manualThemeOverride = null; // Stores user theme preference
+let userManualTheme = null;
+let currentInsightId = null;
 
-// DOM Element Helpers
 const $ = id => document.getElementById(id);
 
 const searchInput = $('search-input');
@@ -734,7 +482,6 @@ const badgesRow = $('badges-container');
 
 const libraryScroll = $('library-scroll');
 const favBtn = $('fav-btn');
-const themeToggle = $('theme-toggle');
 
 const seasonHeader = $('season-header');
 const seasonList = $('season-list');
@@ -743,9 +490,12 @@ const episodeList = $('episode-list');
 
 const aiSearchToggle = $('ai-search-toggle');
 const aiInsightsPanel = $('ai-insights-panel');
+const closeInsightsBtn = $('close-insights');
 const aiRecsBtn = $('ai-recs-btn');
 const aiRecsContainer = $('ai-recs-container');
 const aiRecsScroll = $('ai-recs-scroll');
+const themeSwitchBtn = $('theme-switch');
+const themeIcon = $('theme-icon');
 
 const zestyToggle = $('zesty-toggle');
 const zestyPanel = $('zesty-panel');
@@ -754,136 +504,85 @@ const zestyMessages = $('zesty-messages');
 const zestyInput = $('zesty-input');
 const zestySend = $('zesty-send');
 
-/* ── iOS Visual Viewport Fix for Keyboard ── */
-if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-        if (document.body.classList.contains('chat-open') && window.innerWidth <= 768) {
-            zestyPanel.style.height = `${window.visualViewport.height}px`;
-            zestyPanel.style.top = `${window.visualViewport.offsetTop}px`;
-        } else {
-            zestyPanel.style.height = '';
-            zestyPanel.style.top = '';
-        }
-    });
-}
-
+/* Prevent iOS overscroll bounce on UI bounds */
 document.addEventListener('touchmove', e => {
-    if (e.target.closest('.zesty-messages, .library-scroll, .dropdown-list, .show-overview')) {
-        return;
-    }
-    if (document.documentElement.scrollTop <= 0 || document.documentElement.scrollTop + window.innerHeight >= document.documentElement.scrollHeight) {
-        // Prevent default behavior to stop body scroll bounce
-    }
+    if (e.target.closest('.zesty-messages, .library-scroll, .dropdown-list, .show-overview')) return;
+    if (document.documentElement.scrollTop <= 0 || document.documentElement.scrollTop + window.innerHeight >= document.documentElement.scrollHeight) {}
 }, { passive: false });
 
-/* ═══════════════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════════════ */
 function mdToHtml(raw) {
     if (!raw) return '';
-    
-    let formattedText = raw
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>');
-        
+    let formattedText = raw.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
     const lines = formattedText.split('\n');
     let html = '';
     let inList = false;
     
     for (const line of lines) {
         const bulletMatch = line.match(/^[\*\-]\s+(.+)/);
-        
         if (bulletMatch) {
-            if (!inList) { 
-                html += '<ul style="padding-left:18px; margin:8px 0;">'; 
-                inList = true; 
-            }
-            html += `<li style="margin-bottom:5px;">${bulletMatch[1]}</li>`;
+            if (!inList) { html += '<ul style="padding-left:18px; margin:6px 0;">'; inList = true; }
+            html += `<li style="margin-bottom:4px;">${bulletMatch[1]}</li>`;
         } else {
-            if (inList) { 
-                html += '</ul>'; 
-                inList = false; 
-            }
-            if (line.trim()) {
-                html += `<p style="margin-bottom:8px;">${line.trim()}</p>`;
-            }
+            if (inList) { html += '</ul>'; inList = false; }
+            if (line.trim()) html += `<p style="margin-bottom:6px;">${line.trim()}</p>`;
         }
     }
-    
     if (inList) html += '</ul>';
     return html;
 }
 
 /* ═══════════════════════════════════════════════════
-   GROQ AI LOGIC (Llama 3.1 8B w/ Retries) - Charismatic Upgrade!
+   GROQ AI LOGIC (Snappier & Cooler)
 ═══════════════════════════════════════════════════ */
 const AI = {
     async call(prompt, systemPrompt = '', retries = 2) {
-        const msgs = [];
-        
-        if (systemPrompt) msgs.push({ role: 'system', content: systemPrompt });
+        const msgs = systemPrompt ? [{ role: 'system', content: systemPrompt }] : [];
         msgs.push({ role: 'user', content: prompt });
         
         for (let i = 0; i <= retries; i++) {
             try {
                 const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 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'
-                    },
-                    body: JSON.stringify({ 
-                        model: 'llama-3.1-8b-instant',
-                        messages: msgs,
-                        temperature: 0.7 
-                    })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
+                    body: JSON.stringify({ model: 'llama-3.1-8b-instant', messages: msgs, temperature: 0.8 })
                 });
-                
                 if (!res.ok) throw new Error('API Request Failed');
-                
                 const data = await res.json();
                 return data.choices[0].message.content.trim();
-                
             } catch (err) {
-                if (i === retries) return null; 
+                if (i === retries) return null;
                 await new Promise(r => setTimeout(r, 1000 * (i + 1))); 
             }
         }
     },
     
     async smartSearch(query) {
-        const text = await this.call(`Return ONLY the exact title of the movie or TV show described: "${query}". Nothing else.`);
+        const text = await this.call(`Return ONLY the exact title of the movie/show: "${query}". No extra text.`);
         return text || query;
     },
     
     async insights(title, type, year) {
-        const text = await this.call(`Give me 1 hyper-charismatic, cool pitch sentence, then 3 mind-blowing spoiler-free facts for the ${type} "${title}" (${year}). Use trendy emojis 🔥😎. Keep it under 60 words total. No fluff.`);
-        return text || '<em>Zesty is currently napping 💤 Check your connection!</em>';
+        const text = await this.call(`Give me 1 super short punchy sentence, then 2 mind-blowing facts for the ${type} "${title}" (${year}). Be extremely charismatic, cool, and use emojis! Keep it very short. Max 50 words.`);
+        return text || '<em>Too swaggy to load right now! 😎 Check connection.</em>';
     },
     
     async recs(titles) {
-        const text = await this.call(`Based on these titles: ${titles.join(', ')} — give me 5 highly curated, premium, top-tier recommendations. No random picks, only absolute bangers that match the vibe. Return ONLY a JSON array of strings. Example: ["Title A","Title B"]`);
+        const text = await this.call(`Based on these: ${titles.join(', ')} — give 5 amazing, critically acclaimed similar titles. Return ONLY a JSON array of strings. Example: ["Title A","Title B"]`);
         if (!text) return [];
-        try { 
-            const match = text.match(/\[[\s\S]*\]/);
-            return match ? JSON.parse(match[0]) : []; 
-        } catch { return []; }
+        try { const match = text.match(/\[[\s\S]*\]/); return match ? JSON.parse(match[0]) : []; } 
+        catch { return []; }
     },
     
     async chat(history) {
-        const systemPrompt = `You are Zesty 😎 — a charismatic, cool, and witty movie buddy with elite taste. 
-- Keep responses extremely short and punchy (1-2 sentences MAX).
-- Use cool emojis frequently 🔥🍿😎👀.
-- Format recs EXACTLY: [RECOMMEND: Title (Year, Type)]
-- For Type, you MUST output exactly "movie" or "tv". Example: [RECOMMEND: Breaking Bad (2008, tv)]
-- Give high-quality, highly relevant recommendations only.`;
+        const systemPrompt = `You are Zesty 🍋 — an incredibly cool, swaggy movie buddy!
+- Give extremely brief answers (1-2 sentences max). Use cool emojis! 😎🍿
+- Recommend ONLY absolute bangers. No basic trash.
+- Format recommendations EXACTLY: [RECOMMEND: Title (Year, Type)]
+- Type MUST be exactly "movie" or "tv". Example: [RECOMMEND: Interstellar (2014, movie)]`;
         
         const chatLog = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
         const reply = await this.call(chatLog, systemPrompt);
-        return reply || "Connection lost bro — try hitting me up again! 😎";
+        return reply || "Connection interrupted! We'll get 'em next time 😎🍋";
     }
 };
 
@@ -892,177 +591,50 @@ const AI = {
 ═══════════════════════════════════════════════════ */
 const TMDB = {
     async searchMulti(query) {
-        const response = await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&include_adult=false`);
-        return response.json();
+        const res = await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&include_adult=false`);
+        return res.json();
     },
     async getDetails(id, type) { 
-        const response = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}`);
-        return response.json();
+        const res = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}`);
+        return res.json();
     },
     async getEpisodes(id, seasonNumber) { 
-        const response = await fetch(`${TMDB_BASE}/tv/${id}/season/${seasonNumber}?api_key=${TMDB_KEY}`);
-        return response.json();
+        const res = await fetch(`${TMDB_BASE}/tv/${id}/season/${seasonNumber}?api_key=${TMDB_KEY}`);
+        return res.json();
     }
 };
 
 /* ═══════════════════════════════════════════════════
-   THEME & UI TOGGLES
+   THEME, PLAYER, & UI LOGIC
 ═══════════════════════════════════════════════════ */
 function applyTheme(type) {
+    if (userManualTheme) userManualTheme = null; // Auto reset on new media
+
     if (type === 'movie') {
         document.body.classList.add('movie-mode');
-        themeToggle.innerHTML = '☕ Cafe Mode';
+        zestyToggle.textContent = '🎬';
+        themeIcon.textContent = '🌙';
     } else {
         document.body.classList.remove('movie-mode');
-        themeToggle.innerHTML = '🌙 Cinema Mode';
+        zestyToggle.textContent = '🍋';
+        themeIcon.textContent = '☕';
     }
 }
 
-themeToggle.addEventListener('click', () => {
+themeSwitchBtn.addEventListener('click', () => {
     if (document.body.classList.contains('movie-mode')) {
-        manualThemeOverride = 'tv';
-        applyTheme('tv');
+        document.body.classList.remove('movie-mode');
+        userManualTheme = 'cafe';
+        themeIcon.textContent = '☕';
+        zestyToggle.textContent = '🍋';
     } else {
-        manualThemeOverride = 'movie';
-        applyTheme('movie');
+        document.body.classList.add('movie-mode');
+        userManualTheme = 'movie';
+        themeIcon.textContent = '🌙';
+        zestyToggle.textContent = '🎬';
     }
 });
 
-aiSearchToggle.addEventListener('click', e => {
-    e.preventDefault();
-    aiSearchOn = !aiSearchOn;
-    aiSearchToggle.classList.toggle('active', aiSearchOn);
-    
-    if (aiSearchOn) {
-        searchInput.placeholder = '🧠 Describe what you want...';
-        searchInput.classList.add('ai-mode');
-    } else {
-        searchInput.placeholder = 'Find a movie or show...';
-        searchInput.classList.remove('ai-mode');
-    }
-});
-
-function toggleChat() {
-    const isOpen = zestyPanel.classList.contains('open');
-    if (isOpen) {
-        zestyPanel.classList.remove('open');
-        document.body.classList.remove('chat-open');
-    } else {
-        zestyPanel.classList.add('open');
-        document.body.classList.add('chat-open'); // Locks background scroll, triggers mobile iOS CSS
-    }
-}
-
-zestyToggle.addEventListener('click', toggleChat);
-zestyClose.addEventListener('click', toggleChat);
-
-/* ═══════════════════════════════════════════════════
-   LIBRARY / BACKPACK
-═══════════════════════════════════════════════════ */
-function getLib() {
-    return JSON.parse(localStorage.getItem('streamToyLibrary') || '[]');
-}
-
-function saveLib(libArray) { 
-    localStorage.setItem('streamToyLibrary', JSON.stringify(libArray)); 
-    renderLib(); 
-    updateFavUI(); 
-}
-
-function upsertLib(data, type, season = 1, episode = 1) {
-    let lib = getLib();
-    const existingItem = lib.find(item => item.id == data.id && item.mediaType === type);
-    const isFav = existingItem ? existingItem.favorite : false;
-    
-    lib = lib.filter(item => !(item.id == data.id && item.mediaType === type));
-    lib.unshift({ 
-        id: data.id, name: data.name || data.title, poster: data.poster_path, 
-        mediaType: type, season: season, episode: episode, favorite: isFav 
-    });
-    if (lib.length > 20) lib.pop();
-    saveLib(lib);
-}
-
-function updateProgress(id, season, episode) {
-    if (mediaType === 'movie') return;
-    let lib = getLib(); 
-    const itemIndex = lib.findIndex(x => x.id == id && x.mediaType === 'tv');
-    if (itemIndex !== -1 && (lib[itemIndex].season != season || lib[itemIndex].episode != episode)) { 
-        lib[itemIndex].season = season; 
-        lib[itemIndex].episode = episode; 
-        saveLib(lib); 
-        if (id == mediaId) {
-            seasonVal = season; episodeVal = episode;
-            seasonHeader.innerHTML = `Season ${seasonVal} <span>▼</span>`;
-            episodeHeader.innerHTML = `Ep ${episodeVal} <span>▼</span>`;
-        }
-    }
-}
-
-function toggleFav(id) {
-    let lib = getLib(); 
-    const itemIndex = lib.findIndex(x => x.id == id && x.mediaType === mediaType);
-    if (itemIndex !== -1) { lib[itemIndex].favorite = !lib[itemIndex].favorite; saveLib(lib); }
-}
-
-function updateFavUI() {
-    const currentItem = getLib().find(i => i.id == mediaId && i.mediaType == mediaType);
-    if (currentItem?.favorite) { 
-        favBtn.innerHTML = '<span class="emoji-icon" style="color:#ef4444;">❤️</span> Favorited'; 
-        favBtn.classList.add('active-fav'); 
-    } else { 
-        favBtn.innerHTML = '<span class="emoji-icon">🤍</span> Favorite'; 
-        favBtn.classList.remove('active-fav'); 
-    }
-}
-
-function renderLib() {
-    let lib = getLib(); 
-    libraryScroll.innerHTML = '';
-    
-    if (!lib.length) { 
-        libraryScroll.innerHTML = '<div class="empty-library">Your backpack is empty! 🏕️ Search something to start.</div>'; 
-        return; 
-    }
-    
-    lib.sort((a, b) => (b.favorite === true) - (a.favorite === true));
-    lib.forEach(item => {
-        const card = document.createElement('div');
-        card.className = `library-card ${item.favorite ? 'is-favorite' : ''}`;
-        
-        const posterUrl = item.poster ? `https://image.tmdb.org/t/p/w200${item.poster}` : '';
-        const favBadge = item.favorite ? '<div class="fav-badge">❤️</div>' : '';
-        const progBadge = item.mediaType === 'movie' ? 
-            `<div class="progress-badge is-movie">🎬 FILM</div>` : 
-            `<div class="progress-badge">S${item.season || 1} · E${item.episode || 1}</div>`;
-            
-        card.innerHTML = `
-            <div class="remove-btn" title="Remove">✕</div>
-            <div class="card-img-wrapper">${favBadge}<img src="${posterUrl}" alt="" loading="lazy">${progBadge}</div>
-            <div class="library-card-title">${item.name}</div>
-        `;
-        
-        card.querySelector('.remove-btn').addEventListener('click', e => { 
-            e.stopPropagation(); 
-            let currentLib = getLib(); 
-            currentLib = currentLib.filter(i => !(i.id == item.id && i.mediaType === item.mediaType)); 
-            saveLib(currentLib); 
-        });
-        
-        card.addEventListener('click', () => { 
-            mediaId = item.id; mediaType = item.mediaType; 
-            manualThemeOverride = null; // reset user manual theme on new load
-            loadMedia(item.id, item.mediaType, item.season, item.episode); 
-            window.scrollTo({ top: 0, behavior: 'smooth' }); 
-        });
-        
-        libraryScroll.appendChild(card);
-    });
-}
-
-/* ═══════════════════════════════════════════════════
-   PLAYER & SEARCH
-═══════════════════════════════════════════════════ */
 function updatePlayer() {
     if (mediaType === 'movie') {
         playerFrame.src = `https://vidfast.pro/movie/${mediaId}?autoPlay=true`;
@@ -1072,103 +644,167 @@ function updatePlayer() {
     }
 }
 
-window.addEventListener("message", function (event) {
-    try {
-        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-        if (data && data.type === "PLAYER_EVENT" && data.data) {
-            const payload = data.data;
-            if (payload.mediaType === 'tv' && payload.season && payload.episode) {
-                updateProgress(payload.id, payload.season, payload.episode);
-            }
-        }
-    } catch(e) {}
+aiSearchToggle.addEventListener('click', e => {
+    e.preventDefault();
+    aiSearchOn = !aiSearchOn;
+    aiSearchToggle.classList.toggle('active', aiSearchOn);
+    searchInput.placeholder = aiSearchOn ? '🧠 Describe what you want...' : 'Find a movie or show...';
+    searchInput.classList.toggle('ai-mode', aiSearchOn);
 });
 
-searchInput.addEventListener('input', async e => {
-    clearTimeout(searchTimer);
-    const query = e.target.value.trim();
-    if (query.length < 2) { searchResults.classList.remove('active'); return; }
+// Accurate iOS Viewport adjustment for fixed keyboards
+const adjustChatWindow = () => {
+    if (document.body.classList.contains('chat-open') && window.innerWidth <= 768) {
+        if(window.visualViewport) {
+            zestyPanel.style.height = `${window.visualViewport.height}px`;
+            zestyPanel.style.top = `${window.visualViewport.offsetTop}px`;
+            window.scrollTo(0,0);
+        }
+    } else {
+        zestyPanel.style.height = ''; zestyPanel.style.top = '';
+    }
+};
 
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', adjustChatWindow);
+    window.visualViewport.addEventListener('scroll', adjustChatWindow);
+}
+
+function toggleChat() {
+    if (zestyPanel.classList.contains('open')) {
+        zestyPanel.classList.remove('open');
+        document.body.classList.remove('chat-open');
+        zestyPanel.style.height = ''; zestyPanel.style.top = '';
+    } else {
+        zestyPanel.classList.add('open');
+        document.body.classList.add('chat-open');
+        adjustChatWindow();
+    }
+}
+
+zestyToggle.addEventListener('click', toggleChat);
+zestyClose.addEventListener('click', toggleChat);
+
+closeInsightsBtn.addEventListener('click', () => {
+    aiInsightsPanel.classList.remove('visible');
+});
+
+/* Backpack logic kept minimal */
+function getLib() { return JSON.parse(localStorage.getItem('streamToyLibrary') || '[]'); }
+function saveLib(lib) { localStorage.setItem('streamToyLibrary', JSON.stringify(lib)); renderLib(); updateFavUI(); }
+function upsertLib(data, type, season=1, episode=1) {
+    let lib = getLib();
+    const existing = lib.find(i => i.id == data.id && i.mediaType === type);
+    const isFav = existing ? existing.favorite : false;
+    lib = lib.filter(i => !(i.id == data.id && i.mediaType === type));
+    lib.unshift({ id: data.id, name: data.name||data.title, poster: data.poster_path, mediaType: type, season: season, episode: episode, favorite: isFav });
+    if (lib.length > 20) lib.pop();
+    saveLib(lib);
+}
+function updateProgress(id, season, episode) {
+    if (mediaType === 'movie') return;
+    let lib = getLib(); 
+    const idx = lib.findIndex(x => x.id == id && x.mediaType === 'tv');
+    if (idx !== -1 && (lib[idx].season != season || lib[idx].episode != episode)) { 
+        lib[idx].season = season; lib[idx].episode = episode; saveLib(lib); 
+        if (id == mediaId) {
+            seasonVal = season; episodeVal = episode;
+            seasonHeader.innerHTML = `Season ${seasonVal} <span>▼</span>`;
+            episodeHeader.innerHTML = `Ep ${episodeVal} <span>▼</span>`;
+        }
+    }
+}
+function toggleFav(id) {
+    let lib = getLib(); 
+    const idx = lib.findIndex(x => x.id == id && x.mediaType === mediaType);
+    if (idx !== -1) { lib[idx].favorite = !lib[idx].favorite; saveLib(lib); }
+}
+function updateFavUI() {
+    const cur = getLib().find(i => i.id == mediaId && i.mediaType == mediaType);
+    if (cur?.favorite) { favBtn.innerHTML = '<span class="emoji-icon" style="color:#ef4444;">❤️</span> Favorited'; favBtn.classList.add('active-fav'); } 
+    else { favBtn.innerHTML = '<span class="emoji-icon">🤍</span> Favorite'; favBtn.classList.remove('active-fav'); }
+}
+
+function renderLib() {
+    let lib = getLib(); libraryScroll.innerHTML = '';
+    if (!lib.length) { libraryScroll.innerHTML = '<div class="empty-library">Backpack empty! 🏕️ Search to start.</div>'; return; }
+    lib.sort((a,b) => (b.favorite===true) - (a.favorite===true));
+    
+    lib.forEach(item => {
+        const card = document.createElement('div'); card.className = `library-card ${item.favorite?'is-favorite':''}`;
+        const posterUrl = item.poster ? `https://image.tmdb.org/t/p/w200${item.poster}` : '';
+        const favB = item.favorite ? '<div class="fav-badge">❤️</div>' : '';
+        const progB = item.mediaType === 'movie' ? `<div class="progress-badge is-movie">🎬 FILM</div>` : `<div class="progress-badge">S${item.season||1} · E${item.episode||1}</div>`;
+        card.innerHTML = `<div class="remove-btn" title="Remove">✕</div><div class="card-img-wrapper">${favB}<img src="${posterUrl}" loading="lazy">${progB}</div><div class="library-card-title">${item.name}</div>`;
+        card.querySelector('.remove-btn').onclick = e => { e.stopPropagation(); saveLib(getLib().filter(i => !(i.id==item.id && i.mediaType===item.mediaType))); };
+        card.onclick = () => { loadMedia(item.id, item.mediaType, item.season, item.episode); window.scrollTo({top:0, behavior:'smooth'}); };
+        libraryScroll.appendChild(card);
+    });
+}
+
+searchInput.addEventListener('input', e => {
+    clearTimeout(searchTimer); const query = e.target.value.trim();
+    if (query.length < 2) { searchResults.classList.remove('active'); return; }
     searchTimer = setTimeout(async () => {
         try {
             const finalQuery = aiSearchOn ? await AI.smartSearch(query) : query;
             const data = await TMDB.searchMulti(finalQuery);
             searchResults.innerHTML = '';
-            const validResults = data.results?.filter(i => i.media_type !== 'person').slice(0, 6) || [];
-            
-            validResults.forEach(item => {
+            const valids = data.results?.filter(i => i.media_type !== 'person').slice(0, 6) || [];
+            valids.forEach(item => {
                 const el = document.createElement('div'); el.className = 'search-item';
-                const imgUrl = item.poster_path ? `https://image.tmdb.org/t/p/w92${item.poster_path}` : '';
-                const year = (item.first_air_date || item.release_date || '').slice(0, 4);
-                const typeLabel = item.media_type === 'movie' ? '🎬 Movie' : '📺 TV';
-                
-                el.innerHTML = `<img src="${imgUrl}" alt=""><div><b>${item.name || item.title}</b><br><small>${typeLabel}${year ? ' · ' + year : ''}</small></div>`;
-                el.onclick = () => { 
-                    searchInput.value = ''; searchResults.classList.remove('active'); 
-                    manualThemeOverride = null; // reset manual theme
-                    loadMedia(item.id, item.media_type); 
-                };
+                const img = item.poster_path ? `https://image.tmdb.org/t/p/w92${item.poster_path}` : '';
+                const yr = (item.first_air_date||item.release_date||'').slice(0,4);
+                el.innerHTML = `<img src="${img}"><div><b>${item.name||item.title}</b><br><small>${item.media_type==='movie'?'🎬':'📺'} ${yr?'· '+yr:''}</small></div>`;
+                el.onclick = () => { searchInput.value = ''; searchResults.classList.remove('active'); loadMedia(item.id, item.media_type); };
                 searchResults.appendChild(el);
             });
             searchResults.classList.add('active');
-            if (!validResults.length) searchResults.innerHTML = `<div class="search-item"><b>No results found.</b></div>`;
-        } catch (err) {}
-    }, aiSearchOn ? 700 : 380);
+            if(!valids.length) searchResults.innerHTML = `<div class="search-item"><b>No results.</b></div>`;
+        } catch(e) {}
+    }, aiSearchOn ? 600 : 380);
 });
 
-/* ═══════════════════════════════════════════════════
-   DROPDOWNS & DATA LOADING
-═══════════════════════════════════════════════════ */
-function toggleDD(listElement) {
-    if (listElement !== seasonList) seasonList.classList.remove('show');
-    if (listElement !== episodeList) episodeList.classList.remove('show');
-    listElement.classList.toggle('show');
+function toggleDD(list) {
+    if(list!==seasonList) seasonList.classList.remove('show');
+    if(list!==episodeList) episodeList.classList.remove('show');
+    list.classList.toggle('show');
 }
-seasonHeader.addEventListener('click', () => { if (!seasonHeader.classList.contains('disabled')) toggleDD(seasonList); });
-episodeHeader.addEventListener('click', () => { if (!episodeHeader.classList.contains('disabled')) toggleDD(episodeList); });
+seasonHeader.onclick = () => { if(!seasonHeader.classList.contains('disabled')) toggleDD(seasonList); };
+episodeHeader.onclick = () => { if(!episodeHeader.classList.contains('disabled')) toggleDD(episodeList); };
+document.onclick = e => { 
+    if(!e.target.closest('.custom-dropdown')) { seasonList.classList.remove('show'); episodeList.classList.remove('show'); }
+    if(!e.target.closest('.search-container')) searchResults.classList.remove('active');
+};
 
-document.addEventListener('click', e => {
-    if (!e.target.closest('.custom-dropdown')) { seasonList.classList.remove('show'); episodeList.classList.remove('show'); }
-    if (!e.target.closest('.search-container')) searchResults.classList.remove('active');
-});
-
-function buildSeasonDD(seasons, targetSeason) {
+function buildSeasonDD(seasons, tar) {
     seasonList.innerHTML = '';
-    seasons.forEach(season => {
-        const el = document.createElement('div'); el.className = 'dropdown-item';
-        el.textContent = `Season ${season.season_number}`;
-        if (season.season_number == targetSeason) el.classList.add('selected');
-        
-        el.onclick = () => { 
-            seasonVal = season.season_number; seasonHeader.innerHTML = `Season ${seasonVal} <span>▼</span>`; 
-            seasonList.classList.remove('show'); loadEpisodes(mediaId, seasonVal); 
-        };
+    seasons.forEach(s => {
+        const el = document.createElement('div'); el.className = 'dropdown-item'; el.textContent = `Season ${s.season_number}`;
+        if(s.season_number == tar) el.classList.add('selected');
+        el.onclick = () => { seasonVal = s.season_number; seasonHeader.innerHTML = `Season ${seasonVal} <span>▼</span>`; seasonList.classList.remove('show'); loadEpisodes(mediaId, seasonVal); };
         seasonList.appendChild(el);
     });
     seasonHeader.classList.remove('disabled');
 }
 
-function buildEpisodeDD(episodes, targetEpisode) {
+function buildEpisodeDD(eps, tar) {
     episodeList.innerHTML = '';
-    episodes.forEach(ep => {
-        const el = document.createElement('div'); el.className = 'dropdown-item';
-        const truncatedName = ep.name.length > 24 ? ep.name.slice(0, 24) + '…' : ep.name;
-        el.textContent = `Ep ${ep.episode_number}: ${truncatedName}`;
-        if (ep.episode_number == targetEpisode) el.classList.add('selected');
-        
-        el.onclick = () => { 
-            episodeVal = ep.episode_number; episodeHeader.innerHTML = `Ep ${episodeVal} <span>▼</span>`; 
-            episodeList.classList.remove('show'); updatePlayer(); 
-        };
+    eps.forEach(ep => {
+        const el = document.createElement('div'); el.className = 'dropdown-item'; 
+        const name = ep.name.length>24?ep.name.slice(0,24)+'…':ep.name;
+        el.textContent = `Ep ${ep.episode_number}: ${name}`;
+        if(ep.episode_number == tar) el.classList.add('selected');
+        el.onclick = () => { episodeVal = ep.episode_number; episodeHeader.innerHTML = `Ep ${episodeVal} <span>▼</span>`; episodeList.classList.remove('show'); updatePlayer(); };
         episodeList.appendChild(el);
     });
     episodeHeader.classList.remove('disabled');
 }
 
-async function loadEpisodes(tvId, seasonNum, targetEp = null) {
-    const data = await TMDB.getEpisodes(tvId, seasonNum);
-    if (data.episodes?.length) {
-        episodeVal = targetEp || data.episodes[0].episode_number;
+async function loadEpisodes(id, sNum, tar=null) {
+    const data = await TMDB.getEpisodes(id, sNum);
+    if(data.episodes?.length) {
+        episodeVal = tar || data.episodes[0].episode_number;
         episodeHeader.innerHTML = `Ep ${episodeVal} <span>▼</span>`;
         buildEpisodeDD(data.episodes, episodeVal); 
         updatePlayer();
@@ -1176,35 +812,18 @@ async function loadEpisodes(tvId, seasonNum, targetEp = null) {
 }
 
 function truncateOverview(text) {
-    const maxLength = 160;
     if (!text) return 'No story available.';
-    if (text.length <= maxLength) return text;
-    return `<span class="short-desc">${text.slice(0, maxLength)}...</span><span class="full-desc" style="display:none;">${text}</span><a href="#" class="read-more-btn">Read More</a>`;
+    if (text.length <= 160) return text;
+    return `<span class="short-desc">${text.slice(0, 160)}...</span><span class="full-desc" style="display:none;">${text}</span><a href="#" class="read-more-btn">Read More</a>`;
 }
 
-// Background AI Insights function
-async function triggerAutoInsights(title, type, year) {
-    aiInsightsPanel.innerHTML = '<div class="insights-loader"><span class="emoji-icon">✨</span> Gathering Zesty Intel...</div>';
-    aiInsightsPanel.classList.add('visible');
-    
-    const rawInsights = await AI.insights(title, type === 'tv' ? 'TV Show' : 'Movie', year);
-    
-    // Check if user navigated away while loading
-    if (title !== mediaTitle) return; 
-
-    aiInsightsPanel.innerHTML = `
-        <span class="close-insights" onclick="this.parentElement.classList.remove('visible')" title="Close">✕</span>
-        ${mdToHtml(rawInsights)}
-    `;
-}
-
-async function loadMedia(id, type, targetSeason = null, targetEpisode = null) {
-    mediaId = id; mediaType = type;
+async function loadMedia(id, type, tSeason=null, tEp=null) {
+    mediaId = id; mediaType = type; currentInsightId = id;
     
     try {
-        applyTheme(manualThemeOverride || type);
+        applyTheme(type);
         const details = await TMDB.getDetails(id, type);
-        upsertLib(details, type, targetSeason || 1, targetEpisode || 1);
+        upsertLib(details, type, tSeason||1, tEp||1);
 
         if (details.backdrop_path && window.innerWidth > 768) {
             bgBackdrop.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${details.backdrop_path})`;
@@ -1215,26 +834,25 @@ async function loadMedia(id, type, targetSeason = null, targetEpisode = null) {
         mediaYear = releaseDate ? releaseDate.slice(0, 4) : 'N/A';
         
         infoTitle.textContent = mediaTitle;
-        infoType.innerHTML = `<span class="emoji-icon">${type === 'movie' ? '🎬' : '📺'}</span> ${type === 'movie' ? 'Movie' : 'TV Show'}`;
+        infoType.innerHTML = `<span class="emoji-icon">${type === 'movie'?'🎬':'📺'}</span> ${type === 'movie'?'Movie':'TV Show'}`;
         infoYear.innerHTML = `<span class="emoji-icon">📅</span> ${mediaYear}`;
-        infoRating.innerHTML = `<span class="emoji-icon">⭐</span> ${details.vote_average?.toFixed(1) || 'N/A'}`;
+        infoRating.innerHTML = `<span class="emoji-icon">⭐</span> ${details.vote_average?.toFixed(1)||'N/A'}`;
         
         infoOverview.innerHTML = truncateOverview(details.overview);
         const readBtn = infoOverview.querySelector('.read-more-btn');
         if (readBtn) {
-            readBtn.addEventListener('click', e => {
+            readBtn.onclick = e => {
                 e.preventDefault();
-                const isShort = infoOverview.querySelector('.full-desc').style.display === 'none';
-                infoOverview.querySelector('.short-desc').style.display = isShort ? 'none' : 'inline';
-                infoOverview.querySelector('.full-desc').style.display = isShort ? 'inline' : 'none';
-                e.target.textContent = isShort ? ' Show Less' : ' Read More';
-            });
+                const isS = infoOverview.querySelector('.full-desc').style.display === 'none';
+                infoOverview.querySelector('.short-desc').style.display = isS?'none':'inline';
+                infoOverview.querySelector('.full-desc').style.display = isS?'inline':'none';
+                e.target.textContent = isS?' Show Less':' Read More';
+            };
         }
 
         document.querySelectorAll('.genre-badge').forEach(e => e.remove());
-        details.genres?.slice(0, 3).forEach(genre => {
-            const span = document.createElement('span'); span.className = 'badge genre-badge';
-            span.innerHTML = `<span class="emoji-icon">🎭</span> ${genre.name}`;
+        details.genres?.slice(0, 3).forEach(g => {
+            const span = document.createElement('span'); span.className = 'badge genre-badge'; span.innerHTML = `<span class="emoji-icon">🎭</span> ${g.name}`;
             badgesRow.appendChild(span);
         });
 
@@ -1242,116 +860,92 @@ async function loadMedia(id, type, targetSeason = null, targetEpisode = null) {
             $('dropdown-group').style.display = 'none'; updatePlayer(); 
         } else {
             $('dropdown-group').style.display = 'flex';
-            const validSeasons = details.seasons?.filter(s => s.season_number > 0) || [];
-            if (validSeasons.length) {
-                seasonVal = targetSeason || validSeasons[0].season_number;
+            const valid = details.seasons?.filter(s => s.season_number > 0) || [];
+            if (valid.length) {
+                seasonVal = tSeason || valid[0].season_number;
                 seasonHeader.innerHTML = `Season ${seasonVal} <span>▼</span>`;
-                buildSeasonDD(validSeasons, seasonVal);
-                await loadEpisodes(id, seasonVal, targetEpisode);
+                buildSeasonDD(valid, seasonVal);
+                await loadEpisodes(id, seasonVal, tEp);
             }
         }
         
         updateFavUI();
-        triggerAutoInsights(mediaTitle, mediaType, mediaYear); // Call background AI insights automatically
         
-    } catch(e) { console.error('loadMedia Error:', e); }
+        // Background Insights Fetching
+        aiInsightsPanel.classList.remove('visible');
+        $('insights-content').innerHTML = '<em style="opacity:0.75;font-weight:800;">💡 Fetching swaggy intel...</em>';
+        
+        setTimeout(() => {
+            aiInsightsPanel.classList.add('visible');
+            AI.insights(mediaTitle, type==='tv'?'TV Show':'Movie', mediaYear).then(res => {
+                if (currentInsightId === id) $('insights-content').innerHTML = mdToHtml(res);
+            }).catch(e => {
+                if (currentInsightId === id) $('insights-content').innerHTML = '<em>Failed to load intel. Stay swaggy though 😎</em>';
+            });
+        }, 800);
+        
+    } catch(e) {}
 }
 
-/* ═══════════════════════════════════════════════════
-   BUTTON ACTIONS
-═══════════════════════════════════════════════════ */
 aiRecsBtn.addEventListener('click', async () => {
     if (aiRecsContainer.style.display === 'block') { aiRecsContainer.style.display = 'none'; return; }
-    
-    const lib = getLib();
-    if (!lib.length) { alert('Add something to your backpack first! 🎒'); return; }
+    const lib = getLib(); if (!lib.length) return alert('Backpack empty! Add items first 🎒'); 
     
     aiRecsContainer.style.display = 'block';
-    aiRecsScroll.innerHTML = '<div class="empty-library">🔥 Digging up the absolute best for you...</div>';
+    aiRecsScroll.innerHTML = '<div class="empty-library">🎯 Cooking up bangers...</div>';
     
     const titles = await AI.recs(lib.map(i => i.name).slice(0, 10));
     aiRecsScroll.innerHTML = '';
     
     for (const title of titles) {
         const data = await TMDB.searchMulti(title);
-        const result = data.results?.find(x => x.media_type === 'movie' || x.media_type === 'tv');
-        if (!result) continue;
+        const res = data.results?.find(x => x.media_type === 'movie' || x.media_type === 'tv');
+        if (!res) continue;
         
-        const card = document.createElement('div'); card.className = 'library-card ai-pick';
-        const posterUrl = result.poster_path ? `https://image.tmdb.org/t/p/w200${result.poster_path}` : '';
-        const progBadge = result.media_type === 'movie' ? `<div class="progress-badge is-movie">🎬 FILM</div>` : `<div class="progress-badge">TV Show</div>`;
-            
-        card.innerHTML = `<div class="card-img-wrapper"><img src="${posterUrl}" alt="" loading="lazy">${progBadge}</div><div class="library-card-title">${result.name || result.title}</div>`;
-        card.addEventListener('click', () => { 
-            mediaId = result.id; mediaType = result.media_type; manualThemeOverride = null;
-            loadMedia(result.id, result.media_type); window.scrollTo({ top: 0, behavior: 'smooth' }); 
-        });
+        const card = document.createElement('div'); card.className = 'library-card';
+        const pUrl = res.poster_path ? `https://image.tmdb.org/t/p/w200${res.poster_path}` : '';
+        const badge = res.media_type === 'movie' ? `<div class="progress-badge is-movie">🎬 FILM</div>` : `<div class="progress-badge">TV Show</div>`;
+        card.innerHTML = `<div class="card-img-wrapper"><img src="${pUrl}" loading="lazy">${badge}</div><div class="library-card-title">${res.name||res.title}</div>`;
+        card.onclick = () => { loadMedia(res.id, res.media_type); window.scrollTo({top:0, behavior:'smooth'}); };
         aiRecsScroll.appendChild(card);
     }
-    if (!aiRecsScroll.children.length) aiRecsScroll.innerHTML = '<div class="empty-library">No results. Try adding more to your backpack!</div>';
 });
 
-favBtn.addEventListener('click', () => toggleFav(mediaId));
+favBtn.onclick = () => toggleFav(mediaId);
+$('share-btn').onclick = () => {
+    const text = `Watching ${mediaTitle} on ZestFlix! 🍿😎`;
+    if(navigator.share) navigator.share({ title:'ZestFlix', text });
+    else { navigator.clipboard?.writeText(text); alert('Copied to clipboard! 🍿'); }
+};
 
-$('share-btn').addEventListener('click', () => {
-    const textToShare = `Watching ${mediaTitle} on ZestFlix! 🔥`;
-    if (navigator.share) navigator.share({ title: 'ZestFlix', text: textToShare });
-    else { navigator.clipboard?.writeText(textToShare); alert('Copied to clipboard! 🍿'); }
-});
-
-/* ═══════════════════════════════════════════════════
-   CHAT LOGIC
-═══════════════════════════════════════════════════ */
 async function parseAndRenderReply(reply) {
-    const recommendRe = /\[RECOMMEND:\s*([^\](]+?)\s*\(\s*(\d{4})\s*,\s*([^)]+?)\s*\)\]/gi;
-    const fragments = [];
-    let lastIdx = 0;
-    let match;
+    const re = /\[RECOMMEND:\s*([^\](]+?)\s*\(\s*(\d{4})\s*,\s*([^)]+?)\s*\)\]/gi;
+    const fragments = []; let last = 0; let m;
 
-    while ((match = recommendRe.exec(reply)) !== null) {
-        const beforeText = reply.slice(lastIdx, match.index).trim();
-        if (beforeText) fragments.push({ type: 'text', content: beforeText });
-        
-        const parsedType = match[3].toLowerCase();
-        const finalType = parsedType.includes('movie') || parsedType.includes('film') ? 'movie' : 'tv';
-        fragments.push({ type: 'card', title: match[1], year: match[2], mtype: finalType });
-        lastIdx = match.index + match[0].length;
+    while ((m = re.exec(reply)) !== null) {
+        const bText = reply.slice(last, m.index).trim();
+        if (bText) fragments.push({ type: 'text', content: bText });
+        const typeStr = m[3].toLowerCase();
+        fragments.push({ type: 'card', title: m[1], year: m[2], mtype: typeStr.includes('movie')?'movie':'tv' });
+        last = m.index + m[0].length;
     }
-    
-    const afterText = reply.slice(lastIdx).trim();
-    if (afterText) fragments.push({ type: 'text', content: afterText });
+    const aText = reply.slice(last).trim();
+    if (aText) fragments.push({ type: 'text', content: aText });
     if (!fragments.length) fragments.push({ type: 'text', content: reply });
 
-    for (const frag of fragments) {
-        if (frag.type === 'text' && frag.content) {
-            const msgEl = document.createElement('div');
-            msgEl.className = 'zesty-msg-bot';
-            msgEl.innerHTML = mdToHtml(frag.content) || frag.content;
-            zestyMessages.appendChild(msgEl);
-        } else if (frag.type === 'card') {
-            const data = await TMDB.searchMulti(frag.title);
-            const result = data.results?.find(x => x.media_type === 'movie' || x.media_type === 'tv');
-            
-            if (result) {
-                const card = document.createElement('div'); card.className = 'zesty-canvas-card';
-                const posterUrl = result.poster_path ? `https://image.tmdb.org/t/p/w300${result.poster_path}` : '';
-                const displayTitle = result.name || result.title;
-                const year = (result.first_air_date || result.release_date || '').slice(0, 4);
-                const typeLabel = result.media_type === 'movie' ? '🎬 Movie' : '📺 TV Show';
-                
-                card.innerHTML = `
-                    ${posterUrl ? `<img class="canvas-card-img" src="${posterUrl}" alt="${displayTitle}">` : ''}
-                    <div class="canvas-card-body">
-                        <div class="canvas-card-title">${displayTitle}</div>
-                        <div class="canvas-card-meta">${typeLabel} ${year ? '· ' + year : ''} · ⭐ ${result.vote_average?.toFixed(1) || '?'}</div>
-                        <div class="canvas-card-tap">▶ Tap to watch</div>
-                    </div>`;
-                    
-                card.addEventListener('click', () => { 
-                    manualThemeOverride = null; loadMedia(result.id, result.media_type); 
-                    toggleChat(); window.scrollTo({ top: 0, behavior: 'smooth' }); 
-                });
-                zestyMessages.appendChild(card);
+    for (const f of fragments) {
+        if (f.type === 'text') {
+            const el = document.createElement('div'); el.className = 'zesty-msg-bot'; el.innerHTML = mdToHtml(f.content) || f.content;
+            zestyMessages.appendChild(el);
+        } else if (f.type === 'card') {
+            const data = await TMDB.searchMulti(f.title);
+            const r = data.results?.find(x => x.media_type === 'movie' || x.media_type === 'tv');
+            if (r) {
+                const c = document.createElement('div'); c.className = 'zesty-canvas-card';
+                const p = r.poster_path ? `https://image.tmdb.org/t/p/w300${r.poster_path}` : '';
+                c.innerHTML = `${p ? `<img class="canvas-card-img" src="${p}">`:''} <div class="canvas-card-body"><div class="canvas-card-title">${r.name||r.title}</div><div class="canvas-card-meta">${r.media_type==='movie'?'🎬 Movie':'📺 TV'} · ⭐ ${r.vote_average?.toFixed(1)||'?'}</div></div>`;
+                c.onclick = () => { loadMedia(r.id, r.media_type); toggleChat(); window.scrollTo({top:0, behavior:'smooth'}); };
+                zestyMessages.appendChild(c);
             }
         }
     }
@@ -1359,36 +953,24 @@ async function parseAndRenderReply(reply) {
 }
 
 async function sendZesty() {
-    const text = zestyInput.value.trim(); 
-    if (!text) return;
+    const text = zestyInput.value.trim(); if (!text) return;
     
-    const userMsgEl = document.createElement('div'); 
-    userMsgEl.className = 'zesty-msg-user'; userMsgEl.textContent = text;
-    zestyMessages.appendChild(userMsgEl); 
-    
-    zestyInput.value = ''; chatHistory.push({ role: 'user', content: text });
-    zestyMessages.scrollTop = zestyMessages.scrollHeight;
+    const usr = document.createElement('div'); usr.className = 'zesty-msg-user'; usr.textContent = text;
+    zestyMessages.appendChild(usr); zestyInput.value = '';
+    chatHistory.push({ role: 'user', content: text }); zestyMessages.scrollTop = zestyMessages.scrollHeight;
 
-    const thinkingEl = document.createElement('div'); 
-    thinkingEl.className = 'zesty-msg-bot thinking-dots';
-    thinkingEl.textContent = 'Thinking';
-    zestyMessages.appendChild(thinkingEl);
-    zestyMessages.scrollTop = zestyMessages.scrollHeight;
+    const think = document.createElement('div'); think.className = 'zesty-msg-bot thinking-dots'; think.textContent = 'Cooking';
+    zestyMessages.appendChild(think); zestyMessages.scrollTop = zestyMessages.scrollHeight;
 
     const reply = await AI.chat(chatHistory);
-    thinkingEl.remove();
+    think.remove();
     chatHistory.push({ role: 'assistant', content: reply });
     await parseAndRenderReply(reply);
 }
 
-zestySend.addEventListener('click', sendZesty);
-zestyInput.addEventListener('keydown', e => { 
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendZesty(); } 
-});
+zestySend.onclick = sendZesty;
+zestyInput.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendZesty(); } };
 
-/* ═══════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════ */
 renderLib();
 loadMedia(mediaId, mediaType);
 </script>
