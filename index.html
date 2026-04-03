@@ -154,10 +154,10 @@
         .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         
-        .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px !important;}
         .ai-search-area { background: var(--nav-bg); border: 3px solid var(--border-color); box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer; }
         .ai-search-area.active { border-color: var(--accent-ai); animation: pulseGlow 2.5s infinite; }
-        .ai-search-area .ai-search-icon { font-size: 20px; transition: transform 0.3s; }
+        .ai-search-area .ai-search-icon { transition: transform 0.3s; line-height: 1; }
         .ai-search-area.active .ai-search-icon { transform: scale(1.15); }
 
         .search-results { position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background-color: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--card-radius); box-shadow: var(--shadow-float); z-index: 200; display: none; flex-direction: column; padding: 8px; }
@@ -252,19 +252,20 @@
         
         .zesty-header { background: var(--accent-secondary); padding: 14px 18px; color: white; font-weight: 900; font-size: 17px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .zesty-close-btn { cursor: pointer; font-size: 22px; opacity: 0.85; line-height: 1; touch-action: manipulation; }
-        .zesty-messages { flex: 1 1 auto; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; overscroll-behavior: contain; min-height: 0; }
+        .zesty-messages { flex: 1 1 auto; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; overscroll-behavior: contain; min-height: 0; }
         
-        .zesty-msg-user { background: var(--accent-primary); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.4; }
-        .zesty-msg-bot { background: white; padding: 10px 15px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.5; user-select: text !important; -webkit-user-select: text !important;}
+        .zesty-msg-user { background: var(--accent-primary); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.4; flex-shrink: 0; }
+        .zesty-msg-bot { background: white; padding: 10px 15px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.5; user-select: text !important; -webkit-user-select: text !important; flex-shrink: 0; }
         
-        .zesty-canvas-card { align-self: flex-start; background: white; border: 2.5px solid var(--border-color); border-radius: 18px; overflow: hidden; max-width: 85%; cursor: pointer; box-shadow: 0 4px 16px rgba(62,39,35,0.15); transition: transform 0.25s, box-shadow 0.25s; animation: popIn 0.3s ease; }
+        /* Non-Squishy Chat Cards */
+        .zesty-canvas-card { align-self: flex-start; flex-shrink: 0; width: 100%; max-width: 230px; background: white; border: 2.5px solid var(--border-color); border-radius: 18px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 16px rgba(62,39,35,0.15); transition: transform 0.25s, box-shadow 0.25s; animation: popIn 0.3s ease; }
         .zesty-canvas-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(62,39,35,0.22); }
-        .canvas-card-img { width: 100%; height: 120px; object-fit: cover; display: block; background: #ddd; }
+        .canvas-card-img { width: 100%; height: 135px; object-fit: cover; display: block; background: #ddd; flex-shrink: 0; }
         .canvas-card-body { padding: 10px 12px; }
-        .canvas-card-title { font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+        .canvas-card-title { font-family: 'Fredoka', sans-serif; font-size: 15px; font-weight: 800; margin-bottom: 3px; line-height: 1.2; }
         .canvas-card-meta { font-size: 12px; font-weight: 800; color: var(--text-muted); }
 
-        .zesty-input-area { padding: 10px 12px; display: flex; gap: 8px; align-items: center; border-top: 2px solid rgba(166,123,91,0.2); background: rgba(255,255,255,0.5); flex-shrink: 0; }
+        .zesty-input-area { padding: 10px 12px; display: flex; gap: 8px; align-items: center; border-top: 2px solid rgba(166,123,91,0.2); background: var(--nav-bg); flex-shrink: 0; }
         .zesty-input-area input { flex: 1; padding: 10px 14px; border-radius: 20px; font-size: 16px !important; }
         .zesty-send-btn { background: var(--accent-secondary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s; }
         .zesty-send-btn:active { transform: scale(0.9); }
@@ -287,7 +288,7 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           MOBILE / RESPONSIVE (Heavy Upgrades)
+           MOBILE / RESPONSIVE (Heavy Layout & iOS Upgrades)
         ═══════════════════════════════════════════════════ */
         @media (max-width: 768px) {
             body { background-color: var(--bg-deep) !important; }
@@ -296,14 +297,17 @@
             .cozy-overlay { display: block !important; background: rgba(92,64,51,0.97) !important; pointer-events: none; }
             body.movie-mode .cozy-overlay { background: rgba(5,10,25,0.98) !important; }
 
-            .navbar { width: 95%; margin: 8px auto; flex-direction: column; border-radius: 18px; padding: 14px; gap: 12px; }
-            .nav-left { flex-direction: column; width: 100%; gap: 10px; }
-            .dropdown-container { width: 100%; gap: 10px; }
-            .custom-dropdown { flex: 1; min-width: 0; }
+            /* Perfectly stacked, centered mobile top bar */
+            .navbar { width: 95%; margin: 8px auto; flex-direction: column; border-radius: 18px; padding: 16px 14px; gap: 14px; }
+            .nav-left { flex-direction: column; width: 100%; gap: 12px; }
+            .logo { width: 100%; justify-content: center; margin-bottom: 2px; }
+            .dropdown-container { width: 100%; justify-content: center; gap: 10px; flex-wrap: wrap; }
+            .custom-dropdown { flex: 1; min-width: 120px; max-width: 48%; }
+            .nav-right { width: 100%; display: flex; justify-content: center; }
+            .search-container { width: 100%; flex-direction: row; flex-wrap: nowrap; gap: 8px; justify-content: center; align-items: center; }
             
-            .search-container { flex-direction: row; flex-wrap: nowrap; }
             .compact-circle { width: 44px; height: 44px; padding: 0; }
-            .search-input-wrapper { flex: 1; }
+            .search-input-wrapper { flex: 1; min-width: 0; }
 
             .iframe-wrapper {
                 width: 95% !important; max-width: 95vw !important; margin: 0 auto 16px auto !important;
@@ -324,16 +328,21 @@
             .library-card { min-width: 130px; max-width: 130px; }
             .card-img-wrapper { height: 175px; }
 
-            /* Essential iOS Keyboard Viewport Safety Updates */
+            /* Essential iOS Keyboard Safety Layout */
             .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
             .zesty-panel {
-                width: 100% !important; height: 100dvh; 
-                left: 0 !important; right: 0 !important; bottom: auto; top: 0;
-                max-height: none !important; border-radius: 0; border: none;
+                position: fixed !important; top: 0; left: 0 !important; right: 0 !important;
+                bottom: auto !important; margin: 0 !important;
+                width: 100vw !important; height: 100dvh;
+                border-radius: 0 !important; border: none !important;
             }
             .zesty-header { padding: 16px 18px; }
             .zesty-messages { padding: 12px; }
-            .zesty-input-area { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+            /* Secure background to prevent seeing through under keyboard area */
+            .zesty-input-area { 
+                padding-bottom: max(12px, env(safe-area-inset-bottom)); 
+                background: var(--nav-bg); z-index: 1000; position: relative;
+            }
         }
 
         @media (max-width: 480px) {
@@ -532,37 +541,55 @@ function mdToHtml(raw) {
 }
 
 /* ═══════════════════════════════════════════════════
-   GROQ AI LOGIC (Snappier & Cooler)
+   GROQ AI LOGIC (Ultra-Smart + Auto-Fallback)
 ═══════════════════════════════════════════════════ */
 const AI = {
-    async call(prompt, systemPrompt = '', retries = 2) {
+    // Primary is huge, versatile and smart. Fallback is instant and higher limit.
+    primaryModel: 'llama-3.3-70b-versatile',
+    fallbackModel: 'llama-3.1-8b-instant',
+
+    async fetchAI(msgs, model) {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
+            body: JSON.stringify({ model: model, messages: msgs, temperature: 0.7 })
+        });
+        if (!res.ok) {
+            if(res.status === 429) throw new Error('rate_limit');
+            throw new Error('api_error');
+        }
+        const data = await res.json();
+        return data.choices[0].message.content.trim();
+    },
+
+    async call(prompt, systemPrompt = '') {
         const msgs = systemPrompt ? [{ role: 'system', content: systemPrompt }] : [];
         msgs.push({ role: 'user', content: prompt });
         
-        for (let i = 0; i <= retries; i++) {
-            try {
-                const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
-                    body: JSON.stringify({ model: 'llama-3.1-8b-instant', messages: msgs, temperature: 0.8 })
-                });
-                if (!res.ok) throw new Error('API Request Failed');
-                const data = await res.json();
-                return data.choices[0].message.content.trim();
-            } catch (err) {
-                if (i === retries) return null;
-                await new Promise(r => setTimeout(r, 1000 * (i + 1))); 
+        try {
+            return await this.fetchAI(msgs, this.primaryModel);
+        } catch (e) {
+            if (e.message === 'rate_limit' || e.message === 'api_error') {
+                try {
+                    return await this.fetchAI(msgs, this.fallbackModel);
+                } catch (err) {
+                    return null;
+                }
             }
+            return null;
         }
     },
     
     async smartSearch(query) {
-        const text = await this.call(`Return ONLY the exact title of the movie/show: "${query}". No extra text.`);
+        const text = await this.call(`Return ONLY the exact title of the movie/show for this search: "${query}". No extra text.`);
         return text || query;
     },
     
     async insights(title, type, year) {
-        const text = await this.call(`Give me 1 super short punchy sentence, then 2 mind-blowing facts for the ${type} "${title}" (${year}). Be extremely charismatic, cool, and use emojis! Keep it very short. Max 50 words.`);
+        const prompt = `Give me a sleek, highly engaging overview for the ${type} "${title}" (${year}). Format EXACTLY like this:
+1 brief, exciting pitch sentence without bolding.
+Then exactly 2 bullet points with mind-blowing trivia. Make it fun, conversational, and use emojis! Keep it short. Max 50 words.`;
+        const text = await this.call(prompt);
         return text || '<em>Too swaggy to load right now! 😎 Check connection.</em>';
     },
     
@@ -574,11 +601,12 @@ const AI = {
     },
     
     async chat(history) {
-        const systemPrompt = `You are Zesty 🍋 — an incredibly cool, swaggy movie buddy!
-- Give extremely brief answers (1-2 sentences max). Use cool emojis! 😎🍿
-- Recommend ONLY absolute bangers. No basic trash.
-- Format recommendations EXACTLY: [RECOMMEND: Title (Year, Type)]
-- Type MUST be exactly "movie" or "tv". Example: [RECOMMEND: Interstellar (2014, movie)]`;
+        const systemPrompt = `You are Zesty 🍋, an AI movie assistant. You are witty, smart, very friendly, and use emojis. 
+1. ACTUALLY READ and respond logically to the user's conversation! Do NOT just blind-recommend things.
+2. Keep responses brief and conversational (1-2 sentences). 
+3. ONLY when it logically makes sense to suggest a title, use this EXACT syntax: [RECOMMEND: Movie/Show Name]. 
+DO NOT add the year or type inside the brackets. 
+Example of a good response: "Oh I completely agree! If you loved that, you should definitely check out [RECOMMEND: Breaking Bad]. It's a masterpiece 😎🍿"`;
         
         const chatLog = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
         const reply = await this.call(chatLog, systemPrompt);
@@ -608,7 +636,7 @@ const TMDB = {
    THEME, PLAYER, & UI LOGIC
 ═══════════════════════════════════════════════════ */
 function applyTheme(type) {
-    if (userManualTheme) userManualTheme = null; // Auto reset on new media
+    if (userManualTheme) userManualTheme = null; 
 
     if (type === 'movie') {
         document.body.classList.add('movie-mode');
@@ -652,16 +680,12 @@ aiSearchToggle.addEventListener('click', e => {
     searchInput.classList.toggle('ai-mode', aiSearchOn);
 });
 
-// Accurate iOS Viewport adjustment for fixed keyboards
+// Powerful Javascript fix to firmly clamp the mobile chat box inside the active Viewport (above keyboard)
 const adjustChatWindow = () => {
-    if (document.body.classList.contains('chat-open') && window.innerWidth <= 768) {
-        if(window.visualViewport) {
-            zestyPanel.style.height = `${window.visualViewport.height}px`;
-            zestyPanel.style.top = `${window.visualViewport.offsetTop}px`;
-            window.scrollTo(0,0);
-        }
-    } else {
-        zestyPanel.style.height = ''; zestyPanel.style.top = '';
+    if (!zestyPanel.classList.contains('open') || window.innerWidth > 768) return;
+    if (window.visualViewport) {
+        zestyPanel.style.height = `${window.visualViewport.height}px`;
+        zestyPanel.style.top = `${window.visualViewport.offsetTop}px`;
     }
 };
 
@@ -669,6 +693,10 @@ if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', adjustChatWindow);
     window.visualViewport.addEventListener('scroll', adjustChatWindow);
 }
+
+zestyInput.addEventListener('focus', () => {
+    setTimeout(() => { zestyMessages.scrollTop = zestyMessages.scrollHeight; }, 300);
+});
 
 function toggleChat() {
     if (zestyPanel.classList.contains('open')) {
@@ -685,9 +713,7 @@ function toggleChat() {
 zestyToggle.addEventListener('click', toggleChat);
 zestyClose.addEventListener('click', toggleChat);
 
-closeInsightsBtn.addEventListener('click', () => {
-    aiInsightsPanel.classList.remove('visible');
-});
+closeInsightsBtn.addEventListener('click', () => { aiInsightsPanel.classList.remove('visible'); });
 
 /* Backpack logic kept minimal */
 function getLib() { return JSON.parse(localStorage.getItem('streamToyLibrary') || '[]'); }
@@ -918,15 +944,19 @@ $('share-btn').onclick = () => {
     else { navigator.clipboard?.writeText(text); alert('Copied to clipboard! 🍿'); }
 };
 
+/* Un-breakable Chat Card Parser */
 async function parseAndRenderReply(reply) {
-    const re = /\[RECOMMEND:\s*([^\](]+?)\s*\(\s*(\d{4})\s*,\s*([^)]+?)\s*\)\]/gi;
+    // Tolerant regex matches anything inside [RECOMMEND: Title Here]
+    const re = /\[RECOMMEND:\s*([^\]]+)\]/gi;
     const fragments = []; let last = 0; let m;
 
     while ((m = re.exec(reply)) !== null) {
         const bText = reply.slice(last, m.index).trim();
         if (bText) fragments.push({ type: 'text', content: bText });
-        const typeStr = m[3].toLowerCase();
-        fragments.push({ type: 'card', title: m[1], year: m[2], mtype: typeStr.includes('movie')?'movie':'tv' });
+        
+        // Strip out any parentheses AI might try to add like (TV) or (2008)
+        let cleanTitle = m[1].replace(/\s*\([^)]*\)/g, '').trim();
+        fragments.push({ type: 'card', title: cleanTitle });
         last = m.index + m[0].length;
     }
     const aText = reply.slice(last).trim();
