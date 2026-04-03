@@ -328,41 +328,6 @@
         }
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* ═══════════════════════════════════════════════════
-           AD SUPPRESSION SYSTEM
-        ═══════════════════════════════════════════════════ */
-        /* Kill layer: sits above iframe, transparent, intercepts ad popup clicks */
-        #ad-kill-overlay {
-            display: none; /* activated by JS on ad detection */
-            position: absolute; inset: 0; z-index: 99;
-            background: transparent; pointer-events: none;
-        }
-        /* Block any injected ad iframes that appear as siblings/children of the wrapper */
-        .iframe-wrapper > iframe:not(#player-frame) { display: none !important; }
-        /* Generic ad container patterns that might get injected into the page DOM */
-        [id*="ad"], [id*="Ad"], [id*="AD"],
-        [class*="ad-"], [class*="-ad"], [class*="ads-"],
-        [class*="advert"], [class*="banner-ad"],
-        [class*="popup"], [class*="pop-up"], [class*="popunder"],
-        [class*="overlay-ad"], [class*="interstitial"],
-        iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
-        iframe[src*="adnxs"], iframe[src*="ads."], iframe[src*="ad."],
-        div[id^="google_ads"], ins.adsbygoogle,
-        [data-ad], [data-ads], [data-advertisement] {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            height: 0 !important;
-            width: 0 !important;
-            overflow: hidden !important;
-        }
-        /* Block fixed/absolute overlays that ads use to hijack clicks */
-        body > div[style*="position: fixed"][style*="z-index"],
-        body > div[style*="position:fixed"][style*="z-index"] {
-            pointer-events: none !important;
-        }
-
         /* Library & Cards */
         .library-section {
             padding: 24px 30px; background: rgba(253,245,230,0.7);
@@ -680,9 +645,8 @@
 
 <main class="main-content">
     <div class="iframe-wrapper">
-        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer"></iframe>
-        <!-- Ad overlay kill layer -->
-        <div id="ad-kill-overlay"></div>
+        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+
     </div>
 
     <section class="library-section">
@@ -1100,11 +1064,10 @@ function renderLib() {
    PLAYER & SEARCH
 ═══════════════════════════════════════════════════ */
 function updatePlayer() {
-    const themeColor = mediaType === 'movie' ? '4a6fa5' : 'D4A373';
     if (mediaType === 'movie') {
-        playerFrame.src = `https://www.vidking.net/embed/movie/${mediaId}?color=${themeColor}&autoPlay=true`;
+        playerFrame.src = `https://vidfast.pro/movie/${mediaId}?autoPlay=true`;
     } else {
-        playerFrame.src = `https://www.vidking.net/embed/tv/${mediaId}/${seasonVal}/${episodeVal}?color=${themeColor}&autoPlay=true&nextEpisode=true&episodeSelector=true`;
+        playerFrame.src = `https://vidfast.pro/tv/${mediaId}/${seasonVal}/${episodeVal}?autoPlay=true`;
         updateProgress(mediaId, seasonVal, episodeVal); 
     }
 }
@@ -1422,196 +1385,6 @@ zestySend.addEventListener('click', sendZesty);
 zestyInput.addEventListener('keydown', e => { 
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendZesty(); } 
 });
-
-/* ═══════════════════════════════════════════════════
-   AD SUPPRESSION ENGINE
-═══════════════════════════════════════════════════ */
-(function() {
-    // ── 1. POPUP / NEW-TAB BLOCKER ──────────────────────
-    // Neuter window.open so no ad popups or pop-unders can open
-    const _origOpen = window.open.bind(window);
-    window.open = function(url, name, features) {
-        // Only allow opens we explicitly trigger (none in this app)
-        if (!url || url === '' || url === 'about:blank') return null;
-        // Whitelist: allow the player embed origin
-        try {
-            const u = new URL(url, location.href);
-            if (u.hostname === 'vidking.net' || u.hostname.endsWith('.vidking.net')) {
-                return _origOpen(url, name, features);
-            }
-        } catch(e) {}
-        console.info('[AdKill] Blocked window.open:', url);
-        return null;
-    };
-
-    // ── 2. CLICK-HIJACK SHIELD ───────────────────────────
-    // Ads often inject a transparent full-page anchor/div over the iframe.
-    // We detect clicks on the iframe wrapper and check for injected overlays.
-    const iframeWrapper = document.querySelector('.iframe-wrapper');
-    iframeWrapper.addEventListener('click', function(e) {
-        // Re-focus the iframe after any click so keyboard shortcuts still work
-        setTimeout(() => playerFrame.focus(), 100);
-    }, true);
-
-    // ── 3. DOM MUTATION OBSERVER ─────────────────────────
-    // Watch for ad nodes injected into the page/body in real-time and remove them.
-    const AD_PATTERNS = [
-        /^ad[s_-]/i, /-ad[s]?$/i, /advert/i, /banner.?ad/i,
-        /popunder/i, /pop.?up/i, /interstitial/i, /overlay.?ad/i,
-        /google.?ad/i, /adsense/i, /adnxs/i, /doubleclick/i,
-        /pubmatic/i, /openx/i, /rubiconproject/i, /amazon-adsystem/i,
-        /medianet/i, /outbrain/i, /taboola/i, /revcontent/i
-    ];
-
-    const AD_TAG_IFRAMES = [
-        'doubleclick.net', 'googlesyndication.com', 'adnxs.com',
-        'rubiconproject.com', 'pubmatic.com', 'openx.net', 'amazon-adsystem.com',
-        'medianet.com', 'taboola.com', 'outbrain.com', 'adform.net',
-        'criteo.com', 'teads.tv', 'sharethrough.com', 'moatads.com'
-    ];
-
-    function isAdNode(node) {
-        if (!(node instanceof Element)) return false;
-        const id = (node.id || '').toLowerCase();
-        const cls = (node.className && typeof node.className === 'string') ? node.className.toLowerCase() : '';
-        for (const p of AD_PATTERNS) {
-            if (p.test(id) || p.test(cls)) return true;
-        }
-        // Check for ad iframes by src
-        if (node.tagName === 'IFRAME') {
-            const src = node.src || '';
-            for (const domain of AD_TAG_IFRAMES) {
-                if (src.includes(domain)) return true;
-            }
-        }
-        // Check for injected <script> tags loading ad networks
-        if (node.tagName === 'SCRIPT') {
-            const src = node.src || '';
-            for (const domain of AD_TAG_IFRAMES) {
-                if (src.includes(domain)) return true;
-            }
-        }
-        return false;
-    }
-
-    function killAdNode(node) {
-        try { node.remove(); } catch(e) {}
-    }
-
-    // Check existing DOM first
-    document.querySelectorAll('*').forEach(node => {
-        if (isAdNode(node)) killAdNode(node);
-    });
-
-    // Live watcher
-    const adObserver = new MutationObserver(mutations => {
-        for (const mut of mutations) {
-            for (const node of mut.addedNodes) {
-                if (isAdNode(node)) { killAdNode(node); continue; }
-                // Also check children of added nodes
-                if (node.querySelectorAll) {
-                    node.querySelectorAll('*').forEach(child => {
-                        if (isAdNode(child)) killAdNode(child);
-                    });
-                }
-            }
-            // Watch for style mutations that make hidden elements visible (common ad trick)
-            if (mut.type === 'attributes' && mut.attributeName === 'style') {
-                const el = mut.target;
-                if (isAdNode(el)) killAdNode(el);
-            }
-        }
-    });
-
-    adObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'class', 'id']
-    });
-
-    // ── 4. FIXED OVERLAY KILLER ──────────────────────────
-    // Many ad systems inject a fixed/absolute full-screen transparent div
-    // to capture clicks and redirect the user. Run periodically.
-    function killFloatingAdOverlays() {
-        const bodyChildren = document.body.children;
-        for (const el of bodyChildren) {
-            if (el.id === 'ad-kill-overlay') continue; // our own element
-            // Skip known app elements
-            const knownIds = ['cinema-fx','bg-backdrop','zesty-toggle','zesty-panel'];
-            if (knownIds.includes(el.id)) continue;
-            if (el.tagName === 'HEADER' || el.tagName === 'MAIN' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') continue;
-            if (el.classList.contains('cozy-overlay')) continue;
-
-            const style = window.getComputedStyle(el);
-            const pos = style.position;
-            const z = parseInt(style.zIndex) || 0;
-            const w = parseInt(style.width) || 0;
-            const h = parseInt(style.height) || 0;
-
-            // Suspicious: fixed/absolute, high z-index, large size, not one of our elements
-            if ((pos === 'fixed' || pos === 'absolute') && z > 500 && w > 200 && h > 200) {
-                console.info('[AdKill] Removed suspicious overlay:', el);
-                el.remove();
-            }
-        }
-    }
-
-    setInterval(killFloatingAdOverlays, 800);
-
-    // ── 5. IFRAME NAVIGATION GUARD ───────────────────────
-    // Some players change the top-level URL via iframe tricks.
-    // Intercept beforeunload-style navigation attempts.
-    window.addEventListener('beforeunload', e => {
-        // If navigation was NOT user-initiated (e.g. a button click), cancel it
-        if (!window._userNavigating) {
-            e.preventDefault();
-            e.returnValue = '';
-            return '';
-        }
-    });
-
-    // Mark explicit user link clicks as safe
-    document.addEventListener('click', e => {
-        if (e.target.closest('a[href]')) window._userNavigating = true;
-    }, true);
-
-    // ── 6. POSTMESSAGE FILTER ────────────────────────────
-    // Block postMessages from the iframe that try to open ads
-    const _origAddEventListener = EventTarget.prototype.addEventListener;
-    // We leave postMessage handling intact but intercept window-level message events
-    window.addEventListener('message', e => {
-        try {
-            const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-            // Block known ad-network message patterns
-            if (data && (data.type === 'adClick' || data.event === 'adImpression' || data.ad)) {
-                e.stopImmediatePropagation();
-            }
-        } catch(err) {}
-    }, true); // capture phase = runs first
-
-    // ── 7. DOCUMENT-LEVEL CLICK REDIRECT GUARD ───────────────
-    // Some embeds attach a click listener to document to redirect on any click.
-    // We wrap addEventListener to detect and suppress these.
-    let _docClickCount = 0;
-    const origDocAddListener = document.addEventListener.bind(document);
-    document.addEventListener = function(type, handler, options) {
-        if (type === 'click' || type === 'mousedown') {
-            _docClickCount++;
-            // Allow our own handlers (first few), block bulk injected ones
-            if (_docClickCount > 10) {
-                const fnStr = handler.toString();
-                if (fnStr.includes('open') || fnStr.includes('location') || fnStr.includes('href')) {
-                    console.info('[AdKill] Blocked suspicious document click listener');
-                    return;
-                }
-            }
-        }
-        return origDocAddListener(type, handler, options);
-    };
-
-    console.info('[ZestFlix] Ad suppression engine active ✅');
-})();
 
 /* ═══════════════════════════════════════════════════
    INIT
