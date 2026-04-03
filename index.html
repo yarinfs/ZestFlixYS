@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZestFlix - Cozy Cafe Edition</title>
+    <title>ZestFlix - The Ultimate Streamer</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
 
+        /* ═══════════════════════════════════════════════════
+           VARIABLES
+        ═══════════════════════════════════════════════════ */
         :root {
             --bg-deep: #5C4033;
             --nav-bg: rgba(253, 245, 230, 0.95);
@@ -25,6 +28,7 @@
             --card-radius: 20px;
             --shadow-3d: 0 4px 0 rgba(62, 39, 35, 0.15);
             --shadow-float: 0 10px 25px rgba(62, 39, 35, 0.2);
+            --max-layout-width: 1600px;
         }
 
         /* ── MOVIE THEME ── */
@@ -43,6 +47,8 @@
             --shadow-3d: 0 4px 0 rgba(0, 10, 40, 0.4);
             --shadow-float: 0 10px 30px rgba(0, 20, 80, 0.5);
         }
+
+        /* Theme Overrides */
         body.movie-mode .cozy-overlay { background: radial-gradient(ellipse at 50% 30%, rgba(74,111,165,0.18) 0%, rgba(5,10,25,0.97) 100%) !important; }
         body.movie-mode .background-backdrop { filter: blur(40px) brightness(0.3) saturate(0.4) !important; }
         body.movie-mode .show-overview { border-left-color: #4a6fa5; background: rgba(74,111,165,0.1); }
@@ -52,132 +58,227 @@
         body.movie-mode .dropdown-header { background-color: #2d4a7a; border-color: #3a5a9a; }
         body.movie-mode .search-results { background: rgba(8,14,32,0.98); border-color: #2a4080; }
         body.movie-mode .search-item:hover { background: rgba(74,111,165,0.2); }
-        body.movie-mode .stars-bg { display: block !important; }
+        body.movie-mode .cinema-fx { display: block !important; }
         body.movie-mode .zesty-msg-bot { background: #0e1830; border-color: #2a4080; color: #c5cae9; }
         body.movie-mode .zesty-header { background: #1a2d5a; }
         body.movie-mode .zesty-panel { background: #080e20; border-color: #2a4080; }
-        body.movie-mode input { background: #0e1830; border-color: #2a4080; color: #e8eaf6; }
+        body.movie-mode input, body.movie-mode .action-btn { background: #0e1830; border-color: #2a4080; color: #e8eaf6; }
         body.movie-mode input::placeholder { color: #7986cb; }
         body.movie-mode .ai-insights-panel { background: rgba(74,111,165,0.15); border-color: #2a4080; }
         body.movie-mode .show-info { background: rgba(8,14,32,0.88); border-color: #2a4080; }
         body.movie-mode .navbar { background: rgba(8,14,32,0.95); border-color: #2a4080; }
         body.movie-mode .library-title { color: #c5cae9; }
         body.movie-mode .empty-library { color: #7986cb; }
+        body.movie-mode .library-card { background: #0e1830; border-color: #2a4080; }
+        body.movie-mode .library-card-title { color: #c5cae9; }
         body.movie-mode .dropdown-list { background: #0e1830; border-color: #2a4080; }
-        body.movie-mode .dropdown-item:hover, body.movie-mode .dropdown-item.selected { background: rgba(74,111,165,0.25); }
-        body.movie-mode .ai-search-label { color: #a0b8e8 !important; }
+        body.movie-mode .dropdown-item:hover, body.movie-mode .dropdown-item.selected { background: rgba(74,111,165,0.25); color: #fff; }
 
-        /* Animations */
-        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 10px rgba(110, 155, 133, 0.3), var(--shadow-3d); } 50% { box-shadow: 0 0 20px rgba(110, 155, 133, 0.7), var(--shadow-3d); } }
-        body.movie-mode @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 10px rgba(74, 111, 165, 0.3), var(--shadow-3d); } 50% { box-shadow: 0 0 20px rgba(74, 111, 165, 0.7), var(--shadow-3d); } }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(-6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
-        @keyframes sweep { 0% { transform: translateX(-50%) rotate(-8deg); opacity: 0.3; } 50% { opacity: 0.6; } 100% { transform: translateX(-50%) rotate(8deg); opacity: 0.3; } }
+        /* ═══════════════════════════════════════════════════
+           ANIMATIONS & DYNAMIC STARS
+        ═══════════════════════════════════════════════════ */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(110, 155, 133, 0.3), var(--shadow-3d); }
+            50% { box-shadow: 0 0 20px rgba(110, 155, 133, 0.7), var(--shadow-3d); }
+        }
+        body.movie-mode @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(74, 111, 165, 0.3), var(--shadow-3d); }
+            50% { box-shadow: 0 0 20px rgba(74, 111, 165, 0.7), var(--shadow-3d); }
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-6px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes sweep {
+            0% { transform: translateX(-50%) rotate(-8deg); opacity: 0.3; }
+            50% { opacity: 0.6; }
+            100% { transform: translateX(-50%) rotate(8deg); opacity: 0.3; }
+        }
+        @keyframes drift {
+            from { transform: translateY(0px) translateX(0px); }
+            to { transform: translateY(-50px) translateX(20px); }
+        }
 
-        /* ── Base Reset ── */
+        /* ═══════════════════════════════════════════════════
+           BASE ELEMENTS
+        ═══════════════════════════════════════════════════ */
         * {
-            margin: 0; padding: 0; box-sizing: border-box;
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box;
             font-family: 'Nunito', system-ui, sans-serif;
-            -webkit-user-select: none; -moz-user-select: none; user-select: none;
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
         }
 
         body {
-            background-color: var(--bg-deep); color: var(--text-main);
-            min-height: 100vh; display: flex; flex-direction: column;
-            overflow-x: hidden; overflow-y: auto; font-size: 16px;
+            background-color: var(--bg-deep); 
+            color: var(--text-main);
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+            overflow-x: hidden; 
+            overflow-y: auto; 
+            font-size: 16px;
             overscroll-behavior: none;
             transition: background-color 0.8s ease, color 0.6s ease;
         }
 
-        /* Stronger body lock for mobile chat to prevent background scrolling */
-        body.chat-open { overflow: hidden !important; position: fixed; width: 100%; height: 100%; top: 0; left: 0; }
-        body.chat-open .zesty-toggle { display: none !important; }
+        body.chat-open { overflow: hidden !important; }
 
-        /* ── Cinematic Background ── */
-        .cinema-fx { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; }
-        .cinema-beam { position: absolute; top: -30%; left: 50%; width: 200vw; height: 150vh; background: conic-gradient(from 180deg at 50% 0%, rgba(74,111,165,0.08) 0deg, transparent 35deg, transparent 325deg, rgba(74,111,165,0.08) 360deg); transform-origin: top center; animation: sweep 12s infinite alternate ease-in-out; }
-        .stars-bg { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; }
-        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--dur, 3s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+        /* Background Effects */
+        .cinema-fx {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; pointer-events: none; overflow: hidden;
+        }
+        .cinema-beam {
+            position: absolute; top: -30%; left: 50%;
+            width: 200vw; height: 150vh;
+            background: conic-gradient(from 180deg at 50% 0%, rgba(74,111,165,0.08) 0deg, transparent 35deg, transparent 325deg, rgba(74,111,165,0.08) 360deg);
+            transform-origin: top center;
+            animation: sweep 12s infinite alternate ease-in-out;
+        }
+        
+        /* Dynamic Stars Layer */
+        .cinema-stars {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: transparent; z-index: 1;
+            animation: drift 60s linear infinite alternate;
+        }
+        .cinema-stars::after {
+            content: ''; position: absolute; width: 2px; height: 2px; background: transparent;
+            /* Generating a big starfield using box-shadow */
+            box-shadow: 10vw 20vh #fff, 40vw 60vh #fff, 80vw 10vh #fff, 20vw 80vh #fff, 50vw 50vh #fff, 90vw 90vh #fff, 70vw 30vh #fff, 30vw 40vh #fff, 15vw 70vh #fff, 85vw 60vh rgba(255,255,255,0.6), 5vw 90vh #fff, 35vw 15vh #fff, 65vw 85vh #fff, 95vw 25vh rgba(255,255,255,0.8), 25vw 55vh #fff, 55vw 5vh #fff, 75vw 75vh #fff, 45vw 35vh rgba(255,255,255,0.5), 10vw 45vh #fff, 80vw 45vh #fff;
+            animation: pulseGlow 4s infinite alternate;
+        }
 
-        /* ── Backgrounds ── */
-        .background-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; background-size: cover; background-position: center; filter: blur(30px) brightness(0.8) sepia(0.3); transition: background-image 1s ease-in-out, filter 0.8s ease; transform: scale(1.1); }
-        .cozy-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(circle at 50% 50%, rgba(212,163,115,0.3) 0%, rgba(92,64,51,0.95) 100%); pointer-events: none; transition: background 0.8s ease; }
+        .background-backdrop {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            background-size: cover; background-position: center;
+            filter: blur(30px) brightness(0.8) sepia(0.3);
+            transition: background-image 1s ease-in-out, filter 0.8s ease; 
+            transform: scale(1.1);
+        }
+        .cozy-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+            background: radial-gradient(circle at 50% 50%, rgba(212,163,115,0.3) 0%, rgba(92,64,51,0.95) 100%);
+            pointer-events: none; transition: background 0.8s ease;
+        }
 
-        /* ── Layout ── */
-        .navbar, .show-info, .library-section { width: 95%; max-width: 1400px; margin: 14px auto; }
-        .main-content { flex: 1; padding-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+        /* ═══════════════════════════════════════════════════
+           LAYOUT
+        ═══════════════════════════════════════════════════ */
+        .main-content { 
+            flex: 1; 
+            padding-bottom: 50px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 24px; 
+            width: 100%; 
+        }
+        .navbar, .show-info, .library-section {
+            width: 95%; 
+            max-width: var(--max-layout-width); 
+            margin: 14px auto;
+        }
 
-        /* ── Navbar ── */
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background-color: var(--nav-bg); backdrop-filter: blur(20px); border: 3px solid var(--border-color); border-radius: var(--bubbly-radius); box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100; flex-wrap: nowrap; gap: 20px; transition: background 0.8s ease, border-color 0.6s ease; }
-        .nav-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-        .logo { font-size: 32px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 4px; }
-        .nav-right { flex: 2; display: flex; justify-content: flex-end; align-items: center; }
+        /* Navbar */
+        .navbar {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 12px 24px; 
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(20px); 
+            border: 3px solid var(--border-color);
+            border-radius: var(--bubbly-radius); 
+            box-shadow: var(--shadow-float), var(--shadow-3d);
+            z-index: 100; 
+            flex-wrap: nowrap; 
+            gap: 20px;
+            transition: background 0.8s ease, border-color 0.6s ease;
+        }
+        .nav-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+        .nav-right { flex: 2; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+        .logo { font-size: 34px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 4px; }
 
-        /* ── Inputs ── */
-        input, textarea { background-color: var(--input-bg); color: var(--text-main); border: 3px solid var(--border-color); padding: 9px 18px; border-radius: var(--bubbly-radius); outline: none; font-size: 16px !important; font-weight: 800; transition: all 0.3s; box-shadow: var(--shadow-3d); cursor: text; touch-action: manipulation; -webkit-user-select: text !important; user-select: text !important; width: 100%; }
+        /* Inputs & Buttons */
+        input, textarea {
+            background-color: var(--input-bg); 
+            color: var(--text-main);
+            border: 3px solid var(--border-color); 
+            padding: 9px 18px;
+            border-radius: var(--bubbly-radius); 
+            outline: none;
+            font-size: 16px !important; 
+            font-weight: 800;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-3d); 
+            cursor: text; 
+            touch-action: manipulation;
+            -webkit-user-select: text !important; 
+            user-select: text !important;
+            width: 100%;
+        }
         input::placeholder { color: #A1887F; transition: color 0.3s; }
         input.ai-mode { border-color: var(--accent-ai); box-shadow: 0 0 14px rgba(110,155,133,0.3), var(--shadow-3d); }
         body.movie-mode input.ai-mode { box-shadow: 0 0 14px rgba(74,111,165,0.3), var(--shadow-3d); }
-        input:hover { border-color: var(--accent-primary); }
 
-        /* ── Action Buttons (CLEAN & SOLID) ── */
         .action-btn {
-            background-color: var(--nav-bg); color: var(--text-main);
-            border: 3px solid var(--border-color); padding: 10px 20px;
-            border-radius: 50px; outline: none; font-size: 15px !important; font-weight: 800;
-            box-shadow: 0 4px 0 rgba(62, 39, 35, 0.15);
-            transition: all 0.2s; cursor: pointer; touch-action: manipulation;
-            display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+            background-color: var(--accent-hover); 
+            color: var(--text-main);
+            border: 3px solid var(--border-color); 
+            padding: 9px 18px;
+            border-radius: var(--bubbly-radius); 
+            outline: none;
+            font-size: 16px !important; 
+            font-weight: 800;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow-3d); 
+            cursor: pointer; 
+            touch-action: manipulation;
+            white-space: nowrap; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px;
         }
-        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.2); background-color: var(--input-bg); }
-        .action-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
-        .action-btn.active-fav { background-color: #FFF0F0; color: var(--danger); border-color: var(--danger); }
-        
-        body.movie-mode .action-btn { background-color: #0e1830; color: #e8eaf6; border-color: #2a4080; box-shadow: 0 4px 0 rgba(0, 10, 40, 0.4); }
-        body.movie-mode .action-btn:hover { background-color: #1a2d5a; box-shadow: 0 6px 0 rgba(0, 10, 40, 0.5); }
-        body.movie-mode .action-btn:active { box-shadow: 0 0 0 transparent; }
-        body.movie-mode .action-btn.active-fav { background-color: #4a2020; color: #ff8a8a; border-color: #8a3030; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62,39,35,0.18); }
+        .action-btn:active { transform: translateY(1px); }
+        .action-btn.active-fav { background-color: var(--danger); border-color: #B25858; color: white; }
 
-        /* ── AI Pill Buttons (CLEAN & SOLID) ── */
-        .ai-btn-pill {
-            background-color: var(--accent-ai); color: white;
-            border: 3px solid var(--border-color); padding: 10px 20px;
-            border-radius: 50px; font-size: 15px !important; font-weight: 900;
-            box-shadow: 0 4px 0 rgba(62, 39, 35, 0.15);
-            transition: all 0.2s; cursor: pointer; touch-action: manipulation;
-            display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
-        }
-        body.movie-mode .ai-btn-pill { background-color: #4a6fa5; border-color: #2a4080; box-shadow: 0 4px 0 rgba(0, 10, 40, 0.4); }
-        .ai-btn-pill:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62, 39, 35, 0.2); filter: brightness(1.1); }
-        .ai-btn-pill:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
-
-        /* ── AI Search Toggle ── */
-        .ai-search-area { display: flex; align-items: center; gap: 10px; background: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--bubbly-radius); padding: 6px 14px 6px 10px; box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer; flex-shrink: 0; white-space: nowrap; }
-        .ai-search-area.active { border-color: var(--accent-ai); animation: pulseGlow 2.5s infinite; }
-        .ai-search-icon { font-size: 20px; transition: transform 0.3s; }
-        .ai-search-area.active .ai-search-icon { transform: scale(1.15); }
-        .ai-search-label { font-size: 13px; font-weight: 900; color: var(--text-muted); letter-spacing: 0.4px; }
-        .ai-search-area.active .ai-search-label { color: var(--accent-ai); }
-
-        /* ── Dropdowns ── */
-        .dropdown-container { display: flex; gap: 10px; align-items: center; }
-        .custom-dropdown { position: relative; min-width: 140px; }
-        .dropdown-header { background-color: var(--accent-secondary); color: white; border: 3px solid var(--border-color); padding: 9px 16px; border-radius: var(--bubbly-radius); font-size: 15px; font-weight: 800; font-family: 'Fredoka', sans-serif; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; box-shadow: var(--shadow-3d); }
-        .dropdown-header:hover { transform: translateY(-2px); }
-        .dropdown-header.disabled { opacity: 0.55; pointer-events: none; filter: grayscale(0.5); }
-        .dropdown-list { position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--nav-bg); border: 3px solid var(--border-color); border-radius: 16px; box-shadow: var(--shadow-float); max-height: 260px; overflow-y: auto; z-index: 300; display: none; flex-direction: column; padding: 8px; transition: background 0.6s, border-color 0.6s; }
-        .dropdown-list.show { display: flex; animation: popIn 0.2s forwards; }
-        .dropdown-item { padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 14px; transition: all 0.2s; color: var(--text-main); }
-        .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
-
-        /* ── Search ── */
-        .search-container { position: relative; width: 100%; max-width: 620px; display: flex; align-items: center; gap: 10px; flex-grow: 1; }
+        /* Search Section - Smaller AI Button */
+        .search-container { position: relative; width: 100%; max-width: 620px; display: flex; align-items: center; gap: 8px; flex-grow: 1; }
         .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
-        .search-results { position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background-color: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--card-radius); box-shadow: var(--shadow-float); z-index: 200; display: none; flex-direction: column; padding: 8px; transition: background 0.6s, border-color 0.6s; }
+        
+        .ai-search-area {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--nav-bg); border: 2px solid var(--border-color);
+            border-radius: 20px; padding: 4px 10px;
+            box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer;
+            flex-shrink: 0; white-space: nowrap;
+        }
+        .ai-search-area.active { border-color: var(--accent-ai); animation: pulseGlow 2.5s infinite; }
+        .ai-search-icon { font-size: 16px; transition: transform 0.3s; }
+        .ai-search-area.active .ai-search-icon { transform: scale(1.15); }
+        .ai-search-label { font-size: 12px; font-weight: 900; color: var(--text-muted); }
+        .ai-search-area.active .ai-search-label { color: var(--accent-ai); }
+
+        .search-results {
+            position: absolute; top: calc(100% + 10px); left: 0; width: 100%;
+            background-color: var(--nav-bg); border: 3px solid var(--border-color);
+            border-radius: var(--card-radius); box-shadow: var(--shadow-float);
+            z-index: 200; display: none; flex-direction: column; padding: 8px;
+        }
         .search-results.active { display: flex; animation: popIn 0.2s forwards; }
         .search-item { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
         .search-item:hover { background: var(--accent-hover); }
@@ -185,228 +286,368 @@
         .search-item b { font-size: 14px; font-weight: 800; color: var(--text-main); }
         .search-item small { font-size: 12px; color: var(--text-muted); font-weight: 700; }
 
-        /* ── Player Frame ── */
-        .iframe-wrapper { width: 95%; max-width: 1400px; aspect-ratio: 16 / 9; position: relative; background: var(--frame-color); border: 14px solid #4E342E; outline: 4px solid #2D1B15; border-radius: 18px; overflow: hidden; box-shadow: 0 0 0 2px #1a0e0a, var(--shadow-float), inset 0 0 50px rgba(0,0,0,0.85); margin-top: 14px; transition: border-color 0.8s ease, box-shadow 0.8s ease; }
-        body.movie-mode .iframe-wrapper { border-color: #1a2d5a; outline-color: #0a1428; box-shadow: 0 0 0 2px #050a14, 0 0 50px rgba(74,111,165,0.3), inset 0 0 60px rgba(0,0,0,0.9); }
+        /* Dropdowns */
+        .dropdown-container { display: flex; gap: 10px; align-items: center; }
+        .custom-dropdown { position: relative; min-width: 140px; }
+        .dropdown-header {
+            background-color: var(--accent-secondary); color: white; border: 3px solid var(--border-color);
+            padding: 9px 16px; border-radius: var(--bubbly-radius); font-size: 15px; font-weight: 800;
+            font-family: 'Fredoka', sans-serif; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; transition: all 0.3s; box-shadow: var(--shadow-3d);
+        }
+        .dropdown-header:hover { transform: translateY(-2px); }
+        .dropdown-header.disabled { opacity: 0.55; pointer-events: none; filter: grayscale(0.5); }
+        .dropdown-list {
+            position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--nav-bg);
+            border: 3px solid var(--border-color); border-radius: 16px; box-shadow: var(--shadow-float);
+            max-height: 260px; overflow-y: auto; z-index: 300; display: none; flex-direction: column; padding: 8px;
+        }
+        .dropdown-list.show { display: flex; animation: popIn 0.2s forwards; }
+        .dropdown-item { 
+            padding: 10px 14px; border-radius: 12px; cursor: pointer; 
+            font-weight: 900; font-size: 14px; color: var(--text-main); 
+        }
+        .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
+
+        /* Player Frame - Bigger & Thicker Desktop */
+        .iframe-wrapper {
+            width: 95%; max-width: var(--max-layout-width);
+            aspect-ratio: 16 / 9;
+            position: relative; background: var(--frame-color);
+            border: 20px solid #4E342E;
+            outline: 6px solid #2D1B15;
+            border-radius: 24px; overflow: hidden;
+            box-shadow: 0 0 0 4px #1a0e0a, var(--shadow-float), inset 0 0 50px rgba(0,0,0,0.85);
+            margin-top: 14px;
+            transition: border-color 0.8s ease, box-shadow 0.8s ease;
+        }
+        body.movie-mode .iframe-wrapper {
+            border-color: #1a2d5a;
+            outline-color: #0a1428;
+            box-shadow: 0 0 0 4px #050a14, 0 0 60px rgba(74,111,165,0.3), inset 0 0 60px rgba(0,0,0,0.9);
+        }
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* ── Show Info ── */
-        .show-info { padding: 28px 30px; background: var(--panel-bg); backdrop-filter: blur(16px); border-radius: var(--card-radius); border: 3px solid var(--border-color); box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 16px; transition: background 0.8s ease, border-color 0.6s ease; }
-        .info-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
-        .title-group { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
-        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
-        .show-title { font-size: 40px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); line-height: 1.1; transition: color 0.6s; }
-        .badges-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .badge { background: rgba(62,39,35,0.08); padding: 7px 15px; border-radius: 50px; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; color: var(--text-main); transition: background 0.6s, color 0.6s; }
-        .badge.rating { background: rgba(229,169,59,0.2); color: #8A5D10; }
-        .emoji-icon { font-size: 1.1em; line-height: 1; }
-        .show-overview { font-size: 16px; line-height: 1.75; font-weight: 700; background: rgba(255,255,255,0.6); padding: 18px 22px; border-radius: 14px; border-left: 6px solid var(--accent-primary); transition: background 0.6s, border-color 0.6s; color: var(--text-main); }
-        
-        /* ── "Read More" Themed Badge ── */
-        .read-more-btn {
-            font-size: 13px; font-weight: 800; text-decoration: none;
-            cursor: pointer; margin-left: 6px; padding: 4px 12px; border-radius: 12px;
-            background-color: var(--accent-hover); border: 2px solid var(--border-color);
-            color: var(--text-main); transition: all 0.2s; display: inline-block; white-space: nowrap;
+        /* ═══════════════════════════════════════════════════
+           AD SUPPRESSION SYSTEM
+        ═══════════════════════════════════════════════════ */
+        /* Kill layer: sits above iframe, transparent, intercepts ad popup clicks */
+        #ad-kill-overlay {
+            display: none; /* activated by JS on ad detection */
+            position: absolute; inset: 0; z-index: 99;
+            background: transparent; pointer-events: none;
         }
-        .read-more-btn:hover { filter: brightness(0.9); transform: translateY(-1px); }
-        body.movie-mode .read-more-btn { background-color: #1e3560; color: #e8eaf6; border-color: #2a4080; }
-        body.movie-mode .read-more-btn:hover { background-color: #2d4a7a; }
+        /* Block any injected ad iframes that appear as siblings/children of the wrapper */
+        .iframe-wrapper > iframe:not(#player-frame) { display: none !important; }
+        /* Generic ad container patterns that might get injected into the page DOM */
+        [id*="ad"], [id*="Ad"], [id*="AD"],
+        [class*="ad-"], [class*="-ad"], [class*="ads-"],
+        [class*="advert"], [class*="banner-ad"],
+        [class*="popup"], [class*="pop-up"], [class*="popunder"],
+        [class*="overlay-ad"], [class*="interstitial"],
+        iframe[src*="doubleclick"], iframe[src*="googlesyndication"],
+        iframe[src*="adnxs"], iframe[src*="ads."], iframe[src*="ad."],
+        div[id^="google_ads"], ins.adsbygoogle,
+        [data-ad], [data-ads], [data-advertisement] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+        }
+        /* Block fixed/absolute overlays that ads use to hijack clicks */
+        body > div[style*="position: fixed"][style*="z-index"],
+        body > div[style*="position:fixed"][style*="z-index"] {
+            pointer-events: none !important;
+        }
 
-        /* ── AI Insights Panel ── */
-        .ai-insights-panel { display: none; padding: 22px 26px; border-radius: 18px; background: rgba(110, 155, 133, 0.15); border: 2px solid var(--border-color); font-size: 15px; line-height: 1.8; font-weight: 700; animation: slideUp 0.3s ease; color: var(--text-main); position: relative; overflow: hidden; }
+        /* Library & Cards */
+        .library-section {
+            padding: 24px 30px; background: rgba(253,245,230,0.7);
+            backdrop-filter: blur(10px); border-radius: var(--card-radius);
+            border: 3px dashed var(--border-color);
+            transition: background 0.8s ease, border-color 0.6s ease;
+        }
+        .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 2px; }
+        .library-title { font-size: 36px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 12px; color: var(--text-main); transition: color 0.6s; }
+        
+        /* New Sleek AI Picks Button */
+        .ai-text-btn {
+            background: transparent; border: none; color: var(--accent-secondary); 
+            font-size: 16px; font-weight: 800; cursor: pointer; display: flex; 
+            align-items: center; gap: 6px; padding: 6px 12px; border-radius: 12px;
+            transition: background 0.2s, transform 0.2s;
+        }
+        body.movie-mode .ai-text-btn { color: var(--accent-primary); }
+        .ai-text-btn:hover { background: rgba(127, 169, 152, 0.15); transform: translateY(-1px); }
+        body.movie-mode .ai-text-btn:hover { background: rgba(74, 111, 165, 0.15); }
+
+        .library-scroll { display: flex; gap: 16px; overflow-x: auto; padding: 16px 4px 24px 4px; scroll-behavior: smooth; }
+        .library-scroll::-webkit-scrollbar { height: 5px; }
+        .library-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+        .library-card {
+            min-width: 150px; max-width: 150px; position: relative; display: flex;
+            flex-direction: column; cursor: pointer;
+            background: linear-gradient(160deg, #f5ece0, #e8d8c4);
+            border-radius: 14px;
+            border: 3px solid var(--border-color);
+            padding: 0; box-shadow: 0 5px 12px rgba(62,39,35,0.18), 0 2px 4px rgba(139,94,60,0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            flex-shrink: 0; overflow: hidden;
+        }
+        body.movie-mode .library-card { background: linear-gradient(160deg, #0e1a35, #1a2d50); border-color: #2a4080; }
+        .library-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(62,39,35,0.25); }
+        .library-card.is-favorite { border-color: var(--danger); box-shadow: 0 5px 12px rgba(217,108,108,0.3); }
+        
+        .card-img-wrapper { position: relative; width: 100%; height: 200px; overflow: hidden; background: #d5c4b0; }
+        body.movie-mode .card-img-wrapper { background: #0a1428; }
+        .library-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        
+        .library-card-title {
+            font-size: 13px; font-weight: 900; text-align: center;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            padding: 10px 10px 6px;
+            font-family: 'Fredoka', sans-serif; color: #5C3317;
+            background: linear-gradient(180deg, #f5ece0, #e8d2b8);
+            border-top: 2px solid #c4a06e; letter-spacing: 0.3px;
+        }
+        body.movie-mode .library-card-title { color: #a0b8e8; background: linear-gradient(180deg, #0e1a35, #0a1428); border-top-color: #1e3560; }
+
+        .fav-badge { position: absolute; top: 5px; left: 5px; font-size: 14px; z-index: 5; background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .progress-badge {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(92,51,23,0.88); color: #f5ddb0;
+            font-size: 11px; font-weight: 900; padding: 5px 6px;
+            text-align: center; font-family: 'Fredoka', sans-serif;
+            letter-spacing: 0.5px; border-top: 1.5px solid rgba(212,160,110,0.4);
+        }
+        .progress-badge.is-movie { background: rgba(25,40,90,0.9); color: #9fc3ff; border-top-color: rgba(74,111,165,0.4); }
+        body:not(.movie-mode) .progress-badge.is-movie { background: rgba(62,39,35,0.85); color: #e8ccaa; }
+        
+        .remove-btn { 
+            position: absolute; top: 6px; right: 6px; 
+            background: rgba(0,0,0,0.6); color: white; width: 24px; height: 24px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-weight: 900; font-size: 14px; border: 1.5px solid rgba(255,255,255,0.4); 
+            backdrop-filter: blur(4px); opacity: 0; transition: all 0.2s; z-index: 20; cursor: pointer; 
+        }
+        .library-card:hover .remove-btn { opacity: 1; }
+        .remove-btn:hover { background: var(--danger); transform: scale(1.1); border-color: white; }
+        
+        .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 16px; }
+        .ai-recs-section { margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(160,147,166,0.4); }
+        .ai-recs-title { font-size: 18px; font-weight: 900; margin-bottom: 2px; padding-left: 4px; color: var(--text-main); }
+
+        /* Show Info Box */
+        .show-info {
+            padding: 30px 34px; background: var(--panel-bg); backdrop-filter: blur(16px);
+            border-radius: var(--card-radius); border: 3px solid var(--border-color);
+            box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 18px;
+            transition: background 0.8s ease, border-color 0.6s ease;
+        }
+        .info-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+        .title-group { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
+        .action-buttons { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
+        .show-title { font-size: 46px; font-weight: 700; font-family: 'Fredoka', sans-serif; color: var(--text-main); line-height: 1.1; transition: color 0.6s; }
+        .badges-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        
+        .badge {
+            background: rgba(62,39,35,0.08); padding: 7px 15px; border-radius: 50px;
+            font-size: 15px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px;
+            color: var(--text-main); transition: background 0.6s, color 0.6s;
+        }
+        .badge.rating { background: rgba(229,169,59,0.2); color: #8A5D10; }
+        
+        .show-overview {
+            font-size: 17px; line-height: 1.75; font-weight: 700;
+            background: rgba(255,255,255,0.6); padding: 20px 24px;
+            border-radius: 14px; border-left: 6px solid var(--accent-primary);
+            transition: background 0.6s, border-color 0.6s; color: var(--text-main);
+        }
+        .read-more-btn { color: var(--accent-secondary); font-weight: 900; cursor: pointer; margin-left: 5px; text-decoration: none; }
+        body.movie-mode .read-more-btn { color: var(--accent-primary); }
+
+        /* Automated AI Insights Background Panel */
+        .ai-insights-panel {
+            display: none; padding: 24px 28px; border-radius: 18px;
+            background: rgba(110, 155, 133, 0.15); border: 2px solid var(--accent-secondary);
+            font-size: 16px; line-height: 1.8; font-weight: 700; position: relative;
+            animation: slideUp 0.4s ease; color: var(--text-main);
+        }
+        body.movie-mode .ai-insights-panel { border-color: var(--accent-primary); }
         .ai-insights-panel.visible { display: block; }
         .ai-insights-panel p { margin-bottom: 10px; }
         .ai-insights-panel ul { padding-left: 20px; margin: 6px 0; }
         .ai-insights-panel li { margin-bottom: 6px; }
-
-        /* ── Library ── */
-        .library-section { padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px); border-radius: var(--card-radius); border: 3px dashed var(--border-color); transition: background 0.8s ease, border-color 0.6s ease; }
-        .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 2px; }
-        .library-title { font-size: 34px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 12px; color: var(--text-main); transition: color 0.6s; }
-        .library-scroll { display: flex; gap: 14px; overflow-x: auto; padding: 14px 4px 22px 4px; scroll-behavior: smooth; }
-        .library-scroll::-webkit-scrollbar { height: 5px; }
-        .library-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-
-        /* ── Library Cards (CLEAN & SOLID) ── */
-        .library-card {
-            min-width: 140px; max-width: 140px; position: relative; display: flex;
-            flex-direction: column; cursor: pointer; border-radius: 16px;
-            background-color: var(--nav-bg);
-            border: 3px solid var(--border-color);
-            box-shadow: 0 6px 12px rgba(62, 39, 35, 0.12);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            flex-shrink: 0; overflow: hidden;
+        .close-insights {
+            position: absolute; top: 12px; right: 16px; font-size: 18px; 
+            cursor: pointer; opacity: 0.7; font-weight: 900; transition: 0.2s;
         }
-        body.movie-mode .library-card { background-color: #0e1830; border-color: #2a4080; box-shadow: 0 6px 12px rgba(0, 10, 40, 0.4); }
-        .library-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(62, 39, 35, 0.2); }
-        body.movie-mode .library-card:hover { box-shadow: 0 12px 24px rgba(0, 10, 40, 0.6); }
-        .library-card.is-favorite { border-color: var(--danger); }
-        
-        .card-img-wrapper { position: relative; width: 100%; height: 190px; background: #e8d8c4; border-bottom: 3px solid var(--border-color); }
-        body.movie-mode .card-img-wrapper { background: #050a15; border-bottom-color: #2a4080; }
-        .library-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        
-        .library-card-title {
-            font-size: 13px; font-weight: 800; text-align: center;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            padding: 10px 8px; font-family: 'Fredoka', sans-serif; color: var(--text-main);
-            background-color: transparent; letter-spacing: 0.2px;
-        }
-        body.movie-mode .library-card-title { color: #e8eaf6; }
+        .close-insights:hover { opacity: 1; transform: scale(1.1); color: var(--danger); }
+        .insights-loader { display: flex; align-items: center; gap: 8px; font-weight: 800; opacity: 0.8; }
 
-        .fav-badge { position: absolute; top: 6px; left: 6px; font-size: 14px; z-index: 5; background: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); border: 2px solid var(--danger); }
-        body.movie-mode .fav-badge { background: #1e3560; border-color: #ff8a8a; }
-        
-        .progress-badge { 
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(253, 245, 230, 0.95); color: var(--text-main); 
-            font-size: 11px; font-weight: 900; padding: 5px 6px; text-align: center; 
-            border-top: 3px solid var(--border-color); font-family: 'Fredoka', sans-serif;
+        /* Zesty Chat Interface */
+        .zesty-toggle {
+            position: fixed; bottom: 28px; right: 28px; width: 68px; height: 68px;
+            background: var(--accent-secondary); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 34px;
+            cursor: pointer; box-shadow: var(--shadow-float); border: 4px solid white;
+            z-index: 999; touch-action: manipulation; transition: transform 0.2s;
         }
-        body.movie-mode .progress-badge { background: rgba(8, 14, 32, 0.95); color: #a0b8e8; border-top-color: #2a4080; }
-        .progress-badge.is-movie { background: var(--accent-primary); color: white; }
-        body.movie-mode .progress-badge.is-movie { background: #4a6fa5; }
-        
-        /* Clear 'X' Button on cards */
-        .remove-btn {
-            position: absolute; top: 8px; right: 8px;
-            background: var(--danger); color: white; width: 26px; height: 26px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 14px; border: 2px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2); opacity: 0; transition: all 0.2s ease; z-index: 20; cursor: pointer;
-        }
-        body.movie-mode .remove-btn { border-color: #0e1830; }
-        .library-card:hover .remove-btn { opacity: 1; }
-        .remove-btn:hover { transform: scale(1.1); }
-        
-        .empty-library { padding: 20px 6px; font-weight: 800; color: var(--text-muted); font-size: 15px; }
-        .ai-recs-section { margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(160,147,166,0.4); }
-        .ai-recs-title { font-size: 18px; font-weight: 900; margin-bottom: 2px; padding-left: 4px; color: var(--text-main); }
-
-        /* ── Zesty Chat ── */
-        .zesty-toggle { position: fixed; bottom: 28px; right: 28px; width: 64px; height: 64px; background: var(--accent-secondary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; box-shadow: var(--shadow-float); border: 3px solid var(--border-color); z-index: 999; transition: transform 0.2s; touch-action: manipulation; }
         body.movie-mode .zesty-toggle { background: var(--accent-primary); }
         .zesty-toggle:active { transform: scale(0.9); }
+        body.chat-open .zesty-toggle { display: none !important; } /* Hide toggle when chat open on mobile to prevent overlay */
         
-        .zesty-panel { display: none; position: fixed; bottom: 106px; right: 28px; width: 360px; height: 520px; background: var(--nav-bg); border: 3px solid var(--accent-secondary); border-radius: 22px; z-index: 998; flex-direction: column; box-shadow: var(--shadow-float); overflow: hidden; transition: background 0.8s, border-color 0.6s; }
+        .zesty-panel {
+            display: none; position: fixed; bottom: 110px; right: 28px; width: 380px;
+            height: 560px; background: var(--nav-bg); border: 3px solid var(--accent-secondary);
+            border-radius: 22px; z-index: 998; flex-direction: column;
+            box-shadow: var(--shadow-float); overflow: hidden;
+            transition: background 0.8s, border-color 0.6s;
+        }
         body.movie-mode .zesty-panel { border-color: var(--accent-primary); }
         .zesty-panel.open { display: flex; animation: slideUp 0.25s ease; }
-        .zesty-header { background: var(--accent-secondary); padding: 14px 18px; color: white; font-weight: 900; font-size: 17px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .zesty-close-btn { cursor: pointer; font-size: 22px; opacity: 0.85; line-height: 1; touch-action: manipulation; }
-        .zesty-messages { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-        .zesty-msg-user { background: var(--accent-primary); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.4; }
-        .zesty-msg-bot { background: white; padding: 10px 15px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 14px; max-width: 85%; word-break: break-word; line-height: 1.5; color: var(--text-main); -webkit-user-select: text !important; user-select: text !important; }
         
-        /* ── Canvas Card in Chat ── */
-        .zesty-canvas-card { align-self: flex-start; background: white; border: 2.5px solid var(--border-color); border-radius: 18px; overflow: hidden; max-width: 85%; cursor: pointer; box-shadow: 0 4px 16px rgba(62,39,35,0.15); transition: transform 0.25s, box-shadow 0.25s; animation: popIn 0.3s ease; }
+        .zesty-header {
+            background: var(--accent-secondary); padding: 16px 20px; color: white;
+            font-weight: 900; font-size: 18px; display: flex; justify-content: space-between;
+            align-items: center; flex-shrink: 0;
+        }
+        .zesty-close-btn { cursor: pointer; font-size: 24px; opacity: 0.9; line-height: 1; touch-action: manipulation; }
+        .zesty-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        
+        .zesty-msg-user {
+            background: var(--accent-primary); color: white; padding: 12px 16px;
+            border-radius: 20px 20px 4px 20px; align-self: flex-end; font-weight: 800;
+            font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.4;
+        }
+        .zesty-msg-bot {
+            background: white; padding: 12px 16px; border-radius: 20px 20px 20px 4px;
+            align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700;
+            font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.5;
+            color: var(--text-main); -webkit-user-select: text !important; user-select: text !important;
+        }
+        
+        .zesty-canvas-card {
+            align-self: flex-start; background: white; border: 2.5px solid var(--border-color);
+            border-radius: 18px; overflow: hidden; max-width: 85%; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(62,39,35,0.15); transition: transform 0.25s, box-shadow 0.25s;
+            animation: popIn 0.3s ease;
+        }
         .zesty-canvas-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(62,39,35,0.22); }
         body.movie-mode .zesty-canvas-card { background: #0e1830; border-color: #2a4080; }
-        .canvas-card-img { width: 100%; height: 120px; object-fit: cover; display: block; background: #ddd; }
-        .canvas-card-body { padding: 10px 12px; }
-        .canvas-card-title { font-family: 'Fredoka', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; }
-        .canvas-card-meta { font-size: 12px; font-weight: 800; color: var(--text-muted); }
-        .canvas-card-tap { font-size: 11px; font-weight: 900; color: var(--accent-secondary); margin-top: 5px; letter-spacing: 0.3px; }
+        .canvas-card-img { width: 100%; height: 130px; object-fit: cover; display: block; background: #ddd; }
+        .canvas-card-body { padding: 12px 14px; }
+        .canvas-card-title { font-family: 'Fredoka', sans-serif; font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .canvas-card-meta { font-size: 13px; font-weight: 800; color: var(--text-muted); }
+        .canvas-card-tap { font-size: 12px; font-weight: 900; color: var(--accent-secondary); margin-top: 6px; letter-spacing: 0.3px; }
 
-        .zesty-input-area { padding: 10px 12px; display: flex; gap: 8px; align-items: center; border-top: 2px solid rgba(166,123,91,0.2); background: rgba(255,255,255,0.5); flex-shrink: 0; }
-        .zesty-input-area input { flex: 1; padding: 10px 14px; border-radius: 20px; font-size: 16px !important; -webkit-user-select: text !important; user-select: text !important; }
-        .zesty-send-btn { background: var(--accent-secondary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; touch-action: manipulation; transition: transform 0.2s; }
+        .zesty-input-area {
+            padding: 12px 14px; display: flex; gap: 10px; align-items: center;
+            border-top: 2px solid rgba(166,123,91,0.2); background: rgba(255,255,255,0.5);
+            flex-shrink: 0;
+        }
+        .zesty-input-area input {
+            flex: 1; padding: 12px 16px; border-radius: 24px; font-size: 16px !important;
+            -webkit-user-select: text !important; user-select: text !important;
+        }
+        .zesty-send-btn {
+            background: var(--accent-secondary); color: white; border: none;
+            width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; touch-action: manipulation; transition: transform 0.2s;
+        }
         body.movie-mode .zesty-send-btn { background: var(--accent-primary); }
         .zesty-send-btn:active { transform: scale(0.9); }
 
-        /* ── Thinking Dots ── */
         .thinking-dots::after { content: ''; display: inline-block; width: 16px; animation: dots 1.2s steps(4, end) infinite; }
         @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
 
-        /* ────────────────────────────────
-           RESPONSIVE BREAKPOINTS
-        ──────────────────────────────── */
-        @media (max-width: 1100px) { .navbar, .show-info, .library-section { width: 95%; } }
+        /* ═══════════════════════════════════════════════════
+           RESPONSIVE BREAKPOINTS (Mobile & iOS Fixes)
+        ═══════════════════════════════════════════════════ */
+        @media (max-width: 1100px) {
+            .navbar, .show-info, .library-section { width: 95%; }
+        }
 
         @media (max-width: 768px) {
+            input, select, textarea, button { font-size: 16px !important; }
+
             body { background-color: var(--bg-deep) !important; }
             body.movie-mode { background-color: #080e20 !important; }
             .background-backdrop { display: none !important; }
             .cozy-overlay { display: block !important; background: rgba(92,64,51,0.97) !important; pointer-events: none; }
             body.movie-mode .cozy-overlay { background: rgba(5,10,25,0.98) !important; }
-            .stars-bg { display: none !important; }
-            body.movie-mode .stars-bg { display: block !important; }
-
-            body { overscroll-behavior-y: none; overscroll-behavior-x: none; }
-            html { overscroll-behavior: none; }
 
             .navbar { width: 95%; margin: 8px auto; flex-direction: column; border-radius: 18px; padding: 14px; gap: 12px; }
             .nav-left { flex-direction: column; width: 100%; gap: 10px; }
-            .logo { font-size: 26px; }
             .dropdown-container { width: 100%; gap: 10px; }
             .custom-dropdown { flex: 1; min-width: 0; }
-            .nav-right { width: 100%; }
-            .search-container { max-width: 100%; gap: 8px; flex-direction: column; align-items: stretch; }
+            .nav-right { width: 100%; flex-direction: column; }
+            .theme-toggle-btn { width: 100%; justify-content: center; }
+
+            .search-container { flex-direction: column; align-items: stretch; gap: 8px; }
             .ai-search-area { justify-content: center; }
 
-            input, select, textarea, button { font-size: 16px !important; }
-
-            .iframe-wrapper { width: 96vw !important; max-width: 100% !important; margin: 10px auto 16px auto !important; border-radius: 14px !important; border: 6px solid #4E342E !important; outline: 2px solid #2D1B15 !important; aspect-ratio: auto !important; height: 60vh !important; min-height: 450px !important; resize: vertical !important; overflow: hidden !important; box-shadow: 0 8px 25px rgba(0,0,0,0.6) !important; }
-            body.movie-mode .iframe-wrapper { border-color: #1a2d5a !important; outline-color: #0a1428 !important; }
+            .main-content { padding: 0; } 
+            
+            /* Enhanced Mobile Frame - Taller and keeps styling */
+            .iframe-wrapper {
+                width: 95% !important; max-width: 95% !important; margin: 0 auto 16px auto !important;
+                border-radius: 16px !important; border: 8px solid var(--frame-color) !important; 
+                outline: 3px solid #2D1B15 !important;
+                aspect-ratio: 16 / 10 !important; /* Makes it taller natively */
+                min-height: 250px; /* Base height assurance */
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
+            }
 
             .show-info, .library-section { width: 95%; margin: 0 auto 16px auto; }
-            .show-info { padding: 18px; gap: 14px; }
+            .show-info { padding: 20px; gap: 16px; }
             .info-header { flex-direction: column; gap: 14px; align-items: stretch; }
             .title-group { align-items: flex-start; }
-            .show-title { font-size: 26px; }
-            .action-buttons { flex-direction: row; flex-wrap: wrap; width: 100%; gap: 8px; justify-content: center; }
-            .action-btn, .ai-btn-pill { flex: 1 1 45%; justify-content: center; padding: 10px 8px; font-size: 14px !important; }
-            
-            .badge { font-size: 13px; padding: 6px 12px; }
+            .show-title { font-size: 32px; }
             .badges-row { flex-wrap: wrap; gap: 6px; }
-
-            .library-section { padding: 16px 14px; }
-            .library-card { min-width: 130px; max-width: 130px; }
-            .card-img-wrapper { height: 175px; }
-            .remove-btn { opacity: 1 !important; top: -8px; right: -8px; }
-            .library-card-title { font-size: 11px; }
-
-            /* ── FLAWLESS MOBILE CHAT LAYOUT ── */
-            /* Using strict absolute positioning to prevent iOS Safari keyboard squishing */
-            .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
+            .action-buttons { flex-direction: row; flex-wrap: wrap; width: 100%; gap: 8px; justify-content: center; }
+            .action-btn { flex: 1 1 45%; justify-content: center; padding: 10px 8px; font-size: 15px !important; }
+            .badge { font-size: 13px; padding: 6px 12px; }
             
-            .zesty-panel.open {
-                display: flex !important;
-                position: fixed !important;
-                top: 0 !important; bottom: 0 !important;
-                left: 0 !important; right: 0 !important;
+            .library-section { padding: 18px 16px; }
+            .library-card { min-width: 135px; max-width: 135px; }
+            .card-img-wrapper { height: 185px; }
+
+            /* iOS Chat Fixes */
+            .zesty-toggle { width: 60px; height: 60px; font-size: 30px; bottom: 16px; right: 14px; }
+            .zesty-panel {
                 width: 100vw !important; 
-                height: 100dvh !important;
-                max-height: none !important;
-                border-radius: 0 !important;
-                border: none !important;
-                z-index: 99999 !important;
-                flex-direction: column !important;
-                background: var(--nav-bg) !important;
+                height: 100dvh !important; /* dvh naturally adjusts to iOS keyboard */
+                left: 0 !important; right: 0 !important; bottom: 0 !important; top: 0 !important;
+                max-height: none; border-radius: 0; border: none;
+                position: fixed; /* Ensures it stays bounded */
             }
-            .zesty-header { padding: env(safe-area-inset-top, 16px) 18px 16px 18px !important; flex-shrink: 0; }
-            .zesty-messages { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
-            .zesty-input-area { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important; background: var(--nav-bg) !important; flex-shrink: 0; border-top: 2px solid var(--border-color); }
-            
-            .canvas-card-img { height: 100px; }
+            .zesty-header { padding: 16px 18px; }
+            .zesty-messages { padding: 14px; }
+            .zesty-input-area { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
         }
 
         @media (max-width: 380px) {
-            .library-card { min-width: 115px; max-width: 115px; }
-            .card-img-wrapper { height: 158px; }
-            .show-title { font-size: 22px; }
-            .iframe-wrapper { height: 55vh !important; min-height: 400px !important; }
+            .library-card { min-width: 120px; max-width: 120px; }
+            .card-img-wrapper { height: 165px; }
+            .show-title { font-size: 26px; }
         }
     </style>
 </head>
 <body>
 
-<div class="cinema-fx" id="cinema-fx"><div class="cinema-beam"></div></div>
-<div class="stars-bg" id="stars-bg"></div>
+<div class="cinema-fx" id="cinema-fx">
+    <div class="cinema-beam"></div>
+    <div class="cinema-stars"></div>
+</div>
 <div class="background-backdrop" id="bg-backdrop"></div>
 <div class="cozy-overlay"></div>
 
-<!-- NAVBAR -->
 <header class="navbar">
     <div class="nav-left">
         <div class="logo">ZestFlix<span class="emoji-icon" style="font-size:0.82em;">🍿</span></div>
@@ -423,7 +664,6 @@
     </div>
     <div class="nav-right">
         <div class="search-container">
-            <!-- AI Search Toggle -->
             <div id="ai-search-toggle" class="ai-search-area" title="Toggle AI Smart Search">
                 <span class="ai-search-icon">🧠</span>
                 <span class="ai-search-label">AI Search</span>
@@ -434,20 +674,35 @@
                 <div id="search-results" class="search-results"></div>
             </div>
         </div>
+        <button class="action-btn theme-toggle-btn" id="theme-toggle">🌙 Cinema</button>
     </div>
 </header>
 
 <main class="main-content">
-    <!-- VIDEO PLAYER -->
     <div class="iframe-wrapper">
-        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media; fullscreen" referrerpolicy="no-referrer"></iframe>
+        <!-- Ad overlay kill layer -->
+        <div id="ad-kill-overlay"></div>
     </div>
 
-    <!-- SHOW INFO -->
+    <section class="library-section">
+        <div class="library-header">
+            <h2 class="library-title">My Backpack <span class="emoji-icon" style="font-size:0.72em;">🎒</span></h2>
+            <button class="ai-text-btn" id="ai-recs-btn">
+                <span>✨</span> Inspire Me
+            </button>
+        </div>
+        <div class="library-scroll" id="library-scroll"></div>
+        <div class="ai-recs-section" id="ai-recs-container" style="display:none;">
+            <div class="ai-recs-title">🔥 Zesty's Top Picks</div>
+            <div class="library-scroll" id="ai-recs-scroll"></div>
+        </div>
+    </section>
+
     <div class="show-info">
         <div class="info-header">
             <div class="title-group">
-                <h1 class="show-title" id="info-title">Loading Magic... ✨</h1>
+                <h1 class="show-title" id="info-title">Loading...</h1>
                 <div class="badges-row" id="badges-container">
                     <span class="badge" id="info-type"><span class="emoji-icon">🎥</span> Loading</span>
                     <span class="badge" id="info-year"><span class="emoji-icon">📅</span></span>
@@ -457,40 +712,21 @@
             <div class="action-buttons">
                 <button class="action-btn" id="fav-btn"><span class="emoji-icon">🤍</span> Favorite</button>
                 <button class="action-btn" id="share-btn"><span class="emoji-icon">📣</span> Share</button>
-                <button class="ai-btn-pill" id="ai-insights-btn">
-                    <span>💡</span> AI Insights
-                </button>
             </div>
         </div>
         <p class="show-overview" id="info-overview"></p>
         <div class="ai-insights-panel" id="ai-insights-panel"></div>
     </div>
-
-    <!-- BACKPACK -->
-    <section class="library-section">
-        <div class="library-header">
-            <h2 class="library-title">My Backpack <span class="emoji-icon" style="font-size:0.72em;">🎒</span></h2>
-            <button class="ai-btn-pill" id="ai-recs-btn">
-                <span>🎯</span> AI Picks for You
-            </button>
-        </div>
-        <div class="library-scroll" id="library-scroll"></div>
-        <div class="ai-recs-section" id="ai-recs-container" style="display:none;">
-            <div class="ai-recs-title">✨ Inspired by your Backpack</div>
-            <div class="library-scroll" id="ai-recs-scroll"></div>
-        </div>
-    </section>
 </main>
 
-<!-- ZESTY CHAT -->
-<div class="zesty-toggle" id="zesty-toggle" title="Chat with Zesty!">🍋</div>
+<div class="zesty-toggle" id="zesty-toggle" title="Chat with Zesty!">😎</div>
 <div class="zesty-panel" id="zesty-panel">
     <div class="zesty-header">
-        <span>🍋 Zesty — Your Movie Buddy</span>
+        <span>😎 Zesty</span>
         <span class="zesty-close-btn" id="zesty-close">✕</span>
     </div>
     <div class="zesty-messages" id="zesty-messages">
-        <div class="zesty-msg-bot">Hey! 🍋 What are we watching tonight?</div>
+        <div class="zesty-msg-bot">Yo! 🍿 Ready to find something epic to watch?</div>
     </div>
     <div class="zesty-input-area">
         <input type="text" id="zesty-input" placeholder="Ask me anything..." autocomplete="off">
@@ -500,215 +736,241 @@
 
 <script>
 /* ═══════════════════════════════════════════════════
-   CONFIG
+   CONFIG & STATE
 ═══════════════════════════════════════════════════ */
-const TMDB_KEY  = 'd62d816a3f48ed18c1dc5e157f4d73b2';
+const TMDB_KEY = 'd62d816a3f48ed18c1dc5e157f4d73b2';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 
-/* ── Disable all selection ── */
-document.addEventListener('selectstart', e => {
-    if (!e.target.closest('input, textarea, .zesty-msg-bot, .zesty-msg-user')) e.preventDefault();
-});
-document.addEventListener('contextmenu', e => e.preventDefault());
+let mediaId = 37680;
+let mediaType = 'tv';
+let mediaTitle = 'Suits';
+let mediaYear = '2011';
 
-/* ── Prevent overscroll bounce on iOS ── */
+let seasonVal = null;
+let episodeVal = null;
+let searchTimer = null;
+let aiSearchOn = false;
+let chatHistory = [];
+let manualThemeOverride = null; // Stores user theme preference
+
+// DOM Element Helpers
+const $ = id => document.getElementById(id);
+
+const searchInput = $('search-input');
+const searchResults = $('search-results');
+const playerFrame = $('player-frame');
+const bgBackdrop = $('bg-backdrop');
+
+const infoTitle = $('info-title');
+const infoYear = $('info-year');
+const infoRating = $('info-rating');
+const infoType = $('info-type');
+const infoOverview = $('info-overview');
+const badgesRow = $('badges-container');
+
+const libraryScroll = $('library-scroll');
+const favBtn = $('fav-btn');
+const themeToggle = $('theme-toggle');
+
+const seasonHeader = $('season-header');
+const seasonList = $('season-list');
+const episodeHeader = $('episode-header');
+const episodeList = $('episode-list');
+
+const aiSearchToggle = $('ai-search-toggle');
+const aiInsightsPanel = $('ai-insights-panel');
+const aiRecsBtn = $('ai-recs-btn');
+const aiRecsContainer = $('ai-recs-container');
+const aiRecsScroll = $('ai-recs-scroll');
+
+const zestyToggle = $('zesty-toggle');
+const zestyPanel = $('zesty-panel');
+const zestyClose = $('zesty-close');
+const zestyMessages = $('zesty-messages');
+const zestyInput = $('zesty-input');
+const zestySend = $('zesty-send');
+
+/* ── iOS Visual Viewport Fix for Keyboard ── */
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+        if (document.body.classList.contains('chat-open') && window.innerWidth <= 768) {
+            zestyPanel.style.height = `${window.visualViewport.height}px`;
+            zestyPanel.style.top = `${window.visualViewport.offsetTop}px`;
+        } else {
+            zestyPanel.style.height = '';
+            zestyPanel.style.top = '';
+        }
+    });
+}
+
 document.addEventListener('touchmove', e => {
-    if (e.target.closest('.zesty-messages, .library-scroll, .dropdown-list, .show-overview')) return;
+    if (e.target.closest('.zesty-messages, .library-scroll, .dropdown-list, .show-overview')) {
+        return;
+    }
     if (document.documentElement.scrollTop <= 0 || document.documentElement.scrollTop + window.innerHeight >= document.documentElement.scrollHeight) {
-        // still allow if inside a scrollable container
+        // Prevent default behavior to stop body scroll bounce
     }
 }, { passive: false });
 
-/* ── Stars (movie mode) ── */
-function createStars() {
-    const sb = document.getElementById('stars-bg');
-    sb.innerHTML = '';
-    for (let i = 0; i < 120; i++) {
-        const s = document.createElement('div');
-        s.className = 'star';
-        const size = Math.random() * 2.5 + 0.8;
-        s.style.cssText = `
-            width:${size}px; height:${size}px;
-            left:${Math.random()*100}%; top:${Math.random()*100}%;
-            --dur:${(Math.random()*3+2).toFixed(1)}s;
-            --delay:-${(Math.random()*5).toFixed(1)}s;
-            opacity:${Math.random()*0.6+0.2};
-        `;
-        sb.appendChild(s);
-    }
-}
-createStars();
-
-/* ── Markdown → HTML ── */
+/* ═══════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════ */
 function mdToHtml(raw) {
     if (!raw) return '';
-    let t = raw
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g,'<em>$1</em>');
-    const lines = t.split('\n');
-    let html = '', inList = false;
+    
+    let formattedText = raw
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>');
+        
+    const lines = formattedText.split('\n');
+    let html = '';
+    let inList = false;
+    
     for (const line of lines) {
-        const bullet = line.match(/^[\*\-]\s+(.+)/);
-        if (bullet) {
-            if (!inList) { html += '<ul style="padding-left:18px;margin:8px 0;">'; inList = true; }
-            html += `<li style="margin-bottom:5px;">${bullet[1]}</li>`;
+        const bulletMatch = line.match(/^[\*\-]\s+(.+)/);
+        
+        if (bulletMatch) {
+            if (!inList) { 
+                html += '<ul style="padding-left:18px; margin:8px 0;">'; 
+                inList = true; 
+            }
+            html += `<li style="margin-bottom:5px;">${bulletMatch[1]}</li>`;
         } else {
-            if (inList) { html += '</ul>'; inList = false; }
-            if (line.trim()) html += `<p style="margin-bottom:8px;">${line.trim()}</p>`;
+            if (inList) { 
+                html += '</ul>'; 
+                inList = false; 
+            }
+            if (line.trim()) {
+                html += `<p style="margin-bottom:8px;">${line.trim()}</p>`;
+            }
         }
     }
+    
     if (inList) html += '</ul>';
     return html;
 }
 
 /* ═══════════════════════════════════════════════════
-   NATIVE GEMINI AI LOGIC (WITH RETRIES & FALLBACKS)
+   GROQ AI LOGIC (Llama 3.1 8B w/ Retries) - Charismatic Upgrade!
 ═══════════════════════════════════════════════════ */
-
-// 🚨 PUT YOUR GOOGLE AI STUDIO API KEY HERE IF PUBLISHING TO GITHUB PAGES! 🚨
-const apiKey = "AIzaSyBMRgvmvL2fO8eE5pe99qXbRhiQnO9PJOo"; 
-
-// SMART MODEL SWITCH: Uses 1.5-flash for your public key, preview model inside Canvas.
-const MODEL = apiKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025"; 
-
-async function fetchGeminiWithBackoff(payload) {
-    const delays = [1000, 2000, 4000]; 
-    for (let i = 0; i <= delays.length; i++) {
-        try {
-            // Failsafe for GitHub Pages with empty key
-            if(!apiKey && window.location.hostname.includes("github.io")) {
-                throw new Error("Missing API Key! Add your API key to the code to use the AI on GitHub.");
-            }
-            
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.error?.message || 'API Request Failed');
-            }
-            const data = await res.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
-
-        } catch (err) {
-            if (i === delays.length || err.message.includes("Missing API Key")) {
-                console.error('AI Error:', err.message);
-                return `Error: ${err.message} 🍋`;
-            }
-            await new Promise(r => setTimeout(r, delays[i]));
-        }
-    }
-}
-
 const AI = {
-    async call(prompt, systemPrompt = '') {
-        const payload = { contents: [{ parts: [{ text: prompt }] }] };
-        if (systemPrompt) payload.systemInstruction = { parts: [{ text: systemPrompt }] };
-        return await fetchGeminiWithBackoff(payload);
-    },
-
-    async smartSearch(q) {
-        const sys = `You are an expert movie/TV matching engine. The user will provide a description, character name (e.g., 'walter white' -> 'Breaking Bad', 'lalush' -> 'Code Geass'), or vibe. Reply ONLY with the exact official title of the single best matching movie or TV show. No quotes, no punctuation, no extra text.`;
-        const text = await this.call(q, sys);
-        return text || q;
-    },
-
-    async insights(title, type, year) {
-        const text = await this.call(
-            `Give me: 1 short punchy pitch sentence, then 3 fun spoiler-free bullet facts for the ${type} "${title}" (${year}). Be snappy and warm. Max 80 words total.`
-        );
-        return text || "Zesty is currently resting 💤 Check your connection and try again!";
-    },
-
-    async recs(titles) {
-        const text = await this.call(
-            `Based on these titles: ${titles.join(', ')} — give me 5 similar must-watch titles. Return ONLY a JSON array of strings. No markdown, no explanation. Example: ["Title A","Title B"]`
-        );
-        if (!text || text.includes("Error:")) return [];
-        try {
-            const clean = text.replace(/```json/gi,'').replace(/```/g,'').trim();
-            return JSON.parse(clean);
-        } catch {
-            const match = text.match(/\[[\s\S]*\]/);
-            return match ? JSON.parse(match[0]) : [];
+    async call(prompt, systemPrompt = '', retries = 2) {
+        const msgs = [];
+        
+        if (systemPrompt) msgs.push({ role: 'system', content: systemPrompt });
+        msgs.push({ role: 'user', content: prompt });
+        
+        for (let i = 0; i <= retries; i++) {
+            try {
+                const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer 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'
+                    },
+                    body: JSON.stringify({ 
+                        model: 'llama-3.1-8b-instant',
+                        messages: msgs,
+                        temperature: 0.7 
+                    })
+                });
+                
+                if (!res.ok) throw new Error('API Request Failed');
+                
+                const data = await res.json();
+                return data.choices[0].message.content.trim();
+                
+            } catch (err) {
+                if (i === retries) return null; 
+                await new Promise(r => setTimeout(r, 1000 * (i + 1))); 
+            }
         }
     },
-
+    
+    async smartSearch(query) {
+        const text = await this.call(`Return ONLY the exact title of the movie or TV show described: "${query}". Nothing else.`);
+        return text || query;
+    },
+    
+    async insights(title, type, year) {
+        const text = await this.call(`Give me 1 hyper-charismatic, cool pitch sentence, then 3 mind-blowing spoiler-free facts for the ${type} "${title}" (${year}). Use trendy emojis 🔥😎. Keep it under 60 words total. No fluff.`);
+        return text || '<em>Zesty is currently napping 💤 Check your connection!</em>';
+    },
+    
+    async recs(titles) {
+        const text = await this.call(`Based on these titles: ${titles.join(', ')} — give me 5 highly curated, premium, top-tier recommendations. No random picks, only absolute bangers that match the vibe. Return ONLY a JSON array of strings. Example: ["Title A","Title B"]`);
+        if (!text) return [];
+        try { 
+            const match = text.match(/\[[\s\S]*\]/);
+            return match ? JSON.parse(match[0]) : []; 
+        } catch { return []; }
+    },
+    
     async chat(history) {
-        const sys = `You are Zesty 🍋, a super charismatic, fun movie & TV show expert! 🍿🎬 Rules:
-- Keep responses EXTREMELY short (1-2 sentences). 
-- Ooze charm, use cinema emojis! 🎥🍿✨
-- Format recs EXACTLY as: [RECOMMEND: Title (year, type)] then 1 witty reason.
-- Type must be EXACTLY "movie" or "tv".
-- No walls of text, no robotic tone.`;
+        const systemPrompt = `You are Zesty 😎 — a charismatic, cool, and witty movie buddy with elite taste. 
+- Keep responses extremely short and punchy (1-2 sentences MAX).
+- Use cool emojis frequently 🔥🍿😎👀.
+- Format recs EXACTLY: [RECOMMEND: Title (Year, Type)]
+- For Type, you MUST output exactly "movie" or "tv". Example: [RECOMMEND: Breaking Bad (2008, tv)]
+- Give high-quality, highly relevant recommendations only.`;
         
-        const contents = history.map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }]
-        }));
-        
-        const payload = { contents, systemInstruction: { parts: [{ text: sys }] } };
-        const text = await fetchGeminiWithBackoff(payload);
-        return text || "Zesty is currently offline. 🍋";
+        const chatLog = history.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
+        const reply = await this.call(chatLog, systemPrompt);
+        return reply || "Connection lost bro — try hitting me up again! 😎";
     }
 };
 
 /* ═══════════════════════════════════════════════════
-   TMDB
+   TMDB API FETCHING
 ═══════════════════════════════════════════════════ */
 const TMDB = {
-    async searchMulti(q)      { return (await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&include_adult=false`)).json(); },
-    async getDetails(id,type) { return (await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}`)).json(); },
-    async getEpisodes(id,s)   { return (await fetch(`${TMDB_BASE}/tv/${id}/season/${s}?api_key=${TMDB_KEY}`)).json(); }
+    async searchMulti(query) {
+        const response = await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&include_adult=false`);
+        return response.json();
+    },
+    async getDetails(id, type) { 
+        const response = await fetch(`${TMDB_BASE}/${type}/${id}?api_key=${TMDB_KEY}`);
+        return response.json();
+    },
+    async getEpisodes(id, seasonNumber) { 
+        const response = await fetch(`${TMDB_BASE}/tv/${id}/season/${seasonNumber}?api_key=${TMDB_KEY}`);
+        return response.json();
+    }
 };
 
 /* ═══════════════════════════════════════════════════
-   STATE & DOM
-═══════════════════════════════════════════════════ */
-let mediaId=37680, mediaType='tv', mediaTitle='Suits', mediaYear='2011';
-let seasonVal=null, episodeVal=null, searchTimer=null, aiSearchOn=false;
-
-const $ = id => document.getElementById(id);
-const searchInput=$('search-input'), searchResults=$('search-results');
-const playerFrame=$('player-frame'), bgBackdrop=$('bg-backdrop');
-const infoTitle=$('info-title'), infoYear=$('info-year'), infoRating=$('info-rating'), infoType=$('info-type');
-const infoOverview=$('info-overview'), badgesRow=$('badges-container');
-const libraryScroll=$('library-scroll'), favBtn=$('fav-btn');
-const seasonHeader=$('season-header'), seasonList=$('season-list');
-const episodeHeader=$('episode-header'), episodeList=$('episode-list');
-const aiSearchToggle=$('ai-search-toggle');
-const aiInsightsBtn=$('ai-insights-btn'), aiInsightsPanel=$('ai-insights-panel');
-const aiRecsBtn=$('ai-recs-btn'), aiRecsContainer=$('ai-recs-container'), aiRecsScroll=$('ai-recs-scroll');
-const zestyToggle=$('zesty-toggle'), zestyPanel=$('zesty-panel');
-const zestyClose=$('zesty-close'), zestyMessages=$('zesty-messages');
-const zestyInput=$('zesty-input'), zestySend=$('zesty-send');
-
-/* ═══════════════════════════════════════════════════
-   MOVIE MODE THEME
+   THEME & UI TOGGLES
 ═══════════════════════════════════════════════════ */
 function applyTheme(type) {
     if (type === 'movie') {
         document.body.classList.add('movie-mode');
-        zestyToggle.textContent = '🎬';
+        themeToggle.innerHTML = '☕ Cafe Mode';
     } else {
         document.body.classList.remove('movie-mode');
-        zestyToggle.textContent = '🍋';
+        themeToggle.innerHTML = '🌙 Cinema Mode';
     }
 }
 
-/* ═══════════════════════════════════════════════════
-   AI SEARCH TOGGLE & RACING PROTECTION
-═══════════════════════════════════════════════════ */
+themeToggle.addEventListener('click', () => {
+    if (document.body.classList.contains('movie-mode')) {
+        manualThemeOverride = 'tv';
+        applyTheme('tv');
+    } else {
+        manualThemeOverride = 'movie';
+        applyTheme('movie');
+    }
+});
+
 aiSearchToggle.addEventListener('click', e => {
     e.preventDefault();
     aiSearchOn = !aiSearchOn;
     aiSearchToggle.classList.toggle('active', aiSearchOn);
+    
     if (aiSearchOn) {
-        searchInput.placeholder = '🧠 Search characters, vibes, plots...';
+        searchInput.placeholder = '🧠 Describe what you want...';
         searchInput.classList.add('ai-mode');
     } else {
         searchInput.placeholder = 'Find a movie or show...';
@@ -716,158 +978,137 @@ aiSearchToggle.addEventListener('click', e => {
     }
 });
 
-let currentSearchId = 0; 
+function toggleChat() {
+    const isOpen = zestyPanel.classList.contains('open');
+    if (isOpen) {
+        zestyPanel.classList.remove('open');
+        document.body.classList.remove('chat-open');
+    } else {
+        zestyPanel.classList.add('open');
+        document.body.classList.add('chat-open'); // Locks background scroll, triggers mobile iOS CSS
+    }
+}
 
-searchInput.addEventListener('input', async e => {
-    clearTimeout(searchTimer);
-    const q = e.target.value.trim();
-    if (q.length < 2) { searchResults.classList.remove('active'); return; }
-
-    const searchId = ++currentSearchId;
-
-    searchTimer = setTimeout(async () => {
-        try {
-            if (aiSearchOn) {
-                searchResults.innerHTML = '<div class="search-item" style="padding:12px; justify-content:center;"><b>🧠 AI is thinking...</b></div>';
-                searchResults.classList.add('active');
-            }
-
-            let query = q;
-            if (aiSearchOn) {
-                const aiResult = await AI.smartSearch(q);
-                if (!aiResult.includes("Error:")) query = aiResult;
-            }
-            
-            if (searchId !== currentSearchId) return; 
-
-            const data = await TMDB.searchMulti(query);
-            if (searchId !== currentSearchId) return;
-
-            searchResults.innerHTML = '';
-            const valid = data.results?.filter(i => i.media_type !== 'person').slice(0, 6) || [];
-            
-            valid.forEach(item => {
-                const el = document.createElement('div'); el.className = 'search-item';
-                const img = item.poster_path ? `https://image.tmdb.org/t/p/w92${item.poster_path}` : '';
-                const year = (item.first_air_date || item.release_date || '').slice(0,4);
-                const typeLabel = item.media_type === 'movie' ? '🎬 Movie' : '📺 TV';
-                el.innerHTML = `<img src="${img}" alt=""><div><b>${item.name||item.title}</b><br><small>${typeLabel}${year ? ' · '+year : ''}</small></div>`;
-                el.onclick = () => {
-                    mediaId = item.id; mediaType = item.media_type;
-                    searchInput.value = ''; searchResults.classList.remove('active');
-                    loadMedia(item.id, item.media_type);
-                };
-                searchResults.appendChild(el);
-            });
-
-            if (valid.length) searchResults.classList.add('active');
-            else { searchResults.innerHTML = `<div class="search-item"><b>No results found.</b></div>`; searchResults.classList.add('active'); }
-        } catch (err) { console.error('Search failed:', err); }
-    }, aiSearchOn ? 1000 : 380);
-});
+zestyToggle.addEventListener('click', toggleChat);
+zestyClose.addEventListener('click', toggleChat);
 
 /* ═══════════════════════════════════════════════════
-   DROPDOWNS
+   LIBRARY / BACKPACK
 ═══════════════════════════════════════════════════ */
-function toggleDD(list) {
-    if(list!==seasonList)  seasonList.classList.remove('show');
-    if(list!==episodeList) episodeList.classList.remove('show');
-    list.classList.toggle('show');
-}
-seasonHeader.addEventListener('click',  () => { if(!seasonHeader.classList.contains('disabled'))  toggleDD(seasonList); });
-episodeHeader.addEventListener('click', () => { if(!episodeHeader.classList.contains('disabled')) toggleDD(episodeList); });
-document.addEventListener('click', e => {
-    if(!e.target.closest('.custom-dropdown'))   { seasonList.classList.remove('show'); episodeList.classList.remove('show'); }
-    if(!e.target.closest('.search-container'))  searchResults.classList.remove('active');
-});
-
-function buildSeasonDD(seasons, target) {
-    seasonList.innerHTML = '';
-    seasons.forEach(s => {
-        const el = document.createElement('div'); el.className = 'dropdown-item';
-        el.textContent = `Season ${s.season_number}`;
-        if(s.season_number == target) el.classList.add('selected');
-        el.onclick = () => { seasonVal=s.season_number; seasonHeader.innerHTML=`Season ${seasonVal} <span>▼</span>`; seasonList.classList.remove('show'); loadEpisodes(mediaId,seasonVal); };
-        seasonList.appendChild(el);
-    });
-    seasonHeader.classList.remove('disabled');
-}
-function buildEpisodeDD(eps, target) {
-    episodeList.innerHTML = '';
-    eps.forEach(ep => {
-        const el = document.createElement('div'); el.className = 'dropdown-item';
-        const n = ep.name.length > 24 ? ep.name.slice(0,24)+'…' : ep.name;
-        el.textContent = `Ep ${ep.episode_number}: ${n}`;
-        if(ep.episode_number == target) el.classList.add('selected');
-        el.onclick = () => { episodeVal=ep.episode_number; episodeHeader.innerHTML=`Ep ${episodeVal} <span>▼</span>`; episodeList.classList.remove('show'); updatePlayer(); };
-        episodeList.appendChild(el);
-    });
-    episodeHeader.classList.remove('disabled');
+function getLib() {
+    return JSON.parse(localStorage.getItem('streamToyLibrary') || '[]');
 }
 
-/* ═══════════════════════════════════════════════════
-   LIBRARY
-═══════════════════════════════════════════════════ */
-const getLib   = () => JSON.parse(localStorage.getItem('streamToyLibrary') || '[]');
-const saveLib  = lib => { localStorage.setItem('streamToyLibrary', JSON.stringify(lib)); renderLib(); updateFavUI(); };
+function saveLib(libArray) { 
+    localStorage.setItem('streamToyLibrary', JSON.stringify(libArray)); 
+    renderLib(); 
+    updateFavUI(); 
+}
 
-function upsertLib(data, type, season=1, episode=1) {
+function upsertLib(data, type, season = 1, episode = 1) {
     let lib = getLib();
-    const isFav = lib.find(i=>i.id==data.id&&i.mediaType===type)?.favorite || false;
-    lib = lib.filter(i=>!(i.id==data.id&&i.mediaType===type));
-    lib.unshift({ id:data.id, name:data.name||data.title, poster:data.poster_path, mediaType:type, season, episode, favorite:isFav });
-    if(lib.length > 20) lib.pop();
+    const existingItem = lib.find(item => item.id == data.id && item.mediaType === type);
+    const isFav = existingItem ? existingItem.favorite : false;
+    
+    lib = lib.filter(item => !(item.id == data.id && item.mediaType === type));
+    lib.unshift({ 
+        id: data.id, name: data.name || data.title, poster: data.poster_path, 
+        mediaType: type, season: season, episode: episode, favorite: isFav 
+    });
+    if (lib.length > 20) lib.pop();
     saveLib(lib);
 }
+
 function updateProgress(id, season, episode) {
-    if(mediaType==='movie') return;
-    let lib = getLib(); const i = lib.findIndex(x=>x.id==id&&x.mediaType==='tv');
-    if(i!==-1){ lib[i].season=season; lib[i].episode=episode; saveLib(lib); }
+    if (mediaType === 'movie') return;
+    let lib = getLib(); 
+    const itemIndex = lib.findIndex(x => x.id == id && x.mediaType === 'tv');
+    if (itemIndex !== -1 && (lib[itemIndex].season != season || lib[itemIndex].episode != episode)) { 
+        lib[itemIndex].season = season; 
+        lib[itemIndex].episode = episode; 
+        saveLib(lib); 
+        if (id == mediaId) {
+            seasonVal = season; episodeVal = episode;
+            seasonHeader.innerHTML = `Season ${seasonVal} <span>▼</span>`;
+            episodeHeader.innerHTML = `Ep ${episodeVal} <span>▼</span>`;
+        }
+    }
 }
+
 function toggleFav(id) {
-    let lib = getLib(); const i = lib.findIndex(x=>x.id==id&&x.mediaType===mediaType);
-    if(i!==-1){ lib[i].favorite=!lib[i].favorite; saveLib(lib); }
+    let lib = getLib(); 
+    const itemIndex = lib.findIndex(x => x.id == id && x.mediaType === mediaType);
+    if (itemIndex !== -1) { lib[itemIndex].favorite = !lib[itemIndex].favorite; saveLib(lib); }
 }
+
 function updateFavUI() {
-    const cur = getLib().find(i=>i.id==mediaId&&i.mediaType==mediaType);
-    if(cur?.favorite){ favBtn.innerHTML='<span class="emoji-icon" style="color:#ef4444;">❤️</span> Favorited'; favBtn.classList.add('active-fav'); }
-    else             { favBtn.innerHTML='<span class="emoji-icon">🤍</span> Favorite'; favBtn.classList.remove('active-fav'); }
+    const currentItem = getLib().find(i => i.id == mediaId && i.mediaType == mediaType);
+    if (currentItem?.favorite) { 
+        favBtn.innerHTML = '<span class="emoji-icon" style="color:#ef4444;">❤️</span> Favorited'; 
+        favBtn.classList.add('active-fav'); 
+    } else { 
+        favBtn.innerHTML = '<span class="emoji-icon">🤍</span> Favorite'; 
+        favBtn.classList.remove('active-fav'); 
+    }
 }
 
 function renderLib() {
-    let lib = getLib(); libraryScroll.innerHTML = '';
-    if(!lib.length) { libraryScroll.innerHTML='<div class="empty-library">Your backpack is empty! 🏕️ Search something to start.</div>'; return; }
-    lib.sort((a,b) => (b.favorite===true)-(a.favorite===true));
+    let lib = getLib(); 
+    libraryScroll.innerHTML = '';
+    
+    if (!lib.length) { 
+        libraryScroll.innerHTML = '<div class="empty-library">Your backpack is empty! 🏕️ Search something to start.</div>'; 
+        return; 
+    }
+    
+    lib.sort((a, b) => (b.favorite === true) - (a.favorite === true));
     lib.forEach(item => {
         const card = document.createElement('div');
-        card.className = `library-card ${item.favorite?'is-favorite':''}`;
-        const poster = item.poster ? `https://image.tmdb.org/t/p/w200${item.poster}` : '';
+        card.className = `library-card ${item.favorite ? 'is-favorite' : ''}`;
+        
+        const posterUrl = item.poster ? `https://image.tmdb.org/t/p/w200${item.poster}` : '';
         const favBadge = item.favorite ? '<div class="fav-badge">❤️</div>' : '';
-        const isMovie = item.mediaType === 'movie';
-        const progBadge = isMovie
-            ? `<div class="progress-badge is-movie">🎬 FILM</div>`
-            : `<div class="progress-badge">S${item.season||1} · E${item.episode||1}</div>`;
-        card.innerHTML = `<button class="remove-btn">✕</button><div class="card-img-wrapper">${favBadge}<img src="${poster}" alt="" loading="lazy">${progBadge}</div><div class="library-card-title">${item.name}</div>`;
-        card.querySelector('.remove-btn').addEventListener('click', e => { e.stopPropagation(); let l=getLib(); l=l.filter(i=>!(i.id==item.id&&i.mediaType===item.mediaType)); saveLib(l); });
-        card.addEventListener('click', () => { mediaId=item.id; mediaType=item.mediaType; loadMedia(item.id,item.mediaType,item.season,item.episode); window.scrollTo({top:0,behavior:'smooth'}); });
+        const progBadge = item.mediaType === 'movie' ? 
+            `<div class="progress-badge is-movie">🎬 FILM</div>` : 
+            `<div class="progress-badge">S${item.season || 1} · E${item.episode || 1}</div>`;
+            
+        card.innerHTML = `
+            <div class="remove-btn" title="Remove">✕</div>
+            <div class="card-img-wrapper">${favBadge}<img src="${posterUrl}" alt="" loading="lazy">${progBadge}</div>
+            <div class="library-card-title">${item.name}</div>
+        `;
+        
+        card.querySelector('.remove-btn').addEventListener('click', e => { 
+            e.stopPropagation(); 
+            let currentLib = getLib(); 
+            currentLib = currentLib.filter(i => !(i.id == item.id && i.mediaType === item.mediaType)); 
+            saveLib(currentLib); 
+        });
+        
+        card.addEventListener('click', () => { 
+            mediaId = item.id; mediaType = item.mediaType; 
+            manualThemeOverride = null; // reset user manual theme on new load
+            loadMedia(item.id, item.mediaType, item.season, item.episode); 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        });
+        
         libraryScroll.appendChild(card);
     });
 }
 
 /* ═══════════════════════════════════════════════════
-   PLAYER
+   PLAYER & SEARCH
 ═══════════════════════════════════════════════════ */
 function updatePlayer() {
     const themeColor = mediaType === 'movie' ? '4a6fa5' : 'D4A373';
-    if(mediaType === 'movie') {
+    if (mediaType === 'movie') {
         playerFrame.src = `https://www.vidking.net/embed/movie/${mediaId}?color=${themeColor}&autoPlay=true`;
     } else {
         playerFrame.src = `https://www.vidking.net/embed/tv/${mediaId}/${seasonVal}/${episodeVal}?color=${themeColor}&autoPlay=true&nextEpisode=true&episodeSelector=true`;
-        updateProgress(mediaId,seasonVal,episodeVal); 
+        updateProgress(mediaId, seasonVal, episodeVal); 
     }
 }
 
-// Progress listener from VidKing
 window.addEventListener("message", function (event) {
     try {
         const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
@@ -880,204 +1121,274 @@ window.addEventListener("message", function (event) {
     } catch(e) {}
 });
 
-async function loadEpisodes(tvId, season, targetEp=null) {
-    const d = await TMDB.getEpisodes(tvId, season);
-    if(d.episodes?.length) {
-        episodeVal = targetEp || d.episodes[0].episode_number;
+searchInput.addEventListener('input', async e => {
+    clearTimeout(searchTimer);
+    const query = e.target.value.trim();
+    if (query.length < 2) { searchResults.classList.remove('active'); return; }
+
+    searchTimer = setTimeout(async () => {
+        try {
+            const finalQuery = aiSearchOn ? await AI.smartSearch(query) : query;
+            const data = await TMDB.searchMulti(finalQuery);
+            searchResults.innerHTML = '';
+            const validResults = data.results?.filter(i => i.media_type !== 'person').slice(0, 6) || [];
+            
+            validResults.forEach(item => {
+                const el = document.createElement('div'); el.className = 'search-item';
+                const imgUrl = item.poster_path ? `https://image.tmdb.org/t/p/w92${item.poster_path}` : '';
+                const year = (item.first_air_date || item.release_date || '').slice(0, 4);
+                const typeLabel = item.media_type === 'movie' ? '🎬 Movie' : '📺 TV';
+                
+                el.innerHTML = `<img src="${imgUrl}" alt=""><div><b>${item.name || item.title}</b><br><small>${typeLabel}${year ? ' · ' + year : ''}</small></div>`;
+                el.onclick = () => { 
+                    searchInput.value = ''; searchResults.classList.remove('active'); 
+                    manualThemeOverride = null; // reset manual theme
+                    loadMedia(item.id, item.media_type); 
+                };
+                searchResults.appendChild(el);
+            });
+            searchResults.classList.add('active');
+            if (!validResults.length) searchResults.innerHTML = `<div class="search-item"><b>No results found.</b></div>`;
+        } catch (err) {}
+    }, aiSearchOn ? 700 : 380);
+});
+
+/* ═══════════════════════════════════════════════════
+   DROPDOWNS & DATA LOADING
+═══════════════════════════════════════════════════ */
+function toggleDD(listElement) {
+    if (listElement !== seasonList) seasonList.classList.remove('show');
+    if (listElement !== episodeList) episodeList.classList.remove('show');
+    listElement.classList.toggle('show');
+}
+seasonHeader.addEventListener('click', () => { if (!seasonHeader.classList.contains('disabled')) toggleDD(seasonList); });
+episodeHeader.addEventListener('click', () => { if (!episodeHeader.classList.contains('disabled')) toggleDD(episodeList); });
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.custom-dropdown')) { seasonList.classList.remove('show'); episodeList.classList.remove('show'); }
+    if (!e.target.closest('.search-container')) searchResults.classList.remove('active');
+});
+
+function buildSeasonDD(seasons, targetSeason) {
+    seasonList.innerHTML = '';
+    seasons.forEach(season => {
+        const el = document.createElement('div'); el.className = 'dropdown-item';
+        el.textContent = `Season ${season.season_number}`;
+        if (season.season_number == targetSeason) el.classList.add('selected');
+        
+        el.onclick = () => { 
+            seasonVal = season.season_number; seasonHeader.innerHTML = `Season ${seasonVal} <span>▼</span>`; 
+            seasonList.classList.remove('show'); loadEpisodes(mediaId, seasonVal); 
+        };
+        seasonList.appendChild(el);
+    });
+    seasonHeader.classList.remove('disabled');
+}
+
+function buildEpisodeDD(episodes, targetEpisode) {
+    episodeList.innerHTML = '';
+    episodes.forEach(ep => {
+        const el = document.createElement('div'); el.className = 'dropdown-item';
+        const truncatedName = ep.name.length > 24 ? ep.name.slice(0, 24) + '…' : ep.name;
+        el.textContent = `Ep ${ep.episode_number}: ${truncatedName}`;
+        if (ep.episode_number == targetEpisode) el.classList.add('selected');
+        
+        el.onclick = () => { 
+            episodeVal = ep.episode_number; episodeHeader.innerHTML = `Ep ${episodeVal} <span>▼</span>`; 
+            episodeList.classList.remove('show'); updatePlayer(); 
+        };
+        episodeList.appendChild(el);
+    });
+    episodeHeader.classList.remove('disabled');
+}
+
+async function loadEpisodes(tvId, seasonNum, targetEp = null) {
+    const data = await TMDB.getEpisodes(tvId, seasonNum);
+    if (data.episodes?.length) {
+        episodeVal = targetEp || data.episodes[0].episode_number;
         episodeHeader.innerHTML = `Ep ${episodeVal} <span>▼</span>`;
-        buildEpisodeDD(d.episodes, episodeVal); updatePlayer();
+        buildEpisodeDD(data.episodes, episodeVal); 
+        updatePlayer();
     }
 }
 
 function truncateOverview(text) {
-    const max = 160;
-    if(!text) return 'No story available.';
-    if(text.length <= max) return text;
-    return `<span class="short-desc">${text.slice(0,max)}...</span>
-            <span class="full-desc" style="display:none;">${text}</span>
-            <button class="read-more-btn">Read More</button>`;
+    const maxLength = 160;
+    if (!text) return 'No story available.';
+    if (text.length <= maxLength) return text;
+    return `<span class="short-desc">${text.slice(0, maxLength)}...</span><span class="full-desc" style="display:none;">${text}</span><a href="#" class="read-more-btn">Read More</a>`;
 }
 
-async function loadMedia(id, type, targetSeason=null, targetEpisode=null) {
+// Background AI Insights function
+async function triggerAutoInsights(title, type, year) {
+    aiInsightsPanel.innerHTML = '<div class="insights-loader"><span class="emoji-icon">✨</span> Gathering Zesty Intel...</div>';
+    aiInsightsPanel.classList.add('visible');
+    
+    const rawInsights = await AI.insights(title, type === 'tv' ? 'TV Show' : 'Movie', year);
+    
+    // Check if user navigated away while loading
+    if (title !== mediaTitle) return; 
+
+    aiInsightsPanel.innerHTML = `
+        <span class="close-insights" onclick="this.parentElement.classList.remove('visible')" title="Close">✕</span>
+        ${mdToHtml(rawInsights)}
+    `;
+}
+
+async function loadMedia(id, type, targetSeason = null, targetEpisode = null) {
+    mediaId = id; mediaType = type;
+    
     try {
-        applyTheme(type);
-        const d = await TMDB.getDetails(id, type);
-        upsertLib(d, type, targetSeason||1, targetEpisode||1);
+        applyTheme(manualThemeOverride || type);
+        const details = await TMDB.getDetails(id, type);
+        upsertLib(details, type, targetSeason || 1, targetEpisode || 1);
 
-        if(d.backdrop_path && window.innerWidth > 768)
-            bgBackdrop.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${d.backdrop_path})`;
+        if (details.backdrop_path && window.innerWidth > 768) {
+            bgBackdrop.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${details.backdrop_path})`;
+        }
 
-        mediaTitle = d.name||d.title;
-        const rel = d.first_air_date||d.release_date; mediaYear = rel?rel.slice(0,4):'N/A';
-        infoTitle.textContent = mediaTitle;
-        infoType.innerHTML  = `<span class="emoji-icon">${type==='movie'?'🎬':'📺'}</span> ${type==='movie'?'Movie':'TV Show'}`;
-        infoYear.innerHTML   = `<span class="emoji-icon">📅</span> ${mediaYear}`;
-        infoRating.innerHTML = `<span class="emoji-icon">⭐</span> ${d.vote_average?.toFixed(1)||'N/A'}`;
+        mediaTitle = details.name || details.title;
+        const releaseDate = details.first_air_date || details.release_date; 
+        mediaYear = releaseDate ? releaseDate.slice(0, 4) : 'N/A';
         
-        infoOverview.innerHTML = truncateOverview(d.overview);
+        infoTitle.textContent = mediaTitle;
+        infoType.innerHTML = `<span class="emoji-icon">${type === 'movie' ? '🎬' : '📺'}</span> ${type === 'movie' ? 'Movie' : 'TV Show'}`;
+        infoYear.innerHTML = `<span class="emoji-icon">📅</span> ${mediaYear}`;
+        infoRating.innerHTML = `<span class="emoji-icon">⭐</span> ${details.vote_average?.toFixed(1) || 'N/A'}`;
+        
+        infoOverview.innerHTML = truncateOverview(details.overview);
         const readBtn = infoOverview.querySelector('.read-more-btn');
-        if(readBtn) {
+        if (readBtn) {
             readBtn.addEventListener('click', e => {
                 e.preventDefault();
                 const isShort = infoOverview.querySelector('.full-desc').style.display === 'none';
                 infoOverview.querySelector('.short-desc').style.display = isShort ? 'none' : 'inline';
                 infoOverview.querySelector('.full-desc').style.display = isShort ? 'inline' : 'none';
-                e.target.textContent = isShort ? 'Show Less' : 'Read More';
+                e.target.textContent = isShort ? ' Show Less' : ' Read More';
             });
         }
 
-        aiInsightsPanel.classList.remove('visible'); aiInsightsPanel.innerHTML = '';
-
-        document.querySelectorAll('.genre-badge').forEach(e=>e.remove());
-        d.genres?.slice(0,3).forEach(g => {
-            const s = document.createElement('span'); s.className = 'badge genre-badge';
-            s.innerHTML = `<span class="emoji-icon">🎭</span> ${g.name}`;
-            badgesRow.appendChild(s);
+        document.querySelectorAll('.genre-badge').forEach(e => e.remove());
+        details.genres?.slice(0, 3).forEach(genre => {
+            const span = document.createElement('span'); span.className = 'badge genre-badge';
+            span.innerHTML = `<span class="emoji-icon">🎭</span> ${genre.name}`;
+            badgesRow.appendChild(span);
         });
 
-        if(type==='movie') { $('dropdown-group').style.display='none'; updatePlayer(); }
-        else {
+        if (type === 'movie') { 
+            $('dropdown-group').style.display = 'none'; updatePlayer(); 
+        } else {
             $('dropdown-group').style.display = 'flex';
-            const seasons = d.seasons?.filter(s=>s.season_number>0)||[];
-            if(seasons.length) {
-                seasonVal = targetSeason||seasons[0].season_number;
+            const validSeasons = details.seasons?.filter(s => s.season_number > 0) || [];
+            if (validSeasons.length) {
+                seasonVal = targetSeason || validSeasons[0].season_number;
                 seasonHeader.innerHTML = `Season ${seasonVal} <span>▼</span>`;
-                buildSeasonDD(seasons, seasonVal);
+                buildSeasonDD(validSeasons, seasonVal);
                 await loadEpisodes(id, seasonVal, targetEpisode);
             }
         }
+        
         updateFavUI();
-    } catch(e) { console.error('loadMedia:', e); }
+        triggerAutoInsights(mediaTitle, mediaType, mediaYear); // Call background AI insights automatically
+        
+    } catch(e) { console.error('loadMedia Error:', e); }
 }
 
 /* ═══════════════════════════════════════════════════
-   AI INSIGHTS
-═══════════════════════════════════════════════════ */
-aiInsightsBtn.addEventListener('click', async () => {
-    if(aiInsightsPanel.classList.contains('visible')) { aiInsightsPanel.classList.remove('visible'); return; }
-    aiInsightsPanel.innerHTML = '<em style="opacity:0.65;font-weight:800;">💡 Getting the good stuff...</em>';
-    aiInsightsPanel.classList.add('visible');
-    const raw = await AI.insights(mediaTitle, mediaType==='tv'?'TV Show':'Movie', mediaYear);
-    aiInsightsPanel.innerHTML = mdToHtml(raw);
-});
-
-/* ═══════════════════════════════════════════════════
-   AI PICKS
+   BUTTON ACTIONS
 ═══════════════════════════════════════════════════ */
 aiRecsBtn.addEventListener('click', async () => {
-    if(aiRecsContainer.style.display === 'block') { 
-        aiRecsContainer.style.display = 'none'; 
-        return; 
-    }
+    if (aiRecsContainer.style.display === 'block') { aiRecsContainer.style.display = 'none'; return; }
+    
     const lib = getLib();
-    if(!lib.length) { alert('Add something to your backpack first! 🎒'); return; }
+    if (!lib.length) { alert('Add something to your backpack first! 🎒'); return; }
+    
     aiRecsContainer.style.display = 'block';
-    aiRecsScroll.innerHTML = '<div class="empty-library">🎯 Finding your next obsession...</div>';
-    const titles = await AI.recs(lib.map(i=>i.name).slice(0,10));
+    aiRecsScroll.innerHTML = '<div class="empty-library">🔥 Digging up the absolute best for you...</div>';
+    
+    const titles = await AI.recs(lib.map(i => i.name).slice(0, 10));
     aiRecsScroll.innerHTML = '';
     
-    if (titles.length === 0) {
-         aiRecsScroll.innerHTML = '<div class="empty-library">No results. The AI might be resting or missing an API Key!</div>';
-         return;
-    }
-
-    for(const title of titles) {
+    for (const title of titles) {
         const data = await TMDB.searchMulti(title);
-        const r = data.results?.find(x=>x.media_type==='movie'||x.media_type==='tv');
-        if(!r) continue;
+        const result = data.results?.find(x => x.media_type === 'movie' || x.media_type === 'tv');
+        if (!result) continue;
+        
         const card = document.createElement('div'); card.className = 'library-card ai-pick';
-        const poster = r.poster_path ? `https://image.tmdb.org/t/p/w200${r.poster_path}` : '';
-        const isM = r.media_type === 'movie';
-        const prog = isM ? `<div class="progress-badge is-movie">🎬 FILM</div>` : `<div class="progress-badge">TV Show</div>`;
-        card.innerHTML = `<div class="card-img-wrapper"><img src="${poster}" alt="" loading="lazy">${prog}</div><div class="library-card-title">${r.name||r.title}</div>`;
-        card.addEventListener('click', () => { mediaId=r.id; mediaType=r.media_type; loadMedia(r.id,r.media_type); window.scrollTo({top:0,behavior:'smooth'}); });
+        const posterUrl = result.poster_path ? `https://image.tmdb.org/t/p/w200${result.poster_path}` : '';
+        const progBadge = result.media_type === 'movie' ? `<div class="progress-badge is-movie">🎬 FILM</div>` : `<div class="progress-badge">TV Show</div>`;
+            
+        card.innerHTML = `<div class="card-img-wrapper"><img src="${posterUrl}" alt="" loading="lazy">${progBadge}</div><div class="library-card-title">${result.name || result.title}</div>`;
+        card.addEventListener('click', () => { 
+            mediaId = result.id; mediaType = result.media_type; manualThemeOverride = null;
+            loadMedia(result.id, result.media_type); window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        });
         aiRecsScroll.appendChild(card);
     }
-    if(!aiRecsScroll.children.length) aiRecsScroll.innerHTML = '<div class="empty-library">No results found.</div>';
+    if (!aiRecsScroll.children.length) aiRecsScroll.innerHTML = '<div class="empty-library">No results. Try adding more to your backpack!</div>';
 });
 
-/* ═══════════════════════════════════════════════════
-   FAV & SHARE
-═══════════════════════════════════════════════════ */
 favBtn.addEventListener('click', () => toggleFav(mediaId));
+
 $('share-btn').addEventListener('click', () => {
-    const txt = `Watching ${mediaTitle} on ZestFlix! 🍿`;
-    if(navigator.share) navigator.share({ title:'ZestFlix', text:txt });
-    else { navigator.clipboard?.writeText(txt); alert('Copied! 🍿'); }
+    const textToShare = `Watching ${mediaTitle} on ZestFlix! 🔥`;
+    if (navigator.share) navigator.share({ title: 'ZestFlix', text: textToShare });
+    else { navigator.clipboard?.writeText(textToShare); alert('Copied to clipboard! 🍿'); }
 });
 
 /* ═══════════════════════════════════════════════════
-   ZESTY CHAT
+   CHAT LOGIC
 ═══════════════════════════════════════════════════ */
-let chatHistory = [];
-
-function toggleChat() {
-    const isOpen = zestyPanel.classList.contains('open');
-    if(isOpen) {
-        zestyPanel.classList.remove('open');
-        document.body.classList.remove('chat-open');
-    } else {
-        zestyPanel.classList.add('open');
-        document.body.classList.add('chat-open'); 
-    }
-}
-zestyToggle.addEventListener('click', toggleChat);
-zestyClose.addEventListener('click', toggleChat);
-
-// Parse AI reply for [RECOMMEND: ...] tags and create canvas cards
 async function parseAndRenderReply(reply) {
-    const recommendRe = /\[RECOMMEND:\s*(.+?)\s*\((\d{4}),\s*(movie|tv|TV|Movie|show|Show)\)\]/gi;
+    const recommendRe = /\[RECOMMEND:\s*([^\](]+?)\s*\(\s*(\d{4})\s*,\s*([^)]+?)\s*\)\]/gi;
     const fragments = [];
     let lastIdx = 0;
     let match;
 
     while ((match = recommendRe.exec(reply)) !== null) {
-        const before = reply.slice(lastIdx, match.index).trim();
-        if (before) fragments.push({ type:'text', content: before });
-        fragments.push({ type:'card', title: match[1], year: match[2], mtype: match[3].toLowerCase().includes('movie') ? 'movie' : 'tv' });
+        const beforeText = reply.slice(lastIdx, match.index).trim();
+        if (beforeText) fragments.push({ type: 'text', content: beforeText });
+        
+        const parsedType = match[3].toLowerCase();
+        const finalType = parsedType.includes('movie') || parsedType.includes('film') ? 'movie' : 'tv';
+        fragments.push({ type: 'card', title: match[1], year: match[2], mtype: finalType });
         lastIdx = match.index + match[0].length;
     }
-    const after = reply.slice(lastIdx).trim();
-    if (after) fragments.push({ type:'text', content: after });
-    if (!fragments.length) fragments.push({ type:'text', content: reply });
+    
+    const afterText = reply.slice(lastIdx).trim();
+    if (afterText) fragments.push({ type: 'text', content: afterText });
+    if (!fragments.length) fragments.push({ type: 'text', content: reply });
 
     for (const frag of fragments) {
         if (frag.type === 'text' && frag.content) {
-            const el = document.createElement('div');
-            el.className = 'zesty-msg-bot';
-            el.innerHTML = mdToHtml(frag.content) || frag.content;
-            zestyMessages.appendChild(el);
+            const msgEl = document.createElement('div');
+            msgEl.className = 'zesty-msg-bot';
+            msgEl.innerHTML = mdToHtml(frag.content) || frag.content;
+            zestyMessages.appendChild(msgEl);
         } else if (frag.type === 'card') {
-            // Search TMDB for the card
             const data = await TMDB.searchMulti(frag.title);
-            const r = data.results?.find(x=>x.media_type==='movie'||x.media_type==='tv');
-            if (r) {
-                const card = document.createElement('div');
-                card.className = 'zesty-canvas-card';
-                const poster = r.poster_path ? `https://image.tmdb.org/t/p/w300${r.poster_path}` : '';
-                const displayTitle = r.name || r.title;
-                const year = (r.first_air_date||r.release_date||'').slice(0,4);
-                const typeLabel = r.media_type==='movie'?'🎬 Movie':'📺 TV Show';
+            const result = data.results?.find(x => x.media_type === 'movie' || x.media_type === 'tv');
+            
+            if (result) {
+                const card = document.createElement('div'); card.className = 'zesty-canvas-card';
+                const posterUrl = result.poster_path ? `https://image.tmdb.org/t/p/w300${result.poster_path}` : '';
+                const displayTitle = result.name || result.title;
+                const year = (result.first_air_date || result.release_date || '').slice(0, 4);
+                const typeLabel = result.media_type === 'movie' ? '🎬 Movie' : '📺 TV Show';
+                
                 card.innerHTML = `
-                    ${poster ? `<img class="canvas-card-img" src="${poster}" alt="${displayTitle}">` : ''}
+                    ${posterUrl ? `<img class="canvas-card-img" src="${posterUrl}" alt="${displayTitle}">` : ''}
                     <div class="canvas-card-body">
                         <div class="canvas-card-title">${displayTitle}</div>
-                        <div class="canvas-card-meta">${typeLabel} ${year ? '· '+year : ''} · ⭐ ${r.vote_average?.toFixed(1)||'?'}</div>
+                        <div class="canvas-card-meta">${typeLabel} ${year ? '· ' + year : ''} · ⭐ ${result.vote_average?.toFixed(1) || '?'}</div>
                         <div class="canvas-card-tap">▶ Tap to watch</div>
                     </div>`;
-                card.addEventListener('click', () => {
-                    mediaId = r.id; mediaType = r.media_type;
-                    loadMedia(r.id, r.media_type);
-                    toggleChat();
-                    window.scrollTo({top:0, behavior:'smooth'});
+                    
+                card.addEventListener('click', () => { 
+                    manualThemeOverride = null; loadMedia(result.id, result.media_type); 
+                    toggleChat(); window.scrollTo({ top: 0, behavior: 'smooth' }); 
                 });
                 zestyMessages.appendChild(card);
-            } else {
-                // Fallback text
-                const el = document.createElement('div');
-                el.className = 'zesty-msg-bot';
-                el.textContent = `🎬 ${frag.title} (${frag.year})`;
-                zestyMessages.appendChild(el);
             }
         }
     }
@@ -1085,27 +1396,222 @@ async function parseAndRenderReply(reply) {
 }
 
 async function sendZesty() {
-    const txt = zestyInput.value.trim(); if(!txt) return;
-    // User bubble
-    const uMsg = document.createElement('div'); uMsg.className = 'zesty-msg-user'; uMsg.textContent = txt;
-    zestyMessages.appendChild(uMsg); zestyInput.value = '';
-    chatHistory.push({ role:'user', content: txt });
+    const text = zestyInput.value.trim(); 
+    if (!text) return;
+    
+    const userMsgEl = document.createElement('div'); 
+    userMsgEl.className = 'zesty-msg-user'; userMsgEl.textContent = text;
+    zestyMessages.appendChild(userMsgEl); 
+    
+    zestyInput.value = ''; chatHistory.push({ role: 'user', content: text });
     zestyMessages.scrollTop = zestyMessages.scrollHeight;
 
-    // Thinking bubble
-    const thinking = document.createElement('div'); thinking.className = 'zesty-msg-bot thinking-dots';
-    thinking.textContent = 'Thinking';
-    zestyMessages.appendChild(thinking);
+    const thinkingEl = document.createElement('div'); 
+    thinkingEl.className = 'zesty-msg-bot thinking-dots';
+    thinkingEl.textContent = 'Thinking';
+    zestyMessages.appendChild(thinkingEl);
     zestyMessages.scrollTop = zestyMessages.scrollHeight;
 
     const reply = await AI.chat(chatHistory);
-    thinking.remove();
-    chatHistory.push({ role:'assistant', content: reply });
+    thinkingEl.remove();
+    chatHistory.push({ role: 'assistant', content: reply });
     await parseAndRenderReply(reply);
 }
 
 zestySend.addEventListener('click', sendZesty);
-zestyInput.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey) { e.preventDefault(); sendZesty(); } });
+zestyInput.addEventListener('keydown', e => { 
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendZesty(); } 
+});
+
+/* ═══════════════════════════════════════════════════
+   AD SUPPRESSION ENGINE
+═══════════════════════════════════════════════════ */
+(function() {
+    // ── 1. POPUP / NEW-TAB BLOCKER ──────────────────────
+    // Neuter window.open so no ad popups or pop-unders can open
+    const _origOpen = window.open.bind(window);
+    window.open = function(url, name, features) {
+        // Only allow opens we explicitly trigger (none in this app)
+        if (!url || url === '' || url === 'about:blank') return null;
+        // Whitelist: allow the player embed origin
+        try {
+            const u = new URL(url, location.href);
+            if (u.hostname === 'vidking.net' || u.hostname.endsWith('.vidking.net')) {
+                return _origOpen(url, name, features);
+            }
+        } catch(e) {}
+        console.info('[AdKill] Blocked window.open:', url);
+        return null;
+    };
+
+    // ── 2. CLICK-HIJACK SHIELD ───────────────────────────
+    // Ads often inject a transparent full-page anchor/div over the iframe.
+    // We detect clicks on the iframe wrapper and check for injected overlays.
+    const iframeWrapper = document.querySelector('.iframe-wrapper');
+    iframeWrapper.addEventListener('click', function(e) {
+        // Re-focus the iframe after any click so keyboard shortcuts still work
+        setTimeout(() => playerFrame.focus(), 100);
+    }, true);
+
+    // ── 3. DOM MUTATION OBSERVER ─────────────────────────
+    // Watch for ad nodes injected into the page/body in real-time and remove them.
+    const AD_PATTERNS = [
+        /^ad[s_-]/i, /-ad[s]?$/i, /advert/i, /banner.?ad/i,
+        /popunder/i, /pop.?up/i, /interstitial/i, /overlay.?ad/i,
+        /google.?ad/i, /adsense/i, /adnxs/i, /doubleclick/i,
+        /pubmatic/i, /openx/i, /rubiconproject/i, /amazon-adsystem/i,
+        /medianet/i, /outbrain/i, /taboola/i, /revcontent/i
+    ];
+
+    const AD_TAG_IFRAMES = [
+        'doubleclick.net', 'googlesyndication.com', 'adnxs.com',
+        'rubiconproject.com', 'pubmatic.com', 'openx.net', 'amazon-adsystem.com',
+        'medianet.com', 'taboola.com', 'outbrain.com', 'adform.net',
+        'criteo.com', 'teads.tv', 'sharethrough.com', 'moatads.com'
+    ];
+
+    function isAdNode(node) {
+        if (!(node instanceof Element)) return false;
+        const id = (node.id || '').toLowerCase();
+        const cls = (node.className && typeof node.className === 'string') ? node.className.toLowerCase() : '';
+        for (const p of AD_PATTERNS) {
+            if (p.test(id) || p.test(cls)) return true;
+        }
+        // Check for ad iframes by src
+        if (node.tagName === 'IFRAME') {
+            const src = node.src || '';
+            for (const domain of AD_TAG_IFRAMES) {
+                if (src.includes(domain)) return true;
+            }
+        }
+        // Check for injected <script> tags loading ad networks
+        if (node.tagName === 'SCRIPT') {
+            const src = node.src || '';
+            for (const domain of AD_TAG_IFRAMES) {
+                if (src.includes(domain)) return true;
+            }
+        }
+        return false;
+    }
+
+    function killAdNode(node) {
+        try { node.remove(); } catch(e) {}
+    }
+
+    // Check existing DOM first
+    document.querySelectorAll('*').forEach(node => {
+        if (isAdNode(node)) killAdNode(node);
+    });
+
+    // Live watcher
+    const adObserver = new MutationObserver(mutations => {
+        for (const mut of mutations) {
+            for (const node of mut.addedNodes) {
+                if (isAdNode(node)) { killAdNode(node); continue; }
+                // Also check children of added nodes
+                if (node.querySelectorAll) {
+                    node.querySelectorAll('*').forEach(child => {
+                        if (isAdNode(child)) killAdNode(child);
+                    });
+                }
+            }
+            // Watch for style mutations that make hidden elements visible (common ad trick)
+            if (mut.type === 'attributes' && mut.attributeName === 'style') {
+                const el = mut.target;
+                if (isAdNode(el)) killAdNode(el);
+            }
+        }
+    });
+
+    adObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class', 'id']
+    });
+
+    // ── 4. FIXED OVERLAY KILLER ──────────────────────────
+    // Many ad systems inject a fixed/absolute full-screen transparent div
+    // to capture clicks and redirect the user. Run periodically.
+    function killFloatingAdOverlays() {
+        const bodyChildren = document.body.children;
+        for (const el of bodyChildren) {
+            if (el.id === 'ad-kill-overlay') continue; // our own element
+            // Skip known app elements
+            const knownIds = ['cinema-fx','bg-backdrop','zesty-toggle','zesty-panel'];
+            if (knownIds.includes(el.id)) continue;
+            if (el.tagName === 'HEADER' || el.tagName === 'MAIN' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') continue;
+            if (el.classList.contains('cozy-overlay')) continue;
+
+            const style = window.getComputedStyle(el);
+            const pos = style.position;
+            const z = parseInt(style.zIndex) || 0;
+            const w = parseInt(style.width) || 0;
+            const h = parseInt(style.height) || 0;
+
+            // Suspicious: fixed/absolute, high z-index, large size, not one of our elements
+            if ((pos === 'fixed' || pos === 'absolute') && z > 500 && w > 200 && h > 200) {
+                console.info('[AdKill] Removed suspicious overlay:', el);
+                el.remove();
+            }
+        }
+    }
+
+    setInterval(killFloatingAdOverlays, 800);
+
+    // ── 5. IFRAME NAVIGATION GUARD ───────────────────────
+    // Some players change the top-level URL via iframe tricks.
+    // Intercept beforeunload-style navigation attempts.
+    window.addEventListener('beforeunload', e => {
+        // If navigation was NOT user-initiated (e.g. a button click), cancel it
+        if (!window._userNavigating) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        }
+    });
+
+    // Mark explicit user link clicks as safe
+    document.addEventListener('click', e => {
+        if (e.target.closest('a[href]')) window._userNavigating = true;
+    }, true);
+
+    // ── 6. POSTMESSAGE FILTER ────────────────────────────
+    // Block postMessages from the iframe that try to open ads
+    const _origAddEventListener = EventTarget.prototype.addEventListener;
+    // We leave postMessage handling intact but intercept window-level message events
+    window.addEventListener('message', e => {
+        try {
+            const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+            // Block known ad-network message patterns
+            if (data && (data.type === 'adClick' || data.event === 'adImpression' || data.ad)) {
+                e.stopImmediatePropagation();
+            }
+        } catch(err) {}
+    }, true); // capture phase = runs first
+
+    // ── 7. DOCUMENT-LEVEL CLICK REDIRECT GUARD ───────────────
+    // Some embeds attach a click listener to document to redirect on any click.
+    // We wrap addEventListener to detect and suppress these.
+    let _docClickCount = 0;
+    const origDocAddListener = document.addEventListener.bind(document);
+    document.addEventListener = function(type, handler, options) {
+        if (type === 'click' || type === 'mousedown') {
+            _docClickCount++;
+            // Allow our own handlers (first few), block bulk injected ones
+            if (_docClickCount > 10) {
+                const fnStr = handler.toString();
+                if (fnStr.includes('open') || fnStr.includes('location') || fnStr.includes('href')) {
+                    console.info('[AdKill] Blocked suspicious document click listener');
+                    return;
+                }
+            }
+        }
+        return origDocAddListener(type, handler, options);
+    };
+
+    console.info('[ZestFlix] Ad suppression engine active ✅');
+})();
 
 /* ═══════════════════════════════════════════════════
    INIT
