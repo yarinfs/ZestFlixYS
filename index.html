@@ -651,60 +651,51 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-/* 🚀 Fully Native HTML5 Player Integration */
+/* 🚀 Fully Native HTML5 Player Integration - NO FALLBACK POSTERS */
 async function updatePlayer() {
     const baseUrl = 'https://yarin1-tmdb-embed-api.hf.space';
     const typePath = mediaType === 'movie' ? 'movie' : 'series';
     
-    // Pass standard API parameters to Hugging Face backend
     let apiUrl = mediaType === 'movie' 
         ? `${baseUrl}/api/streams/${typePath}/${mediaId}` 
         : `${baseUrl}/api/streams/${typePath}/${mediaId}?season=${seasonVal}&episode=${episodeVal}`;
 
-    // Clean up previous stream and show visual loading status
     if (hlsPlayerInstance) {
         hlsPlayerInstance.destroy();
         hlsPlayerInstance = null;
     }
     playerVideo.src = '';
-    playerVideo.poster = 'https://placehold.co/1600x900/1a0e0a/D4A373/png?text=Loading+Stream...+%F0%9F%8D%BF';
 
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error("API Returned " + response.status);
         const streams = await response.json();
 
-        // Check if API actually found links
-        if (streams && streams.length > 0) {
-            // Remove the loading poster
-            playerVideo.poster = '';
-            
-            const videoUrl = streams[0].url; 
+        // Safely check if the array exists and has contents before trying to access index [0]
+        if (!streams || streams.length === 0) {
+            console.warn("API returned an empty array. No streams found.");
+            return; // Silently exit without doing anything, keeping it perfectly native.
+        }
+        
+        const videoUrl = streams[0].url; 
 
-            if (videoUrl.includes('.m3u8')) {
-                // Native HLS support with hls.js
-                if (Hls.isSupported()) {
-                    hlsPlayerInstance = new Hls();
-                    hlsPlayerInstance.loadSource(videoUrl);
-                    hlsPlayerInstance.attachMedia(playerVideo);
-                    hlsPlayerInstance.on(Hls.Events.MANIFEST_PARSED, function() { 
-                        playerVideo.play().catch(e => console.log("Autoplay blocked by browser:", e)); 
-                    });
-                } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Fallback for native Safari
-                    playerVideo.src = videoUrl;
-                    playerVideo.addEventListener('loadedmetadata', function() {
-                        playerVideo.play().catch(e => console.log("Autoplay blocked by browser:", e));
-                    });
-                }
-            } else {
-                // Standard MP4 stream
+        if (videoUrl.includes('.m3u8')) {
+            if (Hls.isSupported()) {
+                hlsPlayerInstance = new Hls();
+                hlsPlayerInstance.loadSource(videoUrl);
+                hlsPlayerInstance.attachMedia(playerVideo);
+                hlsPlayerInstance.on(Hls.Events.MANIFEST_PARSED, function() { 
+                    playerVideo.play().catch(e => console.log("Autoplay blocked:", e)); 
+                });
+            } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
                 playerVideo.src = videoUrl;
-                playerVideo.play().catch(e => console.log("Autoplay blocked by browser:", e));
+                playerVideo.addEventListener('loadedmetadata', function() {
+                    playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
+                });
             }
         } else {
-            console.error("API returned an empty array. No streams found.");
-            playerVideo.poster = 'https://placehold.co/1600x900/1a0e0a/D96C6C/png?text=No+Streams+Found+in+API+%E2%9B%94';
+            playerVideo.src = videoUrl;
+            playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
         }
         
         if (mediaType === 'tv') {
@@ -712,7 +703,6 @@ async function updatePlayer() {
         }
     } catch (error) {
         console.error("ZestFlix Stream API Error:", error);
-        playerVideo.poster = 'https://placehold.co/1600x900/1a0e0a/D96C6C/png?text=API+Connection+Failed+%E2%9A%A0%EF%B8%8F';
     }
 }
 
