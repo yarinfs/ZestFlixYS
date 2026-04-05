@@ -526,7 +526,7 @@ function mdToHtml(raw) {
 }
 
 const AI = {
-    // FIX 1: Stable, correct Groq Model IDs
+    // Stable, correct Groq Model IDs
     models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'],
 
     async fetchAIModel(msgs, model) {
@@ -646,25 +646,47 @@ async function updatePlayer() {
     loadingUI.textContent = 'Fetching Stream... 🍿';
     videoElement.style.opacity = '0';
 
-    // FIX 2: Explicitly format parameters as ?s=X&e=Y
-// Translate 'tv' to 'show' specifically for the backend API
-    const fetchUrl = mediaType === 'movie' 
-        ? `${API_BASE}/api/streams/movie/${mediaId}` 
-        : `${API_BASE}/api/streams/show/${mediaId}?s=${seasonVal}&e=${episodeVal}`;
-    
-    if (mediaType === 'show') {
+    // UI BUG FIX: Restored mediaType check to 'tv' so the player registers seasons/episodes
+    if (mediaType === 'tv') {
         updateProgress(mediaId, seasonVal, episodeVal);
     }
 
     try {
-        const response = await fetch(fetchUrl);
-        if (!response.ok) throw new Error(`Backend returned status ${response.status}`);
+        let response;
+        let data = null;
+
+        if (mediaType === 'movie') {
+            response = await fetch(`${API_BASE}/api/streams/movie/${mediaId}`);
+            if (!response.ok) throw new Error(`Backend returned status ${response.status}`);
+            data = await response.json();
+        } else {
+            // SMART FALLBACK LOOP: If the backend rejects /tv/, it automatically tries /show/ and /series/
+            const tvEndpoints = ['tv', 'show', 'series'];
+            let success = false;
+            
+            for (const endpoint of tvEndpoints) {
+                try {
+                    response = await fetch(`${API_BASE}/api/streams/${endpoint}/${mediaId}?s=${seasonVal}&e=${episodeVal}`);
+                    if (response.ok) {
+                        const testData = await response.json();
+                        // Verify we didn't just get an API error object back
+                        if (!testData.error) {
+                            data = testData;
+                            success = true;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Endpoint /${endpoint}/ failed, trying next...`);
+                }
+            }
+            if (!success) throw new Error("All TV endpoints rejected the request.");
+        }
         
-        const data = await response.json();
         const streamUrl = Array.isArray(data) && data.length > 0 ? data[0].url : data.streamUrl;
-        
         if (!streamUrl) throw new Error("Stream not found in API response.");
 
+        // Play Video
         if (Hls.isSupported()) {
             const hls = new Hls({ maxMaxBufferLength: 30 });
             hls.loadSource(streamUrl);
