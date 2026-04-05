@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ZestFlix - Cozy Cafe & Cinema Edition</title>
     
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍿</text></svg>">
+    
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
     <style>
-        /* ═══════════════════════════════════════════════════
-           VARIABLES
-        ═══════════════════════════════════════════════════ */
         :root {
             --bg-deep: #5C4033;
             --nav-bg: rgba(253, 245, 230, 0.95);
@@ -30,10 +29,9 @@
             --card-radius: 20px;
             --shadow-3d: 0 4px 0 rgba(62, 39, 35, 0.15);
             --shadow-float: 0 10px 25px rgba(62, 39, 35, 0.2);
-            --plyr-color-main: #D4A373; /* Customizes the video player color */
+            --plyr-color-main: #D4A373;
         }
 
-        /* ── MOVIE THEME ── */
         body.movie-mode {
             --bg-deep: #0a0e1a;
             --nav-bg: rgba(8, 14, 32, 0.95);
@@ -48,7 +46,7 @@
             --text-muted: #7986cb;
             --shadow-3d: 0 4px 0 rgba(0, 10, 40, 0.4);
             --shadow-float: 0 10px 30px rgba(0, 20, 80, 0.5);
-            --plyr-color-main: #4a6fa5; /* Customizes the video player color */
+            --plyr-color-main: #4a6fa5;
         }
 
         body.movie-mode .cozy-overlay { background: radial-gradient(ellipse at 50% 30%, rgba(74,111,165,0.18) 0%, rgba(5,10,25,0.85) 100%) !important; }
@@ -76,9 +74,6 @@
         body.movie-mode .dropdown-list { background: #0e1830; border-color: #2a4080; }
         body.movie-mode .dropdown-item:hover, body.movie-mode .dropdown-item.selected { background: rgba(74,111,165,0.25); color: #fff; }
 
-        /* ═══════════════════════════════════════════════════
-           ANIMATIONS & DYNAMIC BG FX
-        ═══════════════════════════════════════════════════ */
         @keyframes pulseGlow {
             0%, 100% { box-shadow: 0 0 10px rgba(110, 155, 133, 0.3), var(--shadow-3d); }
             50% { box-shadow: 0 0 20px rgba(110, 155, 133, 0.7), var(--shadow-3d); }
@@ -117,7 +112,6 @@
         body.chat-open { overflow: hidden !important; }
         body.chat-open #zesty-toggle { display: none !important; }
 
-        /* Cinematic Particles Background FX */
         .cinema-fx { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; opacity: 0; transition: opacity 1s ease; }
         .cinema-beam { position: absolute; top: -20%; left: 50%; width: 250vw; height: 150vh; background: conic-gradient(from 180deg at 50% 0%, rgba(95, 140, 205, 0.25) 0deg, transparent 40deg, transparent 320deg, rgba(95, 140, 205, 0.25) 360deg); transform-origin: top center; animation: sweep 10s infinite alternate ease-in-out; }
         .stars-layer1 { position: absolute; width: 4px; height: 4px; background: transparent; border-radius: 50%; box-shadow: 10vw 20vh 0 #fff, 20vw 80vh 0 #e8eaf6, 30vw 40vh 0 #fff, 40vw 90vh 0 #9fc3ff, 50vw 10vh 0 #fff, 60vw 60vh 0 #fff, 70vw 30vh 0 #e8eaf6, 80vw 70vh 0 #fff, 90vw 50vh 0 #9fc3ff, 15vw 60vh 0 #fff, 25vw 15vh 0 #fff, 35vw 75vh 0 #e8eaf6, 45vw 25vh 0 #fff, 55vw 85vh 0 #fff, 65vw 5vh 0 #9fc3ff, 75vw 95vh 0 #fff, 85vw 45vh 0 #fff, 95vw 80vh 0 #e8eaf6; animation: twinkleLayer 3s infinite alternate ease-in-out; }
@@ -126,7 +120,6 @@
         .background-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; background-size: cover; background-position: center; filter: blur(30px) brightness(0.8) sepia(0.3); transition: background-image 1s ease-in-out, filter 0.8s ease; transform: scale(1.1); }
         .cozy-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; background: radial-gradient(circle at 50% 50%, rgba(212,163,115,0.3) 0%, rgba(92,64,51,0.95) 100%); pointer-events: none; transition: background 0.8s ease; }
 
-        /* Layout & Global Elements */
         .main-content { flex: 1; padding-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
         .navbar, .show-info, .library-section { width: 95%; max-width: 1600px; margin: 14px auto; }
 
@@ -150,7 +143,6 @@
         .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         
-        /* Fixed Circle Buttons (Perfectly Centered) */
         .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; font-size: 18px !important; }
         .compact-circle span { display: inline-flex; justify-content: center; align-items: center; line-height: 1; }
         
@@ -177,7 +169,6 @@
         .dropdown-item { padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 14px; transition: all 0.2s; }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
 
-        /* Desktop Video Frame */
         .iframe-wrapper {
             width: 95%; max-width: 1600px;
             aspect-ratio: 16 / 9;
@@ -189,7 +180,6 @@
         }
         body.movie-mode .iframe-wrapper { border-color: #1a2d5a; outline-color: #0a1428; box-shadow: 0 0 0 2px #050a14, 0 0 50px rgba(74,111,165,0.3), inset 0 0 60px rgba(0,0,0,0.9); }
         
-        /* Library & Cards */
         .library-section { padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px); border-radius: var(--card-radius); border: 3px dashed var(--border-color); transition: background 0.8s ease, border-color 0.6s ease; }
         .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 2px; }
         .library-title { font-size: 34px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 12px; color: var(--text-main); transition: color 0.6s; }
@@ -223,7 +213,6 @@
         .ai-recs-section { margin-top: 14px; padding-top: 12px; border-top: 2px dashed rgba(160,147,166,0.3); }
         .ai-recs-title { font-size: 16px; font-weight: 900; margin-bottom: 0px; padding-left: 4px; }
 
-        /* Show Info Box */
         .show-info { padding: 28px 30px; background: var(--panel-bg); backdrop-filter: blur(16px); border-radius: var(--card-radius); border: 3px solid var(--border-color); box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 16px; transition: background 0.8s ease, border-color 0.6s ease; }
         .info-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
         .title-group { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
@@ -242,7 +231,6 @@
         .insights-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 900; color: var(--accent-ai); font-size: 18px; }
         body.movie-mode .insights-header { color: var(--accent-primary); }
 
-        /* Zesty Chat Interface */
         .zesty-toggle { position: fixed; bottom: 28px; right: 28px; width: 64px; height: 64px; background: var(--accent-secondary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer; box-shadow: var(--shadow-float); border: 3px solid white; z-index: 999; touch-action: manipulation; transition: transform 0.2s; }
         body.movie-mode .zesty-toggle { background: var(--accent-primary); }
         .zesty-toggle:active { transform: scale(0.9); }
@@ -258,7 +246,6 @@
         .zesty-msg-user { background: var(--accent-primary); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.4; flex-shrink: 0; }
         .zesty-msg-bot { background: white; padding: 12px 16px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 15px; max-width: 88%; word-break: break-word; line-height: 1.5; user-select: text !important; -webkit-user-select: text !important; flex-shrink: 0; }
         
-        /* Chat AI Canvas Cards - Horizontal & Sleek */
         .zesty-canvas-card { display: flex; flex-direction: row; align-items: stretch; width: 100%; max-width: 320px; background: white; border: 2.5px solid var(--border-color); border-radius: 14px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 12px rgba(62,39,35,0.12); transition: transform 0.2s, box-shadow 0.2s; align-self: flex-start; flex-shrink: 0; margin-top: 2px; margin-bottom: 2px; }
         body.movie-mode .zesty-canvas-card { background: #0e1830; border-color: var(--border-color); }
         .zesty-canvas-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(62,39,35,0.22); }
@@ -277,7 +264,6 @@
         .thinking-dots::after { content: ''; display: inline-block; width: 16px; animation: dots 1.2s steps(4, end) infinite; }
         @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
 
-        /* Mobile Adjustments */
         @media (min-width: 1400px) {
             body { font-size: 18px; }
             .show-title { font-size: 48px; }
@@ -296,7 +282,6 @@
             .cozy-overlay { display: block !important; background: rgba(92,64,51,0.97) !important; pointer-events: none; }
             body.movie-mode .cozy-overlay { background: radial-gradient(ellipse at 50% 30%, rgba(5,10,25,0.7) 0%, rgba(5,10,25,0.92) 100%) !important; z-index: -2;}
 
-            /* Bulletproof Mobile Top Menu Layout */
             .navbar { width: 95%; margin: 8px auto; flex-direction: column; border-radius: 18px; padding: 16px 14px; gap: 14px; }
             .nav-left { flex-direction: column; width: 100%; gap: 12px; }
             .logo { width: 100%; justify-content: center; margin-bottom: 2px; }
@@ -309,7 +294,6 @@
             .search-input-wrapper { flex: 1 1 auto !important; min-width: 0 !important; display: block !important; }
             .search-input-wrapper input { width: 100% !important; border-radius: 20px; }
 
-            /* Huge Edge-to-Edge Mobile Player */
             .main-content { padding-top: 0; }
             .iframe-wrapper {
                 width: 100% !important; max-width: 100vw !important; margin: 0 0 16px 0 !important;
@@ -328,7 +312,6 @@
             .library-card { min-width: 130px; max-width: 130px; }
             .card-img-wrapper { height: 175px; }
 
-            /* Reliable iOS Chat Window */
             .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
             .zesty-panel {
                 position: fixed !important; top: auto; bottom: 0 !important; left: 0 !important; right: 0 !important;
@@ -462,9 +445,6 @@
 <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
 <script>
-/* ═══════════════════════════════════════════════════
-   CONFIG & STATE
-═══════════════════════════════════════════════════ */
 const TMDB_KEY = 'd62d816a3f48ed18c1dc5e157f4d73b2';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 
@@ -545,11 +525,9 @@ function mdToHtml(raw) {
     return html;
 }
 
-/* ═══════════════════════════════════════════════════
-   GROQ AI LOGIC (Cascading Smart Fallback & Improved Prompts)
-═══════════════════════════════════════════════════ */
 const AI = {
-    models: ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768', 'llama-3.1-8b-instant'],
+    // FIX 1: Stable, correct Groq Model IDs
+    models: ['llama3-8b-8192', 'llama3-70b-8192', 'mixtral-8x7b-32768'],
 
     async fetchAIModel(msgs, model) {
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -582,7 +560,6 @@ const AI = {
     },
     
     async insights(title, type, year) {
-        // Shorter, punchier, 2-bullet prompt rule
         const prompt = `Provide a quick, punchy, and highly engaging intelligence briefing for the ${type} "${title}" (${year}). 
 Give me exactly 2 short, fascinating bullet points (e.g., mind-blowing trivia, hidden details, or cultural impact). 
 Keep it natural, clever, and accurate. Maximum 3 sentences total. Avoid robotic intros.`;
@@ -598,7 +575,6 @@ Keep it natural, clever, and accurate. Maximum 3 sentences total. Avoid robotic 
     },
     
     async chat(history) {
-        // Completely redefined persona to sound natural, limit emojis, and not force "lemon"
         const systemPrompt = `You are Zesty, an AI movie expert and a cool friend.
 1. Read the user's message carefully and respond naturally, like a human texting a buddy. 
 2. Be witty, accurate, and concise (1-2 short sentences max).
@@ -613,9 +589,6 @@ Example of a perfect response: "Oh that's a classic! If you loved the vibe, you 
     }
 };
 
-/* ═══════════════════════════════════════════════════
-   TMDB API FETCHING
-═══════════════════════════════════════════════════ */
 const TMDB = {
     async searchMulti(query) {
         const res = await fetch(`${TMDB_BASE}/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&include_adult=false`);
@@ -631,9 +604,6 @@ const TMDB = {
     }
 };
 
-/* ═══════════════════════════════════════════════════
-   THEME, PLAYER, & UI LOGIC
-═══════════════════════════════════════════════════ */
 function applyTheme(type) {
     if (userManualTheme) userManualTheme = null; 
 
@@ -659,7 +629,6 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-/* --- NEW AD-FREE NATIVE PLAYER LOGIC --- */
 const API_BASE = 'https://tmdb-embed-api-fcvp.onrender.com';
 let plyrInstance = null;
 
@@ -667,21 +636,20 @@ async function updatePlayer() {
     const videoElement = $('player-frame');
     const loadingUI = $('player-loading');
     
-    // Initialize custom UI
     if (!plyrInstance) {
         plyrInstance = new Plyr(videoElement, {
             controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
         });
     }
 
-    // Reset UI for new video
     loadingUI.style.display = 'block';
     loadingUI.textContent = 'Fetching Stream... 🍿';
     videoElement.style.opacity = '0';
 
+    // FIX 2: Explicitly format parameters as ?season=X&episode=Y
     const fetchUrl = mediaType === 'movie' 
         ? `${API_BASE}/api/streams/movie/${mediaId}` 
-        : `${API_BASE}/api/streams/tv/${mediaId}?s=${seasonVal}&e=${episodeVal}`;
+        : `${API_BASE}/api/streams/tv/${mediaId}?season=${seasonVal}&episode=${episodeVal}`;
 
     if (mediaType === 'tv') {
         updateProgress(mediaId, seasonVal, episodeVal);
@@ -689,14 +657,13 @@ async function updatePlayer() {
 
     try {
         const response = await fetch(fetchUrl);
-        if (!response.ok) throw new Error("Backend connection failed.");
+        if (!response.ok) throw new Error(`Backend returned status ${response.status}`);
         
         const data = await response.json();
-        const streamUrl = data.streamUrl || (Array.isArray(data) && data.length > 0 ? data[0].url : null);
+        const streamUrl = Array.isArray(data) && data.length > 0 ? data[0].url : data.streamUrl;
         
-        if (!streamUrl) throw new Error("Stream not found.");
+        if (!streamUrl) throw new Error("Stream not found in API response.");
 
-        // Decode and play stream
         if (Hls.isSupported()) {
             const hls = new Hls({ maxMaxBufferLength: 30 });
             hls.loadSource(streamUrl);
@@ -719,7 +686,6 @@ async function updatePlayer() {
         loadingUI.textContent = '⚠️ Stream Unavailable';
     }
 }
-/* --------------------------------------- */
 
 aiSearchToggle.addEventListener('click', e => {
     e.preventDefault();
@@ -729,7 +695,6 @@ aiSearchToggle.addEventListener('click', e => {
     searchInput.classList.toggle('ai-mode', aiSearchOn);
 });
 
-// Robust iOS Visual Viewport fix to prevent keyboard breaking the chat UI
 const adjustChatWindow = () => {
     if (!zestyPanel.classList.contains('open') || window.innerWidth > 768) {
         zestyPanel.style.position = ''; zestyPanel.style.height = ''; zestyPanel.style.top = ''; return;
@@ -738,7 +703,7 @@ const adjustChatWindow = () => {
         zestyPanel.style.position = 'absolute';
         zestyPanel.style.height = `${window.visualViewport.height}px`;
         zestyPanel.style.top = `${window.visualViewport.offsetTop}px`;
-        window.scrollTo(0, 0); // Stops iOS from drifting the body while typing
+        window.scrollTo(0, 0); 
     }
 };
 
