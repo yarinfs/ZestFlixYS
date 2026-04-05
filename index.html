@@ -720,12 +720,44 @@
 const TMDB_KEY = 'd62d816a3f48ed18c1dc5e157f4d73b2';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 
-// Streaming API sources — primary is the new HF Space API; fallback = vidfast
+// Streaming API sources — verified working embed URLs (TMDB ID based)
 const SOURCES = [
-    { id: 'hf',      label: 'Source 1', buildUrl: (type, id, s, e) => type === 'movie' ? `https://yarin1-tmdb-embed-api.hf.space/api/${id}` : `https://yarin1-tmdb-embed-api.hf.space/api/${id}/${s}/${e}` },
-    { id: 'vidfast', label: 'Source 2', buildUrl: (type, id, s, e) => type === 'movie' ? `https://vidfast.pro/movie/${id}?autoPlay=true` : `https://vidfast.pro/tv/${id}/${s}/${e}?autoPlay=true` },
-    { id: 'vidsrc',  label: 'Source 3', buildUrl: (type, id, s, e) => type === 'movie' ? `https://vidsrc.to/embed/movie/${id}` : `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
-    { id: 'embed',   label: 'Source 4', buildUrl: (type, id, s, e) => type === 'movie' ? `https://www.2embed.cc/embed/${id}` : `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
+    {
+        id: 'hf_primary', label: '⭐ Primary',
+        buildUrl: (type, id, s, e) => type === 'movie'
+            ? `https://yarin1-tmdb-embed-api.hf.space/api/movie/${id}`
+            : `https://yarin1-tmdb-embed-api.hf.space/api/tv/${id}/${s}/${e}`
+    },
+    {
+        id: 'vidsrc_cc', label: 'VidSrc',
+        buildUrl: (type, id, s, e) => type === 'movie'
+            ? `https://vidsrc.cc/v2/embed/movie/${id}`
+            : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
+    },
+    {
+        id: 'vidlink', label: 'VidLink',
+        buildUrl: (type, id, s, e) => type === 'movie'
+            ? `https://vidlink.pro/movie/${id}?autoplay=true&title=true`
+            : `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true&title=true`
+    },
+    {
+        id: 'multiembed', label: 'MultiEmbed',
+        buildUrl: (type, id, s, e) => type === 'movie'
+            ? `https://multiembed.mov/?video_id=${id}&tmdb=1`
+            : `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`
+    },
+    {
+        id: 'vidsrc_mov', label: 'VidSrc.mov',
+        buildUrl: (type, id, s, e) => type === 'movie'
+            ? `https://vidsrc.mov/embed/movie/${id}`
+            : `https://vidsrc.mov/embed/tv/${id}/${s}/${e}`
+    },
+    {
+        id: 'embed_api', label: 'EmbedAPI',
+        buildUrl: (type, id, s, e) => type === 'movie'
+            ? `https://player.embed-api.stream/?id=${id}`
+            : `https://player.embed-api.stream/?id=${id}&s=${s}&e=${e}`
+    },
 ];
 
 // Subtitle providers — all open/free APIs
@@ -1548,6 +1580,40 @@ async function sendZesty() {
 
 zestySend.onclick = sendZesty;
 zestyInput.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendZesty(); } };
+
+/* ════════════════════════════════════════════
+   postMessage — real events from vidsrc.cc / vidlink
+════════════════════════════════════════════ */
+window.addEventListener('message', (event) => {
+    // vidsrc.cc PLAYER_EVENT
+    if (event.data && event.data.type === 'PLAYER_EVENT') {
+        const d = event.data.data;
+        if (d.duration && !isNaN(d.duration)) {
+            playbackTotal = Math.floor(d.duration);
+            nfTimeTotal.textContent = formatTime(playbackTotal);
+        }
+        if (d.currentTime !== undefined) {
+            playbackSeconds = Math.floor(d.currentTime);
+            updateSeekbar();
+        }
+        if (d.event === 'play') {
+            isPlaying = true;
+            $('nf-playpause').innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+            startPlaybackTimer();
+        }
+        if (d.event === 'pause' || d.event === 'complete') {
+            isPlaying = false;
+            $('nf-playpause').innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+            stopPlaybackTimer();
+        }
+    }
+    // vidlink.pro format
+    if (event.data && event.data.type === 'VIDLINK_EVENT') {
+        const d = event.data;
+        if (d.duration) { playbackTotal = Math.floor(d.duration); nfTimeTotal.textContent = formatTime(playbackTotal); }
+        if (d.currentTime !== undefined) { playbackSeconds = Math.floor(d.currentTime); updateSeekbar(); }
+    }
+});
 
 /* ════════════════════════════════════════════
    INIT
