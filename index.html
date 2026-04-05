@@ -527,7 +527,7 @@ function mdToHtml(raw) {
 
 const AI = {
     // FIX 1: Stable, correct Groq Model IDs
-    models: ['llama3-8b-8192', 'llama3-70b-8192', 'mixtral-8x7b-32768'],
+    models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'],
 
     async fetchAIModel(msgs, model) {
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -646,10 +646,10 @@ async function updatePlayer() {
     loadingUI.textContent = 'Fetching Stream... 🍿';
     videoElement.style.opacity = '0';
 
-    // FIX 2: Explicitly format parameters as ?season=X&episode=Y
+    // FIX 2: Explicitly format parameters as ?s=X&e=Y
     const fetchUrl = mediaType === 'movie' 
         ? `${API_BASE}/api/streams/movie/${mediaId}` 
-        : `${API_BASE}/api/streams/tv/${mediaId}?season=${seasonVal}&episode=${episodeVal}`;
+        : `${API_BASE}/api/streams/tv/${mediaId}?s=${seasonVal}&e=${episodeVal}`;
 
     if (mediaType === 'tv') {
         updateProgress(mediaId, seasonVal, episodeVal);
