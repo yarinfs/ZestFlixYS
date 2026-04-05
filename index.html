@@ -394,14 +394,31 @@
 </header>
 
 <main class="main-content">
-    <!-- Provider selector bar -->
-    <div id="provider-bar" style="display:none; flex-wrap:wrap; gap:8px; align-items:center; width:95%; max-width:1600px; padding:0 4px;"></div>
+    <!-- Stream source bar -->
+    <div id="stream-bar" style="display:none; flex-wrap:wrap; gap:8px; align-items:center; width:95%; max-width:1600px; padding:0 4px 2px 4px;">
+        <span id="stream-bar-label" style="font-weight:900; font-size:13px; color:var(--text-muted); white-space:nowrap;">Sources:</span>
+        <div id="stream-btns" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+    </div>
 
-    <div class="iframe-wrapper">
-        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    <div class="iframe-wrapper" id="player-wrapper">
+        <!-- Custom Video Player (shown when API returns streams) -->
+        <div id="custom-player" style="display:none; position:absolute; inset:0; background:#000; z-index:2;">
+            <video id="video-el" style="width:100%;height:100%;display:block;" playsinline controls></video>
+        </div>
+        <!-- Fallback iframe (shown when API has no streams) -->
+        <iframe id="player-frame" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
         <!-- Loading overlay -->
-        <div id="player-loading" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.7); color:#fff; font-family:'Fredoka',sans-serif; font-size:22px; font-weight:700; align-items:center; justify-content:center; gap:10px; z-index:10; letter-spacing:0.5px;">
-            <span style="animation:spin 1s linear infinite; display:inline-block;">⏳</span> Finding stream…
+        <div id="player-loading" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.82); color:#fff; font-family:'Fredoka',sans-serif; font-size:20px; font-weight:700; align-items:center; justify-content:center; gap:12px; z-index:10; letter-spacing:0.5px; flex-direction:column; text-align:center; padding:20px;">
+            <span style="font-size:36px; animation:spin 1.2s linear infinite; display:inline-block;">🍿</span>
+            <span id="loading-text">Fetching streams…</span>
+            <span style="font-size:13px; opacity:0.6; font-weight:700;" id="loading-sub">Contacting providers...</span>
+        </div>
+        <!-- Error / no-stream overlay -->
+        <div id="player-error" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.88); color:#fff; font-family:'Fredoka',sans-serif; align-items:center; justify-content:center; gap:10px; z-index:10; flex-direction:column; text-align:center; padding:20px;">
+            <span style="font-size:40px;">😵</span>
+            <span style="font-size:20px; font-weight:900;" id="error-title">No streams found</span>
+            <span style="font-size:14px; opacity:0.65; font-weight:700;" id="error-msg">Try a different provider or check back later.</span>
+            <button class="action-btn" style="margin-top:8px;" onclick="retryPlayer()">🔄 Retry</button>
         </div>
     </div>
 
@@ -662,113 +679,157 @@ themeSwitchBtn.addEventListener('click', () => {
 });
 
 /* ═══════════════════════════════════════════════════
-   TMDB EMBED API - Stream Provider Integration
+   TMDB EMBED API - Stream Aggregation Player
 ═══════════════════════════════════════════════════ */
 const EMBED_API = 'https://tmdb-embed-api-fcvp.onrender.com';
-let availableProviders = [];
-let activeProvider = null;
+let allStreams = [];          // Full array of stream objects from API
+let activeStreamIndex = 0;   // Currently selected stream
+let hlsInstance = null;      // HLS.js instance reference
 
-async function fetchProviders() {
-    try {
-        const res = await fetch(`${EMBED_API}/api/providers`);
-        if (!res.ok) throw new Error('providers fetch failed');
-        const data = await res.json();
-        // Normalize: API may return array or { providers: [...] }
-        availableProviders = Array.isArray(data) ? data : (data.providers || []);
-        if (availableProviders.length && !activeProvider) {
-            activeProvider = availableProviders[0].name || availableProviders[0];
-        }
-        renderProviderBar();
-    } catch(e) {
-        console.warn('[EmbedAPI] Could not fetch providers, falling back to default.', e);
-        availableProviders = [];
-        activeProvider = null;
-        renderProviderBar();
-    }
+// Load HLS.js dynamically
+const hlsScript = document.createElement('script');
+hlsScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js';
+document.head.appendChild(hlsScript);
+
+function showPlayerLoading(sub) {
+    const ld = document.getElementById('player-loading');
+    const er = document.getElementById('player-error');
+    const cp = document.getElementById('custom-player');
+    const pf = document.getElementById('player-frame');
+    if (ld) { ld.style.display = 'flex'; document.getElementById('loading-sub').textContent = sub || 'Contacting providers...'; }
+    if (er) er.style.display = 'none';
+    if (cp) cp.style.display = 'none';
+    if (pf) pf.style.display = 'none';
 }
 
-function renderProviderBar() {
-    let bar = document.getElementById('provider-bar');
-    if (!bar) return;
-    bar.innerHTML = '';
-    if (!availableProviders.length) {
-        bar.style.display = 'none';
-        return;
-    }
+function hidePlayerLoading() {
+    const ld = document.getElementById('player-loading');
+    if (ld) ld.style.display = 'none';
+}
+
+function showPlayerError(title, msg) {
+    hidePlayerLoading();
+    const er = document.getElementById('player-error');
+    if (er) { er.style.display = 'flex'; }
+    document.getElementById('error-title').textContent = title || 'No streams found';
+    document.getElementById('error-msg').textContent = msg || 'Try a different provider or check back later.';
+    document.getElementById('custom-player').style.display = 'none';
+    document.getElementById('player-frame').style.display = 'none';
+    document.getElementById('stream-bar').style.display = 'none';
+}
+
+function retryPlayer() { updatePlayer(); }
+
+/* --- Fetch all streams from the API --- */
+async function fetchStreams(type, tmdbId, season, episode) {
+    // type must be 'movie' or 'series' (API uses 'series' not 'tv')
+    const apiType = type === 'movie' ? 'movie' : 'series';
+    let url = `${EMBED_API}/api/streams/${apiType}/${tmdbId}`;
+    if (type !== 'movie') url += `?season=${season}&episode=${episode}`;
+    
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    // API returns an array of stream objects
+    return Array.isArray(data) ? data : (data.streams || data.results || []);
+}
+
+/* --- Render the stream picker bar --- */
+function renderStreamBar(streams, selectedIdx) {
+    const bar = document.getElementById('stream-bar');
+    const btns = document.getElementById('stream-btns');
+    if (!bar || !btns) return;
+    if (!streams.length) { bar.style.display = 'none'; return; }
+
     bar.style.display = 'flex';
-    availableProviders.forEach(p => {
-        const name = typeof p === 'string' ? p : (p.name || p.id || JSON.stringify(p));
+    btns.innerHTML = '';
+    streams.forEach((s, i) => {
+        const label = `${s.provider ? s.provider.toUpperCase() : 'SRC'} · ${s.quality || '?'}`;
         const btn = document.createElement('button');
-        btn.className = `action-btn provider-btn ${name === activeProvider ? 'provider-active' : ''}`;
-        btn.textContent = name;
-        btn.title = `Stream via ${name}`;
+        btn.className = `action-btn provider-btn${i === selectedIdx ? ' provider-active' : ''}`;
+        btn.textContent = label;
+        btn.title = s.title || label;
         btn.onclick = () => {
-            activeProvider = name;
+            activeStreamIndex = i;
+            playStream(streams[i]);
             document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('provider-active'));
             btn.classList.add('provider-active');
-            updatePlayer();
         };
-        bar.appendChild(btn);
+        btns.appendChild(btn);
     });
 }
 
-async function getStreamUrl(type, tmdbId, season, episode) {
-    try {
-        let url;
-        if (activeProvider) {
-            url = type === 'movie'
-                ? `${EMBED_API}/api/streams/${activeProvider}/${type}/${tmdbId}`
-                : `${EMBED_API}/api/streams/${activeProvider}/${type}/${tmdbId}?season=${season}&episode=${episode}`;
-        } else {
-            url = type === 'movie'
-                ? `${EMBED_API}/api/streams/${type}/${tmdbId}`
-                : `${EMBED_API}/api/streams/${type}/${tmdbId}?season=${season}&episode=${episode}`;
-        }
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('stream fetch failed');
-        const data = await res.json();
-        // Normalize: could be { url }, { embedUrl }, { stream }, { src }, or first item in array
-        if (typeof data === 'string') return data;
-        if (data.url) return data.url;
-        if (data.embedUrl) return data.embedUrl;
-        if (data.stream) return data.stream;
-        if (data.src) return data.src;
-        if (Array.isArray(data) && data[0]) {
-            const item = data[0];
-            return typeof item === 'string' ? item : (item.url || item.embedUrl || item.src || null);
-        }
-        return null;
-    } catch(e) {
-        console.warn('[EmbedAPI] Stream URL fetch failed:', e);
-        return null;
+/* --- Play a specific stream object with HLS.js or native --- */
+function playStream(stream) {
+    const videoEl = document.getElementById('video-el');
+    const customPlayer = document.getElementById('custom-player');
+    const playerFrame = document.getElementById('player-frame');
+    const playerError = document.getElementById('player-error');
+    if (!videoEl || !stream || !stream.url) return;
+
+    // Destroy previous HLS instance
+    if (hlsInstance) { try { hlsInstance.destroy(); } catch(e){} hlsInstance = null; }
+
+    hidePlayerLoading();
+    playerError.style.display = 'none';
+    playerFrame.style.display = 'none';
+    customPlayer.style.display = 'block';
+
+    const url = stream.url;
+    const isHLS = url.includes('.m3u8') || url.includes('m3u8');
+    const isMPD = url.includes('.mpd');
+
+    if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
+        hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: false });
+        hlsInstance.loadSource(url);
+        hlsInstance.attachMedia(videoEl);
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { videoEl.play().catch(()=>{}); });
+        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+            if (data.fatal) { console.warn('[HLS] Fatal error', data); }
+        });
+    } else if (isHLS && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+        // Safari native HLS
+        videoEl.src = url;
+        videoEl.play().catch(()=>{});
+    } else {
+        // Direct MP4 or other
+        videoEl.src = url;
+        videoEl.play().catch(()=>{});
     }
 }
 
+/* --- Main updatePlayer called by all triggers --- */
 async function updatePlayer() {
-    // Show a loading state
-    playerFrame.src = 'about:blank';
-    const loadingDiv = document.getElementById('player-loading');
-    if (loadingDiv) loadingDiv.style.display = 'flex';
+    showPlayerLoading('Fetching available streams...');
+    if (hlsInstance) { try { hlsInstance.destroy(); } catch(e){} hlsInstance = null; }
+    
+    // Update watch progress for TV
+    if (mediaType !== 'movie') updateProgress(mediaId, seasonVal, episodeVal);
 
-    let streamUrl = null;
-    if (mediaType === 'movie') {
-        streamUrl = await getStreamUrl('movie', mediaId);
-    } else {
-        streamUrl = await getStreamUrl('tv', mediaId, seasonVal, episodeVal);
-        updateProgress(mediaId, seasonVal, episodeVal);
-    }
+    try {
+        const streams = await fetchStreams(mediaType, mediaId, seasonVal, episodeVal);
 
-    if (loadingDiv) loadingDiv.style.display = 'none';
+        if (!streams || !streams.length) throw new Error('empty');
 
-    if (streamUrl) {
-        playerFrame.src = streamUrl;
-    } else {
-        // Graceful fallback to vidfast
-        console.warn('[EmbedAPI] No stream URL, falling back to vidfast.pro');
+        allStreams = streams;
+        activeStreamIndex = 0;
+        renderStreamBar(allStreams, activeStreamIndex);
+        playStream(allStreams[0]);
+
+    } catch(e) {
+        console.warn('[EmbedAPI] Streams unavailable, falling back to vidfast.pro', e);
+        // ── Graceful fallback to vidfast iframe ──
+        allStreams = [];
+        document.getElementById('stream-bar').style.display = 'none';
+        document.getElementById('custom-player').style.display = 'none';
+        document.getElementById('player-error').style.display = 'none';
+        hidePlayerLoading();
+        const pf = document.getElementById('player-frame');
+        pf.style.display = 'block';
         if (mediaType === 'movie') {
-            playerFrame.src = `https://vidfast.pro/movie/${mediaId}?autoPlay=true`;
+            pf.src = `https://vidfast.pro/movie/${mediaId}?autoPlay=true`;
         } else {
-            playerFrame.src = `https://vidfast.pro/tv/${mediaId}/${seasonVal}/${episodeVal}?autoPlay=true`;
+            pf.src = `https://vidfast.pro/tv/${mediaId}/${seasonVal}/${episodeVal}?autoPlay=true`;
         }
     }
 }
@@ -1104,7 +1165,7 @@ zestySend.onclick = sendZesty;
 zestyInput.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendZesty(); } };
 
 renderLib();
-fetchProviders().then(() => loadMedia(mediaId, mediaType));
+loadMedia(mediaId, mediaType);
 </script>
 </body>
 </html>
