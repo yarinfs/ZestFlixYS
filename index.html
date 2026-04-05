@@ -720,18 +720,27 @@ function showPlayerError(title, msg) {
 
 function retryPlayer() { updatePlayer(); }
 
+/* --- Sanitize stream URL: force https:// to avoid mixed-content blocks --- */
+function sanitizeUrl(url) {
+    if (!url) return url;
+    // The API proxy runs on http:// — browsers block this from https:// pages.
+    // Since it's the same server, upgrading the scheme is safe.
+    return url.replace(/^http:\/\//i, 'https://');
+}
+
 /* --- Fetch all streams from the API --- */
 async function fetchStreams(type, tmdbId, season, episode) {
-    // type must be 'movie' or 'series' (API uses 'series' not 'tv')
+    // API uses 'movie' or 'series' (not 'tv')
     const apiType = type === 'movie' ? 'movie' : 'series';
     let url = `${EMBED_API}/api/streams/${apiType}/${tmdbId}`;
     if (type !== 'movie') url += `?season=${season}&episode=${episode}`;
-    
+
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    // API returns an array of stream objects
-    return Array.isArray(data) ? data : (data.streams || data.results || []);
+    const raw = Array.isArray(data) ? data : (data.streams || data.results || []);
+    // Upgrade all http:// URLs to https:// — fixes mixed-content blocking
+    return raw.map(s => ({ ...s, url: sanitizeUrl(s.url) }));
 }
 
 /* --- Render the stream picker bar --- */
@@ -749,6 +758,7 @@ function renderStreamBar(streams, selectedIdx) {
         btn.className = `action-btn provider-btn${i === selectedIdx ? ' provider-active' : ''}`;
         btn.textContent = label;
         btn.title = s.title || label;
+        btn.dataset.idx = i;
         btn.onclick = () => {
             activeStreamIndex = i;
             playStream(streams[i]);
@@ -759,13 +769,40 @@ function renderStreamBar(streams, selectedIdx) {
     });
 }
 
-/* --- Play a specific stream object with HLS.js or native --- */
+/* --- Advance to next stream on failure --- */
+function tryNextStream() {
+    if (activeStreamIndex + 1 < allStreams.length) {
+        activeStreamIndex++;
+        console.warn(`[Player] Trying next stream (${activeStreamIndex + 1}/${allStreams.length})`);
+        // Update active button highlight
+        document.querySelectorAll('.provider-btn').forEach((b, i) => {
+            b.classList.toggle('provider-active', parseInt(b.dataset.idx) === activeStreamIndex);
+        });
+        playStream(allStreams[activeStreamIndex]);
+    } else {
+        // All streams exhausted — fall back to vidfast iframe
+        console.warn('[Player] All streams failed, falling back to vidfast.pro');
+        allStreams = [];
+        document.getElementById('stream-bar').style.display = 'none';
+        document.getElementById('custom-player').style.display = 'none';
+        hidePlayerLoading();
+        const pf = document.getElementById('player-frame');
+        pf.style.display = 'block';
+        if (mediaType === 'movie') {
+            pf.src = `https://vidfast.pro/movie/${mediaId}?autoPlay=true`;
+        } else {
+            pf.src = `https://vidfast.pro/tv/${mediaId}/${seasonVal}/${episodeVal}?autoPlay=true`;
+        }
+    }
+}
+
+/* --- Play a specific stream object with HLS.js or native video --- */
 function playStream(stream) {
     const videoEl = document.getElementById('video-el');
     const customPlayer = document.getElementById('custom-player');
     const playerFrame = document.getElementById('player-frame');
     const playerError = document.getElementById('player-error');
-    if (!videoEl || !stream || !stream.url) return;
+    if (!videoEl || !stream || !stream.url) { tryNextStream(); return; }
 
     // Destroy previous HLS instance
     if (hlsInstance) { try { hlsInstance.destroy(); } catch(e){} hlsInstance = null; }
@@ -775,26 +812,30 @@ function playStream(stream) {
     playerFrame.style.display = 'none';
     customPlayer.style.display = 'block';
 
-    const url = stream.url;
-    const isHLS = url.includes('.m3u8') || url.includes('m3u8');
-    const isMPD = url.includes('.mpd');
+    const url = stream.url; // already https:// from sanitizeUrl
+    const isHLS = /m3u8/i.test(url);
 
     if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
-        hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: false });
+        hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: false, fragLoadingTimeOut: 20000 });
         hlsInstance.loadSource(url);
         hlsInstance.attachMedia(videoEl);
         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { videoEl.play().catch(()=>{}); });
         hlsInstance.on(Hls.Events.ERROR, (event, data) => {
-            if (data.fatal) { console.warn('[HLS] Fatal error', data); }
+            if (data.fatal) {
+                console.warn('[HLS] Fatal error on stream', activeStreamIndex, data.details);
+                hlsInstance.destroy(); hlsInstance = null;
+                tryNextStream(); // Auto-advance to next source
+            }
         });
     } else if (isHLS && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
         // Safari native HLS
         videoEl.src = url;
         videoEl.play().catch(()=>{});
     } else {
-        // Direct MP4 or other
+        // Direct MP4 / other format
         videoEl.src = url;
         videoEl.play().catch(()=>{});
+        videoEl.onerror = () => tryNextStream();
     }
 }
 
@@ -802,13 +843,12 @@ function playStream(stream) {
 async function updatePlayer() {
     showPlayerLoading('Fetching available streams...');
     if (hlsInstance) { try { hlsInstance.destroy(); } catch(e){} hlsInstance = null; }
-    
+
     // Update watch progress for TV
     if (mediaType !== 'movie') updateProgress(mediaId, seasonVal, episodeVal);
 
     try {
         const streams = await fetchStreams(mediaType, mediaId, seasonVal, episodeVal);
-
         if (!streams || !streams.length) throw new Error('empty');
 
         allStreams = streams;
@@ -817,8 +857,7 @@ async function updatePlayer() {
         playStream(allStreams[0]);
 
     } catch(e) {
-        console.warn('[EmbedAPI] Streams unavailable, falling back to vidfast.pro', e);
-        // ── Graceful fallback to vidfast iframe ──
+        console.warn('[EmbedAPI] Could not fetch streams, falling back to vidfast.pro', e);
         allStreams = [];
         document.getElementById('stream-bar').style.display = 'none';
         document.getElementById('custom-player').style.display = 'none';
