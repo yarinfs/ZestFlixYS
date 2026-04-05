@@ -526,7 +526,6 @@ function mdToHtml(raw) {
 }
 
 const AI = {
-    // Stable, correct Groq Model IDs
     models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'],
 
     async fetchAIModel(msgs, model) {
@@ -646,47 +645,50 @@ async function updatePlayer() {
     loadingUI.textContent = 'Fetching Stream... 🍿';
     videoElement.style.opacity = '0';
 
-    // UI BUG FIX: Restored mediaType check to 'tv' so the player registers seasons/episodes
     if (mediaType === 'tv') {
         updateProgress(mediaId, seasonVal, episodeVal);
     }
 
     try {
-        let response;
         let data = null;
+        let success = false;
+        
+        const queryParams = `?s=${seasonVal}&e=${episodeVal}&season=${seasonVal}&episode=${episodeVal}`;
+        const pathsToTry = mediaType === 'movie' 
+            ? [`movie/${mediaId}`] 
+            : [`series/${mediaId}${queryParams}`, `tv/${mediaId}${queryParams}`, `show/${mediaId}${queryParams}`];
 
-        if (mediaType === 'movie') {
-            response = await fetch(`${API_BASE}/api/streams/movie/${mediaId}`);
-            if (!response.ok) throw new Error(`Backend returned status ${response.status}`);
-            data = await response.json();
-        } else {
-            // SMART FALLBACK LOOP: If the backend rejects /tv/, it automatically tries /show/ and /series/
-            const tvEndpoints = ['tv', 'show', 'series'];
-            let success = false;
-            
-            for (const endpoint of tvEndpoints) {
-                try {
-                    response = await fetch(`${API_BASE}/api/streams/${endpoint}/${mediaId}?s=${seasonVal}&e=${episodeVal}`);
-                    if (response.ok) {
-                        const testData = await response.json();
-                        // Verify we didn't just get an API error object back
-                        if (!testData.error) {
-                            data = testData;
-                            success = true;
-                            break;
-                        }
+        for (const path of pathsToTry) {
+            try {
+                const response = await fetch(`${API_BASE}/api/streams/${path}`);
+                if (response.ok) {
+                    const testData = await response.json();
+                    
+                    if ((Array.isArray(testData) && testData.length > 0) || 
+                        (testData.streams && testData.streams.length > 0) || 
+                        testData.url || testData.streamUrl) {
+                        data = testData;
+                        success = true;
+                        break; 
                     }
-                } catch (e) {
-                    console.warn(`Endpoint /${endpoint}/ failed, trying next...`);
                 }
+            } catch (e) {
+                console.warn(`Path /${path} failed, trying next...`);
             }
-            if (!success) throw new Error("All TV endpoints rejected the request.");
         }
         
-        const streamUrl = Array.isArray(data) && data.length > 0 ? data[0].url : data.streamUrl;
-        if (!streamUrl) throw new Error("Stream not found in API response.");
+        if (!success) {
+            throw new Error(`No streams found. The backend is awake, but the scrapers returned empty.`);
+        }
+        
+        let streamUrl = null;
+        if (Array.isArray(data) && data.length > 0) streamUrl = data[0].url;
+        else if (data.streams && data.streams.length > 0) streamUrl = data.streams[0].url;
+        else if (data.url) streamUrl = data.url;
+        else if (data.streamUrl) streamUrl = data.streamUrl;
 
-        // Play Video
+        if (!streamUrl) throw new Error("Stream URL is missing from the response.");
+
         if (Hls.isSupported()) {
             const hls = new Hls({ maxMaxBufferLength: 30 });
             hls.loadSource(streamUrl);
@@ -706,7 +708,7 @@ async function updatePlayer() {
         }
     } catch (err) {
         console.error("Player Error:", err);
-        loadingUI.textContent = '⚠️ Stream Unavailable';
+        loadingUI.innerHTML = `<span style="color:#ff6b6b; font-size:16px; text-align:center;">${err.message}</span>`;
     }
 }
 
