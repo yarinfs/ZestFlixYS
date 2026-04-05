@@ -771,6 +771,8 @@ function renderStreamBar(streams, selectedIdx) {
 
 /* --- Advance to next stream on failure --- */
 function tryNextStream() {
+    if (window._stallTimer) { clearTimeout(window._stallTimer); window._stallTimer = null; }
+    if (hlsInstance) { try { hlsInstance.destroy(); } catch(e){} hlsInstance = null; }
     if (activeStreamIndex + 1 < allStreams.length) {
         activeStreamIndex++;
         console.warn(`[Player] Trying next stream (${activeStreamIndex + 1}/${allStreams.length})`);
@@ -804,8 +806,9 @@ function playStream(stream) {
     const playerError = document.getElementById('player-error');
     if (!videoEl || !stream || !stream.url) { tryNextStream(); return; }
 
-    // Destroy previous HLS instance
+    // Destroy previous HLS instance + clear any stall timer
     if (hlsInstance) { try { hlsInstance.destroy(); } catch(e){} hlsInstance = null; }
+    if (window._stallTimer) { clearTimeout(window._stallTimer); window._stallTimer = null; }
 
     hidePlayerLoading();
     playerError.style.display = 'none';
@@ -815,27 +818,63 @@ function playStream(stream) {
     const url = stream.url; // already https:// from sanitizeUrl
     const isHLS = /m3u8/i.test(url);
 
+    // Stall watchdog: if video hasn't started playing within 12s, try next stream
+    function armStallWatchdog() {
+        window._stallTimer = setTimeout(() => {
+            if (videoEl.readyState < 3 && !videoEl.paused) {
+                console.warn('[Player] Stall watchdog triggered on stream', activeStreamIndex);
+                tryNextStream();
+            }
+        }, 12000);
+        // Cancel watchdog once video is actually playing
+        videoEl.addEventListener('playing', () => {
+            if (window._stallTimer) { clearTimeout(window._stallTimer); window._stallTimer = null; }
+        }, { once: true });
+    }
+
     if (isHLS && typeof Hls !== 'undefined' && Hls.isSupported()) {
-        hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: false, fragLoadingTimeOut: 20000 });
+        hlsInstance = new Hls({
+            enableWorker: true,
+            lowLatencyMode: false,
+            manifestLoadingTimeOut: 10000,
+            manifestLoadingMaxRetry: 1,
+            levelLoadingTimeOut: 10000,
+            fragLoadingTimeOut: 20000,
+            fragLoadingMaxRetry: 1,
+            // Allow cross-origin without credentials (proxy handles auth server-side)
+            xhrSetup: (xhr) => { xhr.withCredentials = false; }
+        });
         hlsInstance.loadSource(url);
         hlsInstance.attachMedia(videoEl);
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => { videoEl.play().catch(()=>{}); });
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+            videoEl.play().catch(()=>{});
+            armStallWatchdog();
+        });
         hlsInstance.on(Hls.Events.ERROR, (event, data) => {
             if (data.fatal) {
                 console.warn('[HLS] Fatal error on stream', activeStreamIndex, data.details);
+                if (window._stallTimer) { clearTimeout(window._stallTimer); window._stallTimer = null; }
                 hlsInstance.destroy(); hlsInstance = null;
-                tryNextStream(); // Auto-advance to next source
+                tryNextStream();
             }
         });
+        // Arm a pre-manifest timeout too — if manifest never fires
+        window._stallTimer = setTimeout(() => {
+            console.warn('[Player] Manifest timeout on stream', activeStreamIndex);
+            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+            tryNextStream();
+        }, 14000);
     } else if (isHLS && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
         // Safari native HLS
         videoEl.src = url;
         videoEl.play().catch(()=>{});
+        armStallWatchdog();
     } else {
         // Direct MP4 / other format
         videoEl.src = url;
         videoEl.play().catch(()=>{});
         videoEl.onerror = () => tryNextStream();
+        armStallWatchdog();
     }
 }
 
