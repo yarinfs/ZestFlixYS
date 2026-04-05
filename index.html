@@ -41,7 +41,7 @@
             --accent-hover: #1e3560;
             --accent-ai: #4a6fa5;
             --border-color: #2a4080;
-            --frame-color: #050a15;
+            --frame-color: #000000;
             --text-main: #e8eaf6;
             --text-muted: #7986cb;
             --shadow-3d: 0 4px 0 rgba(0, 10, 40, 0.4);
@@ -147,7 +147,7 @@
         .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         
-        /* Fixed Circle Buttons */
+        /* Fixed Circle Buttons (Perfectly Centered) */
         .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; font-size: 18px !important; }
         .compact-circle span { display: inline-flex; justify-content: center; align-items: center; line-height: 1; }
         
@@ -175,7 +175,7 @@
         .dropdown-item { padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 14px; transition: all 0.2s; }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
 
-        /* Desktop Native Video Frame */
+        /* Desktop Video Frame - Changed to native Video */
         .iframe-wrapper {
             width: 95%; max-width: 1600px;
             aspect-ratio: 16 / 9;
@@ -184,11 +184,11 @@
             border-radius: 18px; overflow: hidden;
             box-shadow: 0 0 0 2px #1a0e0a, var(--shadow-float), inset 0 0 50px rgba(0,0,0,0.85);
             margin-top: 14px; transition: border-color 0.8s ease, box-shadow 0.8s ease;
-            display: flex; justify-content: center; align-items: center;
+            display: flex; justify-content: center; align-items: center; color: white; font-weight: bold;
         }
         body.movie-mode .iframe-wrapper { border-color: #1a2d5a; outline-color: #0a1428; box-shadow: 0 0 0 2px #050a14, 0 0 50px rgba(74,111,165,0.3), inset 0 0 60px rgba(0,0,0,0.9); }
         
-        video { width: 100%; height: 100%; background-color: #000; outline: none; border: none; object-fit: contain; }
+        video { width: 100%; height: 100%; background-color: #000; outline: none; border: none; }
 
         /* Library & Cards */
         .library-section { padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px); border-radius: var(--card-radius); border: 3px dashed var(--border-color); transition: background 0.8s ease, border-color 0.6s ease; }
@@ -259,7 +259,7 @@
         .zesty-msg-user { background: var(--accent-primary); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.4; flex-shrink: 0; }
         .zesty-msg-bot { background: white; padding: 12px 16px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 15px; max-width: 88%; word-break: break-word; line-height: 1.5; user-select: text !important; -webkit-user-select: text !important; flex-shrink: 0; }
         
-        /* Chat AI Canvas Cards */
+        /* Chat AI Canvas Cards - Horizontal & Sleek */
         .zesty-canvas-card { display: flex; flex-direction: row; align-items: stretch; width: 100%; max-width: 320px; background: white; border: 2.5px solid var(--border-color); border-radius: 14px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 12px rgba(62,39,35,0.12); transition: transform 0.2s, box-shadow 0.2s; align-self: flex-start; flex-shrink: 0; margin-top: 2px; margin-bottom: 2px; }
         body.movie-mode .zesty-canvas-card { background: #0e1830; border-color: var(--border-color); }
         .zesty-canvas-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(62,39,35,0.22); }
@@ -297,6 +297,7 @@
             .cozy-overlay { display: block !important; background: rgba(92,64,51,0.97) !important; pointer-events: none; }
             body.movie-mode .cozy-overlay { background: radial-gradient(ellipse at 50% 30%, rgba(5,10,25,0.7) 0%, rgba(5,10,25,0.92) 100%) !important; z-index: -2;}
 
+            /* Bulletproof Mobile Top Menu Layout */
             .navbar { width: 95%; margin: 8px auto; flex-direction: column; border-radius: 18px; padding: 16px 14px; gap: 14px; }
             .nav-left { flex-direction: column; width: 100%; gap: 12px; }
             .logo { width: 100%; justify-content: center; margin-bottom: 2px; }
@@ -309,6 +310,7 @@
             .search-input-wrapper { flex: 1 1 auto !important; min-width: 0 !important; display: block !important; }
             .search-input-wrapper input { width: 100% !important; border-radius: 20px; }
 
+            /* Huge Edge-to-Edge Mobile Player */
             .main-content { padding-top: 0; }
             .iframe-wrapper {
                 width: 100% !important; max-width: 100vw !important; margin: 0 0 16px 0 !important;
@@ -327,6 +329,7 @@
             .library-card { min-width: 130px; max-width: 130px; }
             .card-img-wrapper { height: 175px; }
 
+            /* Reliable iOS Chat Window */
             .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
             .zesty-panel {
                 position: fixed !important; top: auto; bottom: 0 !important; left: 0 !important; right: 0 !important;
@@ -479,7 +482,7 @@ const $ = id => document.getElementById(id);
 
 const searchInput = $('search-input');
 const searchResults = $('search-results');
-const playerVideo = $('player-video'); // Target the native video tag
+const playerVideo = $('player-video'); // Updated reference
 const bgBackdrop = $('bg-backdrop');
 
 const infoTitle = $('info-title');
@@ -540,7 +543,7 @@ function mdToHtml(raw) {
 }
 
 /* ═══════════════════════════════════════════════════
-   GROQ AI LOGIC
+   GROQ AI LOGIC (Cascading Smart Fallback & Improved Prompts)
 ═══════════════════════════════════════════════════ */
 const AI = {
     models: ['llama-3.3-70b-versatile', 'mixtral-8x7b-32768', 'llama-3.1-8b-instant'],
@@ -651,7 +654,7 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-/* 🚀 Fully Native HTML5 Player Integration - NO FALLBACK POSTERS */
+/* 🚀 Fully Native Native Player Implementation */
 async function updatePlayer() {
     const baseUrl = 'https://yarin1-tmdb-embed-api.hf.space';
     const typePath = mediaType === 'movie' ? 'movie' : 'series';
@@ -660,42 +663,48 @@ async function updatePlayer() {
         ? `${baseUrl}/api/streams/${typePath}/${mediaId}` 
         : `${baseUrl}/api/streams/${typePath}/${mediaId}?season=${seasonVal}&episode=${episodeVal}`;
 
+    // Clean up previous stream and show loading
     if (hlsPlayerInstance) {
         hlsPlayerInstance.destroy();
         hlsPlayerInstance = null;
     }
     playerVideo.src = '';
+    playerVideo.poster = 'https://i.imgur.com/rMndP8y.jpeg'; // Temporary loading poster
 
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error("API Returned " + response.status);
         const streams = await response.json();
 
-        // Safely check if the array exists and has contents before trying to access index [0]
-        if (!streams || streams.length === 0) {
-            console.warn("API returned an empty array. No streams found.");
-            return; // Silently exit without doing anything, keeping it perfectly native.
-        }
-        
-        const videoUrl = streams[0].url; 
+        if (streams && streams.length > 0) {
+            // Remove the loading poster
+            playerVideo.poster = '';
+            
+            const videoUrl = streams[0].url; 
 
-        if (videoUrl.includes('.m3u8')) {
-            if (Hls.isSupported()) {
-                hlsPlayerInstance = new Hls();
-                hlsPlayerInstance.loadSource(videoUrl);
-                hlsPlayerInstance.attachMedia(playerVideo);
-                hlsPlayerInstance.on(Hls.Events.MANIFEST_PARSED, function() { 
-                    playerVideo.play().catch(e => console.log("Autoplay blocked:", e)); 
-                });
-            } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
+            if (videoUrl.includes('.m3u8')) {
+                // Handle HLS / M3U8
+                if (Hls.isSupported()) {
+                    hlsPlayerInstance = new Hls();
+                    hlsPlayerInstance.loadSource(videoUrl);
+                    hlsPlayerInstance.attachMedia(playerVideo);
+                    hlsPlayerInstance.on(Hls.Events.MANIFEST_PARSED, function() { 
+                        playerVideo.play().catch(e => console.log("Autoplay blocked:", e)); 
+                    });
+                } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native Safari Support
+                    playerVideo.src = videoUrl;
+                    playerVideo.addEventListener('loadedmetadata', function() {
+                        playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
+                    });
+                }
+            } else {
+                // Direct MP4 fallback
                 playerVideo.src = videoUrl;
-                playerVideo.addEventListener('loadedmetadata', function() {
-                    playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
-                });
+                playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
             }
         } else {
-            playerVideo.src = videoUrl;
-            playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
+            console.error("No streams in JSON array.");
         }
         
         if (mediaType === 'tv') {
@@ -703,6 +712,7 @@ async function updatePlayer() {
         }
     } catch (error) {
         console.error("ZestFlix Stream API Error:", error);
+        // Note: Check your HuggingFace backend "Proxy Settings" if you hit CORS errors here!
     }
 }
 
