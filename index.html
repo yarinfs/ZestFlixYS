@@ -647,11 +647,12 @@ async function updatePlayer() {
     videoElement.style.opacity = '0';
 
     // FIX 2: Explicitly format parameters as ?s=X&e=Y
+// Translate 'tv' to 'show' specifically for the backend API
     const fetchUrl = mediaType === 'movie' 
         ? `${API_BASE}/api/streams/movie/${mediaId}` 
-        : `${API_BASE}/api/streams/tv/${mediaId}?s=${seasonVal}&e=${episodeVal}`;
-
-    if (mediaType === 'tv') {
+        : `${API_BASE}/api/streams/show/${mediaId}?s=${seasonVal}&e=${episodeVal}`;
+    
+    if (mediaType === 'show') {
         updateProgress(mediaId, seasonVal, episodeVal);
     }
 
