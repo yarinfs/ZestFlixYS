@@ -680,8 +680,8 @@ async function updatePlayer() {
     videoElement.style.opacity = '0';
 
     const fetchUrl = mediaType === 'movie' 
-        ? `${API_BASE}/movie?id=${mediaId}` 
-        : `${API_BASE}/tv?id=${mediaId}&s=${seasonVal}&e=${episodeVal}`;
+        ? `${API_BASE}/api/streams/movie/${mediaId}` 
+        : `${API_BASE}/api/streams/tv/${mediaId}?s=${seasonVal}&e=${episodeVal}`;
 
     if (mediaType === 'tv') {
         updateProgress(mediaId, seasonVal, episodeVal);
