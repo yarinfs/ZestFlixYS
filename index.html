@@ -628,6 +628,7 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
+/* --- BULLETPROOF NATIVE PLAYER LOGIC --- */
 const API_BASE = 'https://tmdb-embed-api-fcvp.onrender.com';
 let plyrInstance = null;
 
@@ -653,7 +654,10 @@ async function updatePlayer() {
         let data = null;
         let success = false;
         
+        // Blast all possible query combinations so the backend can't reject it
         const queryParams = `?s=${seasonVal}&e=${episodeVal}&season=${seasonVal}&episode=${episodeVal}`;
+        
+        // Automatically try all known TV endpoint variations
         const pathsToTry = mediaType === 'movie' 
             ? [`movie/${mediaId}`] 
             : [`series/${mediaId}${queryParams}`, `tv/${mediaId}${queryParams}`, `show/${mediaId}${queryParams}`];
@@ -664,12 +668,13 @@ async function updatePlayer() {
                 if (response.ok) {
                     const testData = await response.json();
                     
+                    // Accept the data ONLY if it contains actual stream items
                     if ((Array.isArray(testData) && testData.length > 0) || 
                         (testData.streams && testData.streams.length > 0) || 
                         testData.url || testData.streamUrl) {
                         data = testData;
                         success = true;
-                        break; 
+                        break; // Stop looping once we get a valid hit
                     }
                 }
             } catch (e) {
@@ -681,29 +686,47 @@ async function updatePlayer() {
             throw new Error(`No streams found. The backend is awake, but the scrapers returned empty.`);
         }
         
+        // Extract Streams List
+        const streamList = Array.isArray(data) ? data : (data.streams || [data]);
         let streamUrl = null;
-        if (Array.isArray(data) && data.length > 0) streamUrl = data[0].url;
-        else if (data.streams && data.streams.length > 0) streamUrl = data.streams[0].url;
-        else if (data.url) streamUrl = data.url;
-        else if (data.streamUrl) streamUrl = data.streamUrl;
 
-        if (!streamUrl) throw new Error("Stream URL is missing from the response.");
+        // SMART FILTER: Ignore broken base64/encrypted strings and find a REAL URL
+        for (const stream of streamList) {
+            let url = stream.url || stream.streamUrl || stream.link;
+            if (url) {
+                if (url.startsWith('/')) url = API_BASE + url;
+                
+                // Only accept valid HTTP links (This permanently skips broken non-HTTP strings)
+                if (url.startsWith('http')) {
+                    streamUrl = url;
+                    break;
+                }
+            }
+        }
 
-        if (Hls.isSupported()) {
+        if (!streamUrl) {
+            throw new Error("No playable streams found (Providers returned broken links).");
+        }
+
+        // Play Video (Handles both HLS streams and direct MP4s)
+        const isM3U8 = streamUrl.includes('.m3u8');
+        
+        if (isM3U8 && Hls.isSupported()) {
             const hls = new Hls({ maxMaxBufferLength: 30 });
             hls.loadSource(streamUrl);
             hls.attachMedia(videoElement);
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
                 loadingUI.style.display = 'none';
                 videoElement.style.opacity = '1';
-                videoElement.play().catch(e => console.log("Autoplay blocked by browser."));
+                videoElement.play().catch(e => console.log("Autoplay blocked."));
             });
-        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+        } else {
+            // Fallback for native HLS (Safari) OR direct MP4 links
             videoElement.src = streamUrl;
             videoElement.addEventListener('loadedmetadata', () => {
                 loadingUI.style.display = 'none';
                 videoElement.style.opacity = '1';
-                videoElement.play();
+                videoElement.play().catch(() => {});
             });
         }
     } catch (err) {
