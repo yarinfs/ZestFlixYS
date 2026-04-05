@@ -651,52 +651,32 @@ async function updatePlayer() {
     }
 
     try {
-        let data = null;
-        let success = false;
-        
-        // Blast all possible query combinations so the backend can't reject it
         const queryParams = `?s=${seasonVal}&e=${episodeVal}&season=${seasonVal}&episode=${episodeVal}`;
-        
-        // Automatically try all known TV endpoint variations
-        const pathsToTry = mediaType === 'movie' 
-            ? [`movie/${mediaId}`] 
-            : [`series/${mediaId}${queryParams}`, `tv/${mediaId}${queryParams}`, `show/${mediaId}${queryParams}`];
+        const fetchUrl = mediaType === 'movie' 
+            ? `${API_BASE}/api/streams/movie/${mediaId}` 
+            : `${API_BASE}/api/streams/series/${mediaId}${queryParams}`;
 
-        for (const path of pathsToTry) {
-            try {
-                const response = await fetch(`${API_BASE}/api/streams/${path}`);
-                if (response.ok) {
-                    const testData = await response.json();
-                    
-                    // Accept the data ONLY if it contains actual stream items
-                    if ((Array.isArray(testData) && testData.length > 0) || 
-                        (testData.streams && testData.streams.length > 0) || 
-                        testData.url || testData.streamUrl) {
-                        data = testData;
-                        success = true;
-                        break; // Stop looping once we get a valid hit
-                    }
-                }
-            } catch (e) {
-                console.warn(`Path /${path} failed, trying next...`);
-            }
-        }
+        const response = await fetch(fetchUrl);
+        if (!response.ok) throw new Error(`Backend rejected request: ${response.status}`);
         
-        if (!success) {
-            throw new Error(`No streams found. The backend is awake, but the scrapers returned empty.`);
-        }
-        
-        // Extract Streams List
+        const data = await response.json();
         const streamList = Array.isArray(data) ? data : (data.streams || [data]);
         let streamUrl = null;
 
-        // SMART FILTER: Ignore broken base64/encrypted strings and find a REAL URL
         for (const stream of streamList) {
             let url = stream.url || stream.streamUrl || stream.link;
             if (url) {
-                if (url.startsWith('/')) url = API_BASE + url;
-                
-                // Only accept valid HTTP links (This permanently skips broken non-HTTP strings)
+                // Properly handle URLs that the proxy rewrites
+                if (url.startsWith('/')) {
+                    streamUrl = API_BASE + url;
+                    break;
+                }
+                // Handle protocol-less URLs (//domain.com/video.mp4)
+                if (url.startsWith('//')) {
+                    streamUrl = 'https:' + url;
+                    break;
+                }
+                // Handle pure HTTP URLs
                 if (url.startsWith('http')) {
                     streamUrl = url;
                     break;
@@ -704,12 +684,12 @@ async function updatePlayer() {
             }
         }
 
+        // If all URLs were raw tokens, the Render proxy MUST be enabled
         if (!streamUrl) {
-            throw new Error("No playable streams found (Providers returned broken links).");
+            throw new Error("Backend proxy is OFF. Enable 'enableProxy=true' in Render Environment Variables.");
         }
 
-        // Play Video (Handles both HLS streams and direct MP4s)
-        const isM3U8 = streamUrl.includes('.m3u8');
+        const isM3U8 = streamUrl.includes('.m3u8') || streamUrl.includes('proxy');
         
         if (isM3U8 && Hls.isSupported()) {
             const hls = new Hls({ maxMaxBufferLength: 30 });
@@ -721,7 +701,6 @@ async function updatePlayer() {
                 videoElement.play().catch(e => console.log("Autoplay blocked."));
             });
         } else {
-            // Fallback for native HLS (Safari) OR direct MP4 links
             videoElement.src = streamUrl;
             videoElement.addEventListener('loadedmetadata', () => {
                 loadingUI.style.display = 'none';
@@ -731,7 +710,7 @@ async function updatePlayer() {
         }
     } catch (err) {
         console.error("Player Error:", err);
-        loadingUI.innerHTML = `<span style="color:#ff6b6b; font-size:16px; text-align:center;">${err.message}</span>`;
+        loadingUI.innerHTML = `<span style="color:#ff6b6b; font-size:16px; text-align:center; padding: 20px;">${err.message}</span>`;
     }
 }
 
