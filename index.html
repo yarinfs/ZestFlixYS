@@ -628,6 +628,7 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
+/* --- ULTIMATE BULLETPROOF PLAYER LOGIC --- */
 const API_BASE = 'https://tmdb-embed-api-fcvp.onrender.com';
 let plyrInstance = null;
 
@@ -688,34 +689,50 @@ async function updatePlayer() {
             let url = stream.url || stream.streamUrl || stream.link;
             if (url) {
                 
-                // --- MIXED CONTENT HTTPS FIX ---
-                if (url.startsWith('http://')) {
-                    url = url.replace('http://', 'https://');
-                }
-
-                if (url.startsWith('/')) {
-                    streamUrl = API_BASE + url;
-                    break;
-                }
-                if (url.startsWith('//')) {
-                    streamUrl = 'https:' + url;
-                    break;
-                }
+                if (url.startsWith('/')) url = API_BASE + url;
+                if (url.startsWith('//')) url = 'https:' + url;
+                if (url.startsWith('http://')) url = url.replace('http://', 'https://');
+                
                 if (url.startsWith('https://')) {
-                    streamUrl = url;
+                    // BUG FIX 1: Safely encode the JSON brackets in the URL before sending to Render
+                    streamUrl = url.replace(/{/g, '%7B').replace(/}/g, '%7D').replace(/"/g, '%22');
                     break;
                 }
             }
         }
 
         if (!streamUrl) {
-            throw new Error("Backend proxy is OFF. Enable 'enableProxy=true' in Render Environment Variables.");
+            throw new Error("Backend returned a broken link format.");
         }
 
         const isM3U8 = streamUrl.includes('.m3u8') || streamUrl.includes('proxy');
         
         if (isM3U8 && Hls.isSupported()) {
-            const hls = new Hls({ maxMaxBufferLength: 30 });
+            
+            // BUG FIX 2: Custom Interceptor to forcibly fix Render's internal HTTP mixed content bugs
+            class HttpsLoader extends Hls.DefaultConfig.loader {
+                constructor(config) { super(config); }
+                load(context, config, callbacks) {
+                    if (context.url && context.url.startsWith('http://')) {
+                        context.url = context.url.replace('http://', 'https://');
+                    }
+                    const originalOnSuccess = callbacks.onSuccess;
+                    callbacks.onSuccess = function(response, stats, context) {
+                        if (response.data && typeof response.data === 'string') {
+                            response.data = response.data.replace(/http:\/\//g, 'https://');
+                        }
+                        originalOnSuccess(response, stats, context);
+                    };
+                    super.load(context, config, callbacks);
+                }
+            }
+
+            const hls = new Hls({ 
+                maxMaxBufferLength: 30,
+                pLoader: HttpsLoader,
+                fLoader: HttpsLoader
+            });
+            
             hls.loadSource(streamUrl);
             hls.attachMedia(videoElement);
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
