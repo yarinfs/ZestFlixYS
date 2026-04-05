@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ZestFlix - Cozy Cafe & Cinema Edition</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
 
+    <style>
         /* ═══════════════════════════════════════════════════
            VARIABLES
         ═══════════════════════════════════════════════════ */
@@ -28,6 +30,7 @@
             --card-radius: 20px;
             --shadow-3d: 0 4px 0 rgba(62, 39, 35, 0.15);
             --shadow-float: 0 10px 25px rgba(62, 39, 35, 0.2);
+            --plyr-color-main: #D4A373; /* Customizes the video player color */
         }
 
         /* ── MOVIE THEME ── */
@@ -45,6 +48,7 @@
             --text-muted: #7986cb;
             --shadow-3d: 0 4px 0 rgba(0, 10, 40, 0.4);
             --shadow-float: 0 10px 30px rgba(0, 20, 80, 0.5);
+            --plyr-color-main: #4a6fa5; /* Customizes the video player color */
         }
 
         body.movie-mode .cozy-overlay { background: radial-gradient(ellipse at 50% 30%, rgba(74,111,165,0.18) 0%, rgba(5,10,25,0.85) 100%) !important; }
@@ -184,8 +188,7 @@
             margin-top: 14px; transition: border-color 0.8s ease, box-shadow 0.8s ease;
         }
         body.movie-mode .iframe-wrapper { border-color: #1a2d5a; outline-color: #0a1428; box-shadow: 0 0 0 2px #050a14, 0 0 50px rgba(74,111,165,0.3), inset 0 0 60px rgba(0,0,0,0.9); }
-        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
+        
         /* Library & Cards */
         .library-section { padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px); border-radius: var(--card-radius); border: 3px dashed var(--border-color); transition: background 0.8s ease, border-color 0.6s ease; }
         .library-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 2px; }
@@ -391,7 +394,10 @@
 
 <main class="main-content">
     <div class="iframe-wrapper">
-        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        <div id="player-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: 800; font-size: 18px; z-index: 10;">
+            Fetching Stream... 🍿
+        </div>
+        <video id="player-frame" controls crossorigin playsinline style="opacity: 0; transition: opacity 0.5s ease; width: 100%; height: 100%; object-fit: cover;"></video>
     </div>
 
     <section class="library-section">
@@ -451,6 +457,9 @@
         <button class="zesty-send-btn" id="zesty-send">➤</button>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 
 <script>
 /* ═══════════════════════════════════════════════════
@@ -650,14 +659,67 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-function updatePlayer() {
-    if (mediaType === 'movie') {
-        playerFrame.src = `https://vidfast.pro/movie/${mediaId}?autoPlay=true`;
-    } else {
-        playerFrame.src = `https://vidfast.pro/tv/${mediaId}/${seasonVal}/${episodeVal}?autoPlay=true`;
-        updateProgress(mediaId, seasonVal, episodeVal); 
+/* --- NEW AD-FREE NATIVE PLAYER LOGIC --- */
+const API_BASE = 'https://tmdb-embed-api-fcvp.onrender.com';
+let plyrInstance = null;
+
+async function updatePlayer() {
+    const videoElement = $('player-frame');
+    const loadingUI = $('player-loading');
+    
+    // Initialize custom UI
+    if (!plyrInstance) {
+        plyrInstance = new Plyr(videoElement, {
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+        });
+    }
+
+    // Reset UI for new video
+    loadingUI.style.display = 'block';
+    loadingUI.textContent = 'Fetching Stream... 🍿';
+    videoElement.style.opacity = '0';
+
+    const fetchUrl = mediaType === 'movie' 
+        ? `${API_BASE}/movie?id=${mediaId}` 
+        : `${API_BASE}/tv?id=${mediaId}&s=${seasonVal}&e=${episodeVal}`;
+
+    if (mediaType === 'tv') {
+        updateProgress(mediaId, seasonVal, episodeVal);
+    }
+
+    try {
+        const response = await fetch(fetchUrl);
+        if (!response.ok) throw new Error("Backend connection failed.");
+        
+        const data = await response.json();
+        const streamUrl = data.streamUrl || (Array.isArray(data) && data.length > 0 ? data[0].url : null);
+        
+        if (!streamUrl) throw new Error("Stream not found.");
+
+        // Decode and play stream
+        if (Hls.isSupported()) {
+            const hls = new Hls({ maxMaxBufferLength: 30 });
+            hls.loadSource(streamUrl);
+            hls.attachMedia(videoElement);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                loadingUI.style.display = 'none';
+                videoElement.style.opacity = '1';
+                videoElement.play().catch(e => console.log("Autoplay blocked by browser."));
+            });
+        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            videoElement.src = streamUrl;
+            videoElement.addEventListener('loadedmetadata', () => {
+                loadingUI.style.display = 'none';
+                videoElement.style.opacity = '1';
+                videoElement.play();
+            });
+        }
+    } catch (err) {
+        console.error("Player Error:", err);
+        loadingUI.textContent = '⚠️ Stream Unavailable';
     }
 }
+/* --------------------------------------- */
 
 aiSearchToggle.addEventListener('click', e => {
     e.preventDefault();
