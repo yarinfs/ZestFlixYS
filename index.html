@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ZestFlix - Cozy Cafe & Cinema Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap');
 
@@ -21,7 +22,7 @@
             --danger: #D96C6C;
             --input-bg: #FFFFFF;
             --border-color: #A67B5B;
-            --frame-color: #3E2723;
+            --frame-color: #000000;
             --text-main: #3E2723;
             --text-muted: #8D6E63;
             --bubbly-radius: 30px;
@@ -40,7 +41,7 @@
             --accent-hover: #1e3560;
             --accent-ai: #4a6fa5;
             --border-color: #2a4080;
-            --frame-color: #050a15;
+            --frame-color: #000000;
             --text-main: #e8eaf6;
             --text-muted: #7986cb;
             --shadow-3d: 0 4px 0 rgba(0, 10, 40, 0.4);
@@ -174,7 +175,7 @@
         .dropdown-item { padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 14px; transition: all 0.2s; }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
 
-        /* Desktop Video Frame */
+        /* Desktop Video Frame - Changed to native Video */
         .iframe-wrapper {
             width: 95%; max-width: 1600px;
             aspect-ratio: 16 / 9;
@@ -183,9 +184,11 @@
             border-radius: 18px; overflow: hidden;
             box-shadow: 0 0 0 2px #1a0e0a, var(--shadow-float), inset 0 0 50px rgba(0,0,0,0.85);
             margin-top: 14px; transition: border-color 0.8s ease, box-shadow 0.8s ease;
+            display: flex; justify-content: center; align-items: center; color: white; font-weight: bold;
         }
         body.movie-mode .iframe-wrapper { border-color: #1a2d5a; outline-color: #0a1428; box-shadow: 0 0 0 2px #050a14, 0 0 50px rgba(74,111,165,0.3), inset 0 0 60px rgba(0,0,0,0.9); }
-        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        
+        video { width: 100%; height: 100%; background-color: #000; outline: none; border: none; }
 
         /* Library & Cards */
         .library-section { padding: 24px 30px; background: rgba(253,245,230,0.7); backdrop-filter: blur(10px); border-radius: var(--card-radius); border: 3px dashed var(--border-color); transition: background 0.8s ease, border-color 0.6s ease; }
@@ -391,8 +394,8 @@
 </header>
 
 <main class="main-content">
-    <div class="iframe-wrapper">
-        <iframe id="player-frame" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    <div class="iframe-wrapper" id="player-container">
+        <video id="player-video" controls autoplay playsinline></video>
     </div>
 
     <section class="library-section">
@@ -473,11 +476,13 @@ let chatHistory = [];
 let userManualTheme = null;
 let currentInsightId = null;
 
+let hlsPlayerInstance = null; // Store HLS instance for cleanup
+
 const $ = id => document.getElementById(id);
 
 const searchInput = $('search-input');
 const searchResults = $('search-results');
-const playerFrame = $('player-frame');
+const playerVideo = $('player-video'); // Updated reference
 const bgBackdrop = $('bg-backdrop');
 
 const infoTitle = $('info-title');
@@ -574,7 +579,6 @@ const AI = {
     },
     
     async insights(title, type, year) {
-        // Shorter, punchier, 2-bullet prompt rule
         const prompt = `Provide a quick, punchy, and highly engaging intelligence briefing for the ${type} "${title}" (${year}). 
 Give me exactly 2 short, fascinating bullet points (e.g., mind-blowing trivia, hidden details, or cultural impact). 
 Keep it natural, clever, and accurate. Maximum 3 sentences total. Avoid robotic intros.`;
@@ -590,7 +594,6 @@ Keep it natural, clever, and accurate. Maximum 3 sentences total. Avoid robotic 
     },
     
     async chat(history) {
-        // Completely redefined persona to sound natural, limit emojis, and not force "lemon"
         const systemPrompt = `You are Zesty, an AI movie expert and a cool friend.
 1. Read the user's message carefully and respond naturally, like a human texting a buddy. 
 2. Be witty, accurate, and concise (1-2 short sentences max).
@@ -651,59 +654,65 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
+/* 🚀 Fully Native Native Player Implementation */
 async function updatePlayer() {
     const baseUrl = 'https://yarin1-tmdb-embed-api.hf.space';
+    const typePath = mediaType === 'movie' ? 'movie' : 'series';
     
     let apiUrl = mediaType === 'movie' 
-        ? `${baseUrl}/api/streams/movie/${mediaId}` 
-        : `${baseUrl}/api/streams/series/${mediaId}?season=${seasonVal}&episode=${episodeVal}`;
+        ? `${baseUrl}/api/streams/${typePath}/${mediaId}` 
+        : `${baseUrl}/api/streams/${typePath}/${mediaId}?season=${seasonVal}&episode=${episodeVal}`;
 
-    playerFrame.srcdoc = "<body style='background:#000;color:#fff;display:flex;justify-content:center;align-items:center;font-family:sans-serif;'><h2>Loading your stream... 🍿</h2></body>";
+    // Clean up previous stream and show loading
+    if (hlsPlayerInstance) {
+        hlsPlayerInstance.destroy();
+        hlsPlayerInstance = null;
+    }
+    playerVideo.src = '';
+    playerVideo.poster = 'https://i.imgur.com/rMndP8y.jpeg'; // Temporary loading poster
 
     try {
         const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error("API Returned " + response.status);
         const streams = await response.json();
 
         if (streams && streams.length > 0) {
+            // Remove the loading poster
+            playerVideo.poster = '';
+            
             const videoUrl = streams[0].url; 
 
-            const playerHtml = `
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <style>body{margin:0;background:#000;height:100vh;display:flex;align-items:center;justify-content:center;}</style>
-                </head>
-                <body>
-                    <video id="vid" controls autoplay style="width:100%;height:100%;"></video>
-                    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-                    <script>
-                        var video = document.getElementById('vid');
-                        var url = '${videoUrl}';
-                        if (Hls.isSupported() && url.includes('.m3u8')) {
-                            var hls = new Hls();
-                            hls.loadSource(url);
-                            hls.attachMedia(video);
-                            hls.on(Hls.Events.MANIFEST_PARSED, function() { video.play(); });
-                        } else {
-                            video.src = url;
-                            video.play();
-                        }
-                    </script>
-                </body>
-                </html>
-            `;
-            playerFrame.srcdoc = playerHtml;
-            playerFrame.removeAttribute('src'); 
+            if (videoUrl.includes('.m3u8')) {
+                // Handle HLS / M3U8
+                if (Hls.isSupported()) {
+                    hlsPlayerInstance = new Hls();
+                    hlsPlayerInstance.loadSource(videoUrl);
+                    hlsPlayerInstance.attachMedia(playerVideo);
+                    hlsPlayerInstance.on(Hls.Events.MANIFEST_PARSED, function() { 
+                        playerVideo.play().catch(e => console.log("Autoplay blocked:", e)); 
+                    });
+                } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Native Safari Support
+                    playerVideo.src = videoUrl;
+                    playerVideo.addEventListener('loadedmetadata', function() {
+                        playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
+                    });
+                }
+            } else {
+                // Direct MP4 fallback
+                playerVideo.src = videoUrl;
+                playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
+            }
         } else {
-            playerFrame.srcdoc = "<body style='background:#000;color:#fff;display:flex;justify-content:center;align-items:center;font-family:sans-serif;'><h3>No streams found in Backpack 🏕️</h3></body>";
+            console.error("No streams in JSON array.");
         }
         
         if (mediaType === 'tv') {
             updateProgress(mediaId, seasonVal, episodeVal);
         }
     } catch (error) {
-        console.error("ZestFlix Stream Error:", error);
-        playerFrame.srcdoc = "<body style='background:#000;color:#fff;display:flex;justify-content:center;align-items:center;font-family:sans-serif;'><h3>API Connection failed ⚠️</h3></body>";
+        console.error("ZestFlix Stream API Error:", error);
+        // Note: Check your HuggingFace backend "Proxy Settings" if you hit CORS errors here!
     }
 }
 
@@ -715,7 +724,7 @@ aiSearchToggle.addEventListener('click', e => {
     searchInput.classList.toggle('ai-mode', aiSearchOn);
 });
 
-// Robust iOS Visual Viewport fix to prevent keyboard breaking the chat UI
+// Robust iOS Visual Viewport fix
 const adjustChatWindow = () => {
     if (!zestyPanel.classList.contains('open') || window.innerWidth > 768) {
         zestyPanel.style.position = ''; zestyPanel.style.height = ''; zestyPanel.style.top = ''; return;
@@ -724,7 +733,7 @@ const adjustChatWindow = () => {
         zestyPanel.style.position = 'absolute';
         zestyPanel.style.height = `${window.visualViewport.height}px`;
         zestyPanel.style.top = `${window.visualViewport.offsetTop}px`;
-        window.scrollTo(0, 0); // Stops iOS from drifting the body while typing
+        window.scrollTo(0, 0); 
     }
 };
 
