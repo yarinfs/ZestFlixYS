@@ -628,7 +628,6 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-/* --- BULLETPROOF NATIVE PLAYER LOGIC --- */
 const API_BASE = 'https://tmdb-embed-api-fcvp.onrender.com';
 let plyrInstance = null;
 
@@ -651,40 +650,64 @@ async function updatePlayer() {
     }
 
     try {
-        const queryParams = `?s=${seasonVal}&e=${episodeVal}&season=${seasonVal}&episode=${episodeVal}`;
-        const fetchUrl = mediaType === 'movie' 
-            ? `${API_BASE}/api/streams/movie/${mediaId}` 
-            : `${API_BASE}/api/streams/series/${mediaId}${queryParams}`;
-
-        const response = await fetch(fetchUrl);
-        if (!response.ok) throw new Error(`Backend rejected request: ${response.status}`);
+        let data = null;
+        let success = false;
         
-        const data = await response.json();
+        const queryParams = `?s=${seasonVal}&e=${episodeVal}&season=${seasonVal}&episode=${episodeVal}`;
+        const pathsToTry = mediaType === 'movie' 
+            ? [`movie/${mediaId}`] 
+            : [`series/${mediaId}${queryParams}`, `tv/${mediaId}${queryParams}`, `show/${mediaId}${queryParams}`];
+
+        for (const path of pathsToTry) {
+            try {
+                const response = await fetch(`${API_BASE}/api/streams/${path}`);
+                if (response.ok) {
+                    const testData = await response.json();
+                    
+                    if ((Array.isArray(testData) && testData.length > 0) || 
+                        (testData.streams && testData.streams.length > 0) || 
+                        testData.url || testData.streamUrl) {
+                        data = testData;
+                        success = true;
+                        break; 
+                    }
+                }
+            } catch (e) {
+                console.warn(`Path /${path} failed, trying next...`);
+            }
+        }
+        
+        if (!success) {
+            throw new Error(`No streams found. The backend is awake, but the scrapers returned empty.`);
+        }
+        
         const streamList = Array.isArray(data) ? data : (data.streams || [data]);
         let streamUrl = null;
 
         for (const stream of streamList) {
             let url = stream.url || stream.streamUrl || stream.link;
             if (url) {
-                // Properly handle URLs that the proxy rewrites
+                
+                // --- MIXED CONTENT HTTPS FIX ---
+                if (url.startsWith('http://')) {
+                    url = url.replace('http://', 'https://');
+                }
+
                 if (url.startsWith('/')) {
                     streamUrl = API_BASE + url;
                     break;
                 }
-                // Handle protocol-less URLs (//domain.com/video.mp4)
                 if (url.startsWith('//')) {
                     streamUrl = 'https:' + url;
                     break;
                 }
-                // Handle pure HTTP URLs
-                if (url.startsWith('http')) {
+                if (url.startsWith('https://')) {
                     streamUrl = url;
                     break;
                 }
             }
         }
 
-        // If all URLs were raw tokens, the Render proxy MUST be enabled
         if (!streamUrl) {
             throw new Error("Backend proxy is OFF. Enable 'enableProxy=true' in Render Environment Variables.");
         }
