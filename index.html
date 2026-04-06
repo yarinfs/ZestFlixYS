@@ -22,7 +22,7 @@
             --danger: #D96C6C;
             --input-bg: #FFFFFF;
             --border-color: #A67B5B;
-            --frame-color: #000000;
+            --frame-color: #3E2723;
             --text-main: #3E2723;
             --text-muted: #8D6E63;
             --bubbly-radius: 30px;
@@ -73,7 +73,7 @@
         body.movie-mode .dropdown-list { background: #0e1830; border-color: #2a4080; }
         body.movie-mode .dropdown-item:hover, body.movie-mode .dropdown-item.selected { background: rgba(74,111,165,0.25); color: #fff; }
 
-        /* Desktop Native Video Frame */
+        /* Desktop Video Frame CSS */
         .iframe-wrapper {
             width: 95%; max-width: 1600px;
             aspect-ratio: 16 / 9;
@@ -549,7 +549,7 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-/* 🚀 Fully Native HTML5 Player Integration - BULLETPROOF PARSING */
+/* 🚀 Fully Native HTML5 Player Integration - HTTPS FIXED */
 async function updatePlayer() {
     const baseUrl = 'https://yarin1-tmdb-embed-api.hf.space';
     const typePath = mediaType === 'movie' ? 'movie' : 'series';
@@ -564,7 +564,6 @@ async function updatePlayer() {
         
         const data = await response.json();
 
-        // Strictly extract the array from data.streams as verified by the JSON payload
         let streamList = [];
         if (data && Array.isArray(data.streams)) {
             streamList = data.streams;
@@ -572,21 +571,20 @@ async function updatePlayer() {
             streamList = data;
         }
 
-        // Validate we have data and it has a URL property BEFORE touching the player
         if (!streamList || streamList.length === 0 || !streamList[0] || !streamList[0].url) {
             console.warn("ZestFlix: No valid streams found in the API response.");
-            return; // Exit completely. No error screen.
+            return; 
         }
         
-        // We have a verified URL. Now it's safe to load.
-        const videoUrl = streamList[0].url; 
+        // 🛑 FIX: Force HTTP links to HTTPS to stop "Mixed Content" blocking
+        let videoUrl = streamList[0].url; 
+        videoUrl = videoUrl.replace(/^http:\/\//i, 'https://');
 
         if (hlsPlayerInstance) {
             hlsPlayerInstance.destroy();
             hlsPlayerInstance = null;
         }
         
-        // Remove old src attribute completely instead of setting to ''
         playerVideo.removeAttribute('src'); 
         playerVideo.load();
 
