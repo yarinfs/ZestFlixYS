@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>ZestFlix - Cozy Cafe & Cinema Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -147,7 +148,7 @@
         .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         
-        /* Fixed Circle Buttons */
+        /* Fixed Circle Buttons (Perfectly Centered) */
         .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; font-size: 18px !important; }
         .compact-circle span { display: inline-flex; justify-content: center; align-items: center; line-height: 1; }
         
@@ -175,7 +176,7 @@
         .dropdown-item { padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 14px; transition: all 0.2s; }
         .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
 
-        /* Desktop Native Video Frame */
+        /* Desktop Video Frame */
         .iframe-wrapper {
             width: 95%; max-width: 1600px;
             aspect-ratio: 16 / 9;
@@ -259,7 +260,7 @@
         .zesty-msg-user { background: var(--accent-primary); color: white; padding: 10px 15px; border-radius: 18px 18px 4px 18px; align-self: flex-end; font-weight: 800; font-size: 15px; max-width: 85%; word-break: break-word; line-height: 1.4; flex-shrink: 0; }
         .zesty-msg-bot { background: white; padding: 12px 16px; border-radius: 18px 18px 18px 4px; align-self: flex-start; border: 2px solid var(--border-color); font-weight: 700; font-size: 15px; max-width: 88%; word-break: break-word; line-height: 1.5; user-select: text !important; -webkit-user-select: text !important; flex-shrink: 0; }
         
-        /* Chat AI Canvas Cards */
+        /* Chat AI Canvas Cards - Horizontal & Sleek */
         .zesty-canvas-card { display: flex; flex-direction: row; align-items: stretch; width: 100%; max-width: 320px; background: white; border: 2.5px solid var(--border-color); border-radius: 14px; overflow: hidden; cursor: pointer; box-shadow: 0 4px 12px rgba(62,39,35,0.12); transition: transform 0.2s, box-shadow 0.2s; align-self: flex-start; flex-shrink: 0; margin-top: 2px; margin-bottom: 2px; }
         body.movie-mode .zesty-canvas-card { background: #0e1830; border-color: var(--border-color); }
         .zesty-canvas-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(62,39,35,0.22); }
@@ -297,6 +298,7 @@
             .cozy-overlay { display: block !important; background: rgba(92,64,51,0.97) !important; pointer-events: none; }
             body.movie-mode .cozy-overlay { background: radial-gradient(ellipse at 50% 30%, rgba(5,10,25,0.7) 0%, rgba(5,10,25,0.92) 100%) !important; z-index: -2;}
 
+            /* Bulletproof Mobile Top Menu Layout */
             .navbar { width: 95%; margin: 8px auto; flex-direction: column; border-radius: 18px; padding: 16px 14px; gap: 14px; }
             .nav-left { flex-direction: column; width: 100%; gap: 12px; }
             .logo { width: 100%; justify-content: center; margin-bottom: 2px; }
@@ -309,6 +311,7 @@
             .search-input-wrapper { flex: 1 1 auto !important; min-width: 0 !important; display: block !important; }
             .search-input-wrapper input { width: 100% !important; border-radius: 20px; }
 
+            /* Huge Edge-to-Edge Mobile Player */
             .main-content { padding-top: 0; }
             .iframe-wrapper {
                 width: 100% !important; max-width: 100vw !important; margin: 0 0 16px 0 !important;
@@ -327,6 +330,7 @@
             .library-card { min-width: 130px; max-width: 130px; }
             .card-img-wrapper { height: 175px; }
 
+            /* Reliable iOS Chat Window */
             .zesty-toggle { width: 56px; height: 56px; font-size: 26px; bottom: 16px; right: 14px; }
             .zesty-panel {
                 position: fixed !important; top: auto; bottom: 0 !important; left: 0 !important; right: 0 !important;
@@ -651,7 +655,7 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-/* 🚀 Fully Native HTML5 Player Integration - HTTPS PROXY INTERCEPTOR */
+/* 🚀 Fully Native HTML5 Player Integration - CSP HANDLED HTTPS */
 async function updatePlayer() {
     const baseUrl = 'https://yarin1-tmdb-embed-api.hf.space';
     const typePath = mediaType === 'movie' ? 'movie' : 'series';
@@ -678,8 +682,8 @@ async function updatePlayer() {
             return; 
         }
         
-        // Ensure the absolute first URL loaded is HTTPS
-        let videoUrl = streamList[0].url.replace(/^http:\/\//i, 'https://');
+        // The CSP meta tag at the top of the HTML automatically upgrades this natively
+        const videoUrl = streamList[0].url; 
 
         if (hlsPlayerInstance) {
             hlsPlayerInstance.destroy();
@@ -691,16 +695,8 @@ async function updatePlayer() {
 
         if (videoUrl.includes('m3u8') || videoUrl.includes('proxy')) {
             if (Hls.isSupported()) {
-                
-                // 🛑 THIS IS THE FIX 🛑
-                // We force HLS.js to intercept every sub-link it finds inside the proxy
-                // and rewrite "http://" to "https://" so your browser never throws the Mixed Content error.
-                hlsPlayerInstance = new Hls({
-                    xhrSetup: function(xhr, url) {
-                        xhr.open('GET', url.replace(/^http:\/\//i, 'https://'), true);
-                    }
-                });
-
+                // Clean initialization, browser handles all HTTPS upgrades via CSP
+                hlsPlayerInstance = new Hls();
                 hlsPlayerInstance.loadSource(videoUrl);
                 hlsPlayerInstance.attachMedia(playerVideo);
                 hlsPlayerInstance.on(Hls.Events.ERROR, function (event, data) {
@@ -710,14 +706,12 @@ async function updatePlayer() {
                     playerVideo.play().catch(e => console.log("Autoplay blocked:", e)); 
                 });
             } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
-                // Fallback for Safari natively supporting HLS
                 playerVideo.src = videoUrl;
                 playerVideo.addEventListener('loadedmetadata', function() {
                     playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
                 });
             }
         } else {
-            // Direct MP4
             playerVideo.src = videoUrl;
             playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
         }
