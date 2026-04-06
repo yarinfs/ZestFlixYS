@@ -73,7 +73,109 @@
         body.movie-mode .dropdown-list { background: #0e1830; border-color: #2a4080; }
         body.movie-mode .dropdown-item:hover, body.movie-mode .dropdown-item.selected { background: rgba(74,111,165,0.25); color: #fff; }
 
-        /* Desktop Video Frame CSS */
+        /* ═══════════════════════════════════════════════════
+           ANIMATIONS & DYNAMIC BG FX
+        ═══════════════════════════════════════════════════ */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(110, 155, 133, 0.3), var(--shadow-3d); }
+            50% { box-shadow: 0 0 20px rgba(110, 155, 133, 0.7), var(--shadow-3d); }
+        }
+        @keyframes pulseGlowMovie {
+            0%, 100% { box-shadow:  0 0 10px rgba(74, 111, 165, 0.3), var(--shadow-3d); }
+            50% { box-shadow: 0 0 20px rgba(74, 111, 165, 0.7), var(--shadow-3d); }
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-6px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes sweep {
+            0% { transform: translateX(-50%) rotate(-12deg); opacity: 0.15; }
+            50% { opacity: 0.4; }
+            100% { transform: translateX(-50%) rotate(12deg); opacity: 0.15; }
+        }
+        @keyframes twinkleLayer {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', system-ui, sans-serif; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-deep); color: var(--text-main);
+            min-height: 100vh; display: flex; flex-direction: column;
+            overflow-x: hidden; overflow-y: auto; font-size: 16px; overscroll-behavior: none;
+            transition: background-color 0.8s ease, color 0.6s ease;
+        }
+
+        body.chat-open { overflow: hidden !important; }
+        body.chat-open #zesty-toggle { display: none !important; }
+
+        /* Cinematic Particles Background FX */
+        .cinema-fx { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; opacity: 0; transition: opacity 1s ease; }
+        .cinema-beam { position: absolute; top: -20%; left: 50%; width: 250vw; height: 150vh; background: conic-gradient(from 180deg at 50% 0%, rgba(95, 140, 205, 0.25) 0deg, transparent 40deg, transparent 320deg, rgba(95, 140, 205, 0.25) 360deg); transform-origin: top center; animation: sweep 10s infinite alternate ease-in-out; }
+        .stars-layer1 { position: absolute; width: 4px; height: 4px; background: transparent; border-radius: 50%; box-shadow: 10vw 20vh 0 #fff, 20vw 80vh 0 #e8eaf6, 30vw 40vh 0 #fff, 40vw 90vh 0 #9fc3ff, 50vw 10vh 0 #fff, 60vw 60vh 0 #fff, 70vw 30vh 0 #e8eaf6, 80vw 70vh 0 #fff, 90vw 50vh 0 #9fc3ff, 15vw 60vh 0 #fff, 25vw 15vh 0 #fff, 35vw 75vh 0 #e8eaf6, 45vw 25vh 0 #fff, 55vw 85vh 0 #fff, 65vw 5vh 0 #9fc3ff, 75vw 95vh 0 #fff, 85vw 45vh 0 #fff, 95vw 80vh 0 #e8eaf6; animation: twinkleLayer 3s infinite alternate ease-in-out; }
+        .stars-layer2 { position: absolute; width: 3px; height: 3px; background: transparent; border-radius: 50%; box-shadow: 5vw 50vh 0 #fff, 15vw 90vh 0 #e8eaf6, 25vw 30vh 0 #fff, 35vw 10vh 0 #9fc3ff, 45vw 60vh 0 #fff, 55vw 40vh 0 #fff, 65vw 80vh 0 #fff, 75vw 20vh 0 #fff, 85vw 15vh 0 #9fc3ff, 95vw 65vh 0 #fff; animation: twinkleLayer 2s infinite alternate-reverse ease-in-out; }
+
+        .background-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -3; background-size: cover; background-position: center; filter: blur(30px) brightness(0.8) sepia(0.3); transition: background-image 1s ease-in-out, filter 0.8s ease; transform: scale(1.1); }
+        .cozy-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; background: radial-gradient(circle at 50% 50%, rgba(212,163,115,0.3) 0%, rgba(92,64,51,0.95) 100%); pointer-events: none; transition: background 0.8s ease; }
+
+        /* Layout & Global Elements */
+        .main-content { flex: 1; padding-bottom: 50px; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+        .navbar, .show-info, .library-section { width: 95%; max-width: 1600px; margin: 14px auto; }
+
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background-color: var(--nav-bg); backdrop-filter: blur(20px); border: 3px solid var(--border-color); border-radius: var(--bubbly-radius); box-shadow: var(--shadow-float), var(--shadow-3d); z-index: 100; gap: 20px; transition: background 0.8s ease, border-color 0.6s ease; }
+        .nav-left { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+        .nav-right { flex: 2; display: flex; justify-content: flex-end; align-items: center; }
+        .logo { font-size: 32px; font-weight: 700; font-family: 'Fredoka', sans-serif; display: flex; align-items: center; gap: 4px; }
+
+        input, textarea { background-color: var(--input-bg); color: var(--text-main); border: 3px solid var(--border-color); padding: 9px 18px; border-radius: var(--bubbly-radius); outline: none; font-size: 16px !important; font-weight: 800; transition: all 0.3s; box-shadow: var(--shadow-3d); width: 100%; user-select: text !important; -webkit-user-select: text !important;}
+        input::placeholder { color: #A1887F; font-weight: 700; }
+        input.ai-mode { border-color: var(--accent-ai); box-shadow: 0 0 14px rgba(110,155,133,0.3), var(--shadow-3d); }
+        body.movie-mode input.ai-mode { box-shadow: 0 0 14px rgba(74,111,165,0.3), var(--shadow-3d); }
+        input:hover { border-color: var(--accent-primary); }
+
+        .action-btn { background-color: var(--accent-hover); color: var(--text-main); border: 3px solid var(--border-color); padding: 9px 18px; border-radius: var(--bubbly-radius); outline: none; font-size: 16px !important; font-weight: 800; transition: all 0.3s; box-shadow: var(--shadow-3d); cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(62,39,35,0.18); }
+        .action-btn:active { transform: translateY(1px); }
+        .action-btn.active-fav { background-color: var(--danger); border-color: #B25858; color: white; }
+
+        .search-container { display: flex; align-items: center; gap: 8px; flex-grow: 1; width: 100%; max-width: 650px;}
+        .search-input-wrapper { position: relative; flex: 1; }
+        .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
+        
+        /* Fixed Circle Buttons */
+        .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; font-size: 18px !important; }
+        .compact-circle span { display: inline-flex; justify-content: center; align-items: center; line-height: 1; }
+        
+        .ai-search-area { background: var(--nav-bg); border: 3px solid var(--border-color); box-shadow: var(--shadow-3d); transition: all 0.3s; cursor: pointer; }
+        .ai-search-area.active { border-color: var(--accent-ai); animation: pulseGlow 2.5s infinite; }
+        body.movie-mode .ai-search-area.active { animation-name: pulseGlowMovie; }
+        .ai-search-area .ai-search-icon { transition: transform 0.3s; font-size: 20px;}
+        .ai-search-area.active .ai-search-icon { transform: scale(1.15); }
+
+        .search-results { position: absolute; top: calc(100% + 10px); left: 0; width: 100%; background-color: var(--nav-bg); border: 3px solid var(--border-color); border-radius: var(--card-radius); box-shadow: var(--shadow-float); z-index: 200; display: none; flex-direction: column; padding: 8px; }
+        .search-results.active { display: flex; animation: popIn 0.2s forwards; }
+        .search-item { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+        .search-item:hover { background: var(--accent-hover); }
+        .search-item img { width: 36px; height: 52px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ddd; }
+        .search-item b { font-size: 14px; font-weight: 800; color: var(--text-main); }
+        .search-item small { font-size: 12px; color: var(--text-muted); font-weight: 700; }
+
+        .dropdown-container { display: flex; gap: 10px; align-items: center; }
+        .custom-dropdown { position: relative; min-width: 140px; }
+        .dropdown-header { background-color: var(--accent-secondary); color: white; border: 3px solid var(--border-color); padding: 9px 16px; border-radius: var(--bubbly-radius); font-size: 15px; font-weight: 800; font-family: 'Fredoka', sans-serif; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-3d); transition: all 0.3s; }
+        .dropdown-header:hover { transform: translateY(-2px); }
+        .dropdown-header.disabled { opacity: 0.55; pointer-events: none; filter: grayscale(0.5); }
+        .dropdown-list { position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background: var(--nav-bg); border: 3px solid var(--border-color); border-radius: 16px; box-shadow: var(--shadow-float); max-height: 260px; overflow-y: auto; z-index: 300; display: none; flex-direction: column; padding: 8px; }
+        .dropdown-list.show { display: flex; animation: popIn 0.2s forwards; }
+        .dropdown-item { padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 14px; transition: all 0.2s; }
+        .dropdown-item:hover, .dropdown-item.selected { background-color: var(--accent-hover); transform: translateX(4px); }
+
+        /* Desktop Native Video Frame */
         .iframe-wrapper {
             width: 95%; max-width: 1600px;
             aspect-ratio: 16 / 9;
@@ -549,7 +651,7 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-/* 🚀 Fully Native HTML5 Player Integration - HTTPS FIXED */
+/* 🚀 Fully Native HTML5 Player Integration - HTTPS PROXY INTERCEPTOR */
 async function updatePlayer() {
     const baseUrl = 'https://yarin1-tmdb-embed-api.hf.space';
     const typePath = mediaType === 'movie' ? 'movie' : 'series';
@@ -576,9 +678,8 @@ async function updatePlayer() {
             return; 
         }
         
-        // 🛑 FIX: Force HTTP links to HTTPS to stop "Mixed Content" blocking
-        let videoUrl = streamList[0].url; 
-        videoUrl = videoUrl.replace(/^http:\/\//i, 'https://');
+        // Ensure the absolute first URL loaded is HTTPS
+        let videoUrl = streamList[0].url.replace(/^http:\/\//i, 'https://');
 
         if (hlsPlayerInstance) {
             hlsPlayerInstance.destroy();
@@ -588,21 +689,35 @@ async function updatePlayer() {
         playerVideo.removeAttribute('src'); 
         playerVideo.load();
 
-        if (videoUrl.includes('m3u8')) {
+        if (videoUrl.includes('m3u8') || videoUrl.includes('proxy')) {
             if (Hls.isSupported()) {
-                hlsPlayerInstance = new Hls();
+                
+                // 🛑 THIS IS THE FIX 🛑
+                // We force HLS.js to intercept every sub-link it finds inside the proxy
+                // and rewrite "http://" to "https://" so your browser never throws the Mixed Content error.
+                hlsPlayerInstance = new Hls({
+                    xhrSetup: function(xhr, url) {
+                        xhr.open('GET', url.replace(/^http:\/\//i, 'https://'), true);
+                    }
+                });
+
                 hlsPlayerInstance.loadSource(videoUrl);
                 hlsPlayerInstance.attachMedia(playerVideo);
+                hlsPlayerInstance.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) console.error('HLS error:', data);
+                });
                 hlsPlayerInstance.on(Hls.Events.MANIFEST_PARSED, function() { 
                     playerVideo.play().catch(e => console.log("Autoplay blocked:", e)); 
                 });
             } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
+                // Fallback for Safari natively supporting HLS
                 playerVideo.src = videoUrl;
                 playerVideo.addEventListener('loadedmetadata', function() {
                     playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
                 });
             }
         } else {
+            // Direct MP4
             playerVideo.src = videoUrl;
             playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
         }
