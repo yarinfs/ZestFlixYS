@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    
     <title>ZestFlix - Cozy Cafe & Cinema Edition</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -152,7 +149,6 @@
         .search-input-wrapper { position: relative; flex: 1; }
         .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; }
         
-        /* Fixed Circle Buttons */
         .compact-circle { width: 44px; height: 44px; padding: 0; border-radius: 50%; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0; font-size: 18px !important; }
         .compact-circle span { display: inline-flex; justify-content: center; align-items: center; line-height: 1; }
         
@@ -478,13 +474,15 @@ let chatHistory = [];
 let userManualTheme = null;
 let currentInsightId = null;
 
-let hlsPlayerInstance = null; // Store HLS instance for cleanup
+let hlsPlayerInstance = null;
+let activeStreamList = [];
+let currentStreamIndex = 0;
 
 const $ = id => document.getElementById(id);
 
 const searchInput = $('search-input');
 const searchResults = $('search-results');
-const playerVideo = $('player-video'); // Target the native video tag
+const playerVideo = $('player-video'); 
 const bgBackdrop = $('bg-backdrop');
 
 const infoTitle = $('info-title');
@@ -656,7 +654,67 @@ themeSwitchBtn.addEventListener('click', () => {
     }
 });
 
-/* 🚀 Fully Native HTML5 Player Integration */
+/* 🚀 The Auto-Hopping Player Engine */
+function playCurrentStream() {
+    // If we ran out of streams, stop trying and reset.
+    if (currentStreamIndex >= activeStreamList.length) {
+        console.warn("ZestFlix: All streams exhausted.");
+        if (hlsPlayerInstance) {
+            hlsPlayerInstance.destroy();
+            hlsPlayerInstance = null;
+        }
+        playerVideo.removeAttribute('src');
+        return;
+    }
+
+    let videoUrl = activeStreamList[currentStreamIndex].url;
+
+    if (hlsPlayerInstance) {
+        hlsPlayerInstance.destroy();
+        hlsPlayerInstance = null;
+    }
+    
+    playerVideo.removeAttribute('src'); 
+    playerVideo.load();
+
+    if (videoUrl.includes('m3u8') || videoUrl.includes('proxy')) {
+        if (Hls.isSupported()) {
+            hlsPlayerInstance = new Hls();
+            hlsPlayerInstance.loadSource(videoUrl);
+            hlsPlayerInstance.attachMedia(playerVideo);
+            
+            // 🛑 THIS IS THE MAGIC: If the proxy fails/throws 500, immediately hop to the next stream!
+            hlsPlayerInstance.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    console.log(`Stream ${currentStreamIndex} failed. Trying next stream...`);
+                    currentStreamIndex++;
+                    playCurrentStream();
+                }
+            });
+            
+            hlsPlayerInstance.on(Hls.Events.MANIFEST_PARSED, function() { 
+                playerVideo.play().catch(e => console.log("Autoplay blocked:", e)); 
+            });
+        } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
+            playerVideo.src = videoUrl;
+            playerVideo.onerror = () => {
+                currentStreamIndex++;
+                playCurrentStream();
+            };
+            playerVideo.addEventListener('loadedmetadata', function() {
+                playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
+            });
+        }
+    } else {
+        playerVideo.src = videoUrl;
+        playerVideo.onerror = () => {
+            currentStreamIndex++;
+            playCurrentStream();
+        };
+        playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
+    }
+}
+
 async function updatePlayer() {
     const baseUrl = 'https://yarin1-tmdb-embed-api.hf.space';
     const typePath = mediaType === 'movie' ? 'movie' : 'series';
@@ -671,7 +729,7 @@ async function updatePlayer() {
         
         const data = await response.json();
 
-        // Safely extract streams depending on backend structure
+        // Extract streams based on what your HuggingFace API returns
         let streamList = [];
         if (data && Array.isArray(data.streams)) {
             streamList = data.streams;
@@ -679,42 +737,17 @@ async function updatePlayer() {
             streamList = data;
         }
 
-        if (!streamList || streamList.length === 0 || !streamList[0] || !streamList[0].url) {
-            console.warn("ZestFlix: No valid streams found in the API response.");
+        if (!streamList || streamList.length === 0) {
+            console.warn("ZestFlix: No streams found in the API response.");
             return; 
         }
-        
-        const videoUrl = streamList[0].url; 
 
-        if (hlsPlayerInstance) {
-            hlsPlayerInstance.destroy();
-            hlsPlayerInstance = null;
-        }
+        // Initialize the hunting loop
+        activeStreamList = streamList;
+        currentStreamIndex = 0;
         
-        playerVideo.removeAttribute('src'); 
-        playerVideo.load();
-
-        if (videoUrl.includes('m3u8') || videoUrl.includes('proxy')) {
-            if (Hls.isSupported()) {
-                hlsPlayerInstance = new Hls();
-                hlsPlayerInstance.loadSource(videoUrl);
-                hlsPlayerInstance.attachMedia(playerVideo);
-                hlsPlayerInstance.on(Hls.Events.ERROR, function (event, data) {
-                    if (data.fatal) console.error('HLS error:', data);
-                });
-                hlsPlayerInstance.on(Hls.Events.MANIFEST_PARSED, function() { 
-                    playerVideo.play().catch(e => console.log("Autoplay blocked:", e)); 
-                });
-            } else if (playerVideo.canPlayType('application/vnd.apple.mpegurl')) {
-                playerVideo.src = videoUrl;
-                playerVideo.addEventListener('loadedmetadata', function() {
-                    playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
-                });
-            }
-        } else {
-            playerVideo.src = videoUrl;
-            playerVideo.play().catch(e => console.log("Autoplay blocked:", e));
-        }
+        // Start playing the first stream (it will automatically fallback if it fails)
+        playCurrentStream();
         
         if (mediaType === 'tv') {
             updateProgress(mediaId, seasonVal, episodeVal);
