@@ -742,6 +742,11 @@ async function updatePlayer() {
             return; 
         }
 
+        streamList = streamList.map(s => ({
+            ...s,
+            url: s.url ? s.url.replace(/^http:\/\//i, 'https://') : s.url
+        }));
+
         // Initialize the hunting loop
         activeStreamList = streamList;
         currentStreamIndex = 0;
