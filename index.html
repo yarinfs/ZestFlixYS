@@ -679,7 +679,12 @@ function playCurrentStream() {
 
     if (videoUrl.includes('m3u8') || videoUrl.includes('proxy')) {
         if (Hls.isSupported()) {
-            hlsPlayerInstance = new Hls();
+            hlsPlayerInstance = new Hls({
+                xhrSetup: function(xhr, url) {
+                    // Internal safety: Force HTTPS on internal TS segments to avoid mixed content
+                    xhr.open('GET', url.replace(/^http:\/\//i, 'https://'), true);
+                }
+            });
             hlsPlayerInstance.loadSource(videoUrl);
             hlsPlayerInstance.attachMedia(playerVideo);
             
@@ -741,11 +746,6 @@ async function updatePlayer() {
             console.warn("ZestFlix: No streams found in the API response.");
             return; 
         }
-
-        streamList = streamList.map(s => ({
-            ...s,
-            url: s.url ? s.url.replace(/^http:\/\//i, 'https://') : s.url
-        }));
 
         // Initialize the hunting loop
         activeStreamList = streamList;
